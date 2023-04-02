@@ -3,7 +3,7 @@ from .models import Documents, Address, User
 
 
 class UserAdmin(admin.ModelAdmin):
-    list_display = ('name', 'email', 'phone_number')
+    list_display = ('id', 'name', 'email', 'phone_number')
     list_filter = ('name', 'email')
 
     def api_name(self, obj):
