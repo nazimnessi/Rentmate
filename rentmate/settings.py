@@ -37,7 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'user'
+    'user',
+    'graphene_django'
 ]
 
 MIDDLEWARE = [
@@ -51,6 +52,10 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'rentmate.urls'
+
+GRAPHENE = {
+    "SCHEMA": "user.schema.schema"
+}
 
 TEMPLATES = [
     {
