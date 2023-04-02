@@ -1,23 +1,28 @@
 import graphene
+from graphene import relay
 from graphene_django import DjangoObjectType
+from graphene_django.filter import DjangoFilterConnectionField
 from .models import User
 
 
 class UserType(DjangoObjectType):
     class Meta:
         model = User
+        filter_fields = {
+            'name': ['exact', 'icontains', 'istartswith'],
+            'phone_number': ['exact', 'icontains', 'istartswith'],
+            'alt_phone_number': ['exact', 'icontains', 'istartswith'],
+        }
+        interfaces = (relay.Node,)
         fields = '__all__'
 
 
 class Query(graphene.ObjectType):
-    all_users = graphene.List(UserType)
-    users = graphene.Field(UserType, user_id=graphene.Int())
+    all_users = DjangoFilterConnectionField(UserType)
+    users = relay.Node.Field(UserType)
 
-    def resolve_all_users(root, info):
+    def resolve_all_users(root, info, **kwargs):
         return User.objects.order_by('-id')
-
-    def resolve_users(self, info, user_id):
-        return User.objects.get(pk=user_id)
 
 
 class UserInput(graphene.InputObjectType):
