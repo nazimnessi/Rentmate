@@ -45,6 +45,8 @@ class User(models.Model):
     role = models.CharField(max_length=1, choices=Role_choice, default='O')
     created_date = models.DateTimeField('User created date', auto_now_add=True)
     updated_date = models.DateTimeField('User Updated date', auto_now=True)
+    owner = models.ForeignKey(
+        'self', on_delete=models.CASCADE, null=True, blank=True, default=None)
 
     def clean(self):
         try:
