@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.validators import FileExtensionValidator
+from django.core.exceptions import ValidationError
 from user.models import User
 
 # Create your models here.
@@ -40,10 +41,10 @@ class Building(models.Model):
         Address, on_delete=models.CASCADE, null=True, blank=True)
     photo = models.ImageField(
         upload_to='images/', default='media/Default_user.png')
-    House_No = models.CharField(max_length=20, unique=True)
+    house_number = models.CharField(max_length=20, unique=True)
     documents = models.ManyToManyField(Documents, blank=True)
-    created_date = models.DateTimeField('User created date', auto_now_add=True)
-    updated_date = models.DateTimeField('User Updated date', auto_now=True)
+    created_date = models.DateTimeField('Building created date', auto_now_add=True)
+    updated_date = models.DateTimeField('Building Updated date', auto_now=True)
     owner = models.ForeignKey(
         User, on_delete=models.CASCADE, null=True, blank=True, default=None)
 
@@ -69,25 +70,31 @@ class Room(models.Model):
     room_no = models.CharField(max_length=10)
     criteria = models.CharField(
         max_length=1, choices=criteria_choice, default='F')
-    appliences = models.CharField(max_length=100)
+    appliences = models.CharField(max_length=100, blank=True)
     building = models.ForeignKey(
         Building, on_delete=models.CASCADE, default=None, related_name='rooms')
     renter = models.ForeignKey(
         User, on_delete=models.CASCADE, null=True, blank=True, default=None)
     rent_amount = models.CharField(max_length=10)
-    advance = models.CharField(max_length=10)
+    advance = models.CharField(max_length=10, null=True, blank=True)
     room_type = models.CharField(
         max_length=1, choices=room_choice, default='H')
     additional_photo = models.ManyToManyField(Documents, blank=True)
-    rent_period_start = models.DateField()
-    rent_period_end = models.DateField()
-    description = models.CharField(max_length=100)
-    area = models.CharField(max_length=100)
-    floor = models.CharField(max_length=100)
-    max_capacity = models.CharField(max_length=2)
-    bathroom_count = models.CharField(max_length=2)
-    kitchen_count = models.CharField(max_length=2)
-    is_parking_available = models.CharField(max_length=2)
+    rent_period_start = models.DateField('rent period start')
+    rent_period_end = models.DateField('rent period end')
+    created_date = models.DateTimeField('Room created date', auto_now_add=True)
+    updated_date = models.DateTimeField('Room Updated date', auto_now=True)
+    description = models.CharField(max_length=100, null=True, blank=True)
+    area = models.CharField(max_length=100, null=True, blank=True)
+    floor = models.CharField(max_length=100, null=True, blank=True)
+    max_capacity = models.CharField(max_length=2, null=True, blank=True)
+    bathroom_count = models.CharField(max_length=2, null=True, blank=True)
+    kitchen_count = models.CharField(max_length=2, null=True, blank=True)
+    is_parking_available = models.BooleanField(default=True)
+
+    def clean(self):
+        if self.renter == self.building.owner:
+            raise ValidationError("Owner of the building cannot be the renter of a room.")
 
     def save(self, *args, **kwargs):
         if not self.room_no:
