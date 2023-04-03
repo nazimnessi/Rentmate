@@ -4,8 +4,9 @@ from .models import Documents, building_photos, Address, Building, Room
 
 
 class BuildingAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'House_No', 'owner')
+    list_display = ('id', 'name', 'house_number', 'owner')
     list_filter = ('name', 'owner')
+    search_fields = ['id', 'name', 'house_number']
 
     def api_name(self, obj):
         return obj.user.name
@@ -14,6 +15,7 @@ class BuildingAdmin(admin.ModelAdmin):
 class RoomAdmin(admin.ModelAdmin):
     list_display = ('id', 'room_no', 'building', 'renter')
     list_filter = ('criteria', 'room_type')
+    search_fields = ['id', 'room_no', 'building', 'renter']
 
     def api_name(self, obj):
         return obj.user.room_no
