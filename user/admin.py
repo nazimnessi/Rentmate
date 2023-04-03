@@ -4,7 +4,7 @@ from .models import Documents, Address, User
 
 class UserAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'email', 'phone_number')
-    list_filter = ('name', 'email')
+    search_fields = ['id', 'name', 'email']
 
     def api_name(self, obj):
         return obj.user.name
