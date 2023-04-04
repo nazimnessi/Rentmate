@@ -119,8 +119,11 @@ class CreateAddress(graphene.Mutation):
     @staticmethod
     def mutate(root, info, address_data=None):
         try:
-            address_instance = Address(**address_data)
-            address_instance.save()
+            try:
+                address_instance = Address.objects.get(**address_data)
+            except Address.DoesNotExist:
+                address_instance = Address(**address_data)
+                address_instance.save()
         except Exception:
             address_instance = None
         return CreateAddress(address=address_instance)
