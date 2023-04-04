@@ -56,7 +56,7 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'rentmate.urls'
 
 GRAPHENE = {
-    "SCHEMA": "user.schema.schema"
+    "SCHEMA": "rentmate.schema.schema",
 }
 
 TEMPLATES = [
