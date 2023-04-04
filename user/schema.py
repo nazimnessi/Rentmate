@@ -2,7 +2,7 @@ import graphene
 from graphene import relay
 from graphene_django import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
-from .models import User
+from .models import User, Address
 
 
 class UserType(DjangoObjectType):
@@ -17,12 +17,32 @@ class UserType(DjangoObjectType):
         fields = '__all__'
 
 
+class AddressType(DjangoObjectType):
+    class Meta:
+        model = Address
+        filter_fields = {
+            'postal_code': ['exact', 'icontains', 'istartswith'],
+            'state': ['exact', 'icontains', 'istartswith'],
+            'city': ['exact', 'icontains', 'istartswith'],
+            'address1': ['exact', 'icontains', 'istartswith'],
+            'address2': ['exact', 'icontains', 'istartswith'],
+        }
+        interfaces = (relay.Node,)
+        fields = '__all__'
+
+
 class Query(graphene.ObjectType):
     all_users = DjangoFilterConnectionField(UserType)
     users = relay.Node.Field(UserType)
 
+    all_Address = DjangoFilterConnectionField(AddressType)
+    Address = relay.Node.Field(AddressType)
+
     def resolve_all_users(root, info, **kwargs):
         return User.objects.order_by('-id')
+
+    def resolve_all_Address(root, info, **kwargs):
+        return Address.objects.order_by('-id')
 
 
 class UserInput(graphene.InputObjectType):
@@ -82,10 +102,71 @@ class DeleteUser(graphene.Mutation):
         return DeleteUser(users=user_instance)
 
 
+class AddressInput(graphene.InputObjectType):
+    id = graphene.ID()
+    address1 = graphene.String()
+    address2 = graphene.String()
+    city = graphene.String()
+    state = graphene.String()
+    postal_code = graphene.String()
+
+
+class CreateAddress(graphene.Mutation):
+    class Arguments:
+        address_data = AddressInput(required=True)
+    address = graphene.Field(AddressType)
+
+    @staticmethod
+    def mutate(root, info, address_data=None):
+        try:
+            address_instance = Address(**address_data)
+            address_instance.save()
+        except Exception:
+            address_instance = None
+        return CreateAddress(address=address_instance)
+
+
+class UpdateAddress(graphene.Mutation):
+    class Arguments:
+        address_data = AddressInput(required=True)
+    address = graphene.Field(AddressType)
+
+    @staticmethod
+    def mutate(root, info, address_data=None):
+        Address.objects.filter(
+            pk=address_data.id).update(**address_data)
+        try:
+            address_instance = Address.objects.get(
+                pk=address_data.id)
+        except Address.DoesNotExist:
+            address_instance = None
+        return UpdateAddress(address=address_instance)
+
+
+class DeleteAddress(graphene.Mutation):
+    class Arguments:
+        id = graphene.ID()
+
+    address = graphene.Field(AddressType)
+
+    @staticmethod
+    def mutate(root, info, id):
+        try:
+            address_instance = Address.objects.get(pk=id)
+            address_instance.delete()
+        except Address.DoesNotExist:
+            return None
+        return DeleteAddress(address=address_instance)
+
+
 class Mutation(graphene.ObjectType):
     create_user = CreateUser.Field()
     update_user = UpdateUser.Field()
     delete_user = DeleteUser.Field()
 
+    create_user_address = CreateAddress.Field()
+    update_user_address = UpdateAddress.Field()
+    delete_user_address = DeleteAddress.Field()
 
-schema = graphene.Schema(query=Query, mutation=Mutation)
+
+schema_user = graphene.Schema(query=Query, mutation=Mutation)
