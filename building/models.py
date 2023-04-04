@@ -15,6 +15,25 @@ class Documents(models.Model):
         return self.name
 
 
+class Request(models.Model):
+    action_choice = (
+        ('A', 'Accepted'),
+        ('P', 'Pending'),
+        ('R', 'Rejected')
+    )
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_requests')
+    receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='recieved_requests')
+    action = models.CharField(max_length=1, choices=action_choice, default='P')
+    text = models.CharField(max_length=100, blank=True)
+    created_date = models.DateTimeField('Request created date', auto_now_add=True)
+    updated_date = models.DateTimeField('Request Updated date', auto_now=True)
+    accepted = models.BooleanField(default=False)
+    room = models.ForeignKey('Room', on_delete=models.CASCADE, related_name='sent_requests')
+
+    def __str__(self):
+        return str(self.id)
+
+
 class building_photos(models.Model):
     name = models.CharField(max_length=100)
     file = models.FileField(
