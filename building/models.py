@@ -1,7 +1,7 @@
 from django.db import models
 from django.core.validators import FileExtensionValidator
 from django.core.exceptions import ValidationError
-from user.models import User
+from user.models import User, Address
 
 # Create your models here.
 
@@ -22,17 +22,6 @@ class building_photos(models.Model):
 
     def __str__(self):
         return self.name
-
-
-class Address(models.Model):
-    address1 = models.CharField(max_length=100)
-    address2 = models.CharField(max_length=100, blank=True)
-    city = models.CharField(max_length=100)
-    state = models.CharField(max_length=100)
-    postal_code = models.CharField(max_length=20)
-
-    def __str__(self):
-        return f'{self.address1}, {self.address2}, {self.city}, {self.state} {self.postal_code}'
 
 
 class Building(models.Model):
