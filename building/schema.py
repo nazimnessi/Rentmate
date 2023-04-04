@@ -3,7 +3,7 @@ from datetime import datetime
 from graphene import relay
 from graphene_django import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
-from .models import Building, Room, Address
+from .models import Building, Room
 
 
 class BuildingType(DjangoObjectType):
@@ -12,20 +12,6 @@ class BuildingType(DjangoObjectType):
         filter_fields = {
             'name': ['exact', 'icontains', 'istartswith'],
             'house_number': ['exact', 'icontains', 'istartswith'],
-        }
-        interfaces = (relay.Node,)
-        fields = '__all__'
-
-
-class AddressType(DjangoObjectType):
-    class Meta:
-        model = Address
-        filter_fields = {
-            'postal_code': ['exact', 'icontains', 'istartswith'],
-            'state': ['exact', 'icontains', 'istartswith'],
-            'city': ['exact', 'icontains', 'istartswith'],
-            'address1': ['exact', 'icontains', 'istartswith'],
-            'address2': ['exact', 'icontains', 'istartswith'],
         }
         interfaces = (relay.Node,)
         fields = '__all__'
@@ -46,17 +32,11 @@ class Query(graphene.ObjectType):
     all_Buildings = DjangoFilterConnectionField(BuildingType)
     Buildings = relay.Node.Field(BuildingType)
 
-    all_Address = DjangoFilterConnectionField(AddressType)
-    Address = relay.Node.Field(AddressType)
-
     all_Rooms = DjangoFilterConnectionField(RoomType)
     Rooms = relay.Node.Field(RoomType)
 
     def resolve_all_Buildings(root, info, **kwargs):
         return Building.objects.order_by('-id')
-
-    def resolve_all_Address(root, info, **kwargs):
-        return Address.objects.order_by('-id')
 
     def resolve_all_Rooms(root, info, **kwargs):
         return Room.objects.order_by('-id')
@@ -197,65 +177,6 @@ class DeleteRoom(graphene.Mutation):
             return None
         return DeleteRoom(rooms=room_instance)
 
-# Address section
-
-
-class AddressInput(graphene.InputObjectType):
-    id = graphene.ID()
-    address1 = graphene.String()
-    address2 = graphene.String()
-    city = graphene.String()
-    state = graphene.String()
-    postal_code = graphene.String()
-
-
-class CreateAddress(graphene.Mutation):
-    class Arguments:
-        address_data = AddressInput(required=True)
-    address = graphene.Field(AddressType)
-
-    @staticmethod
-    def mutate(root, info, address_data=None):
-        try:
-            address_instance = Address(**address_data)
-            address_instance.save()
-        except Exception:
-            address_instance = None
-        return CreateAddress(address=address_instance)
-
-
-class UpdateAddress(graphene.Mutation):
-    class Arguments:
-        address_data = AddressInput(required=True)
-    address = graphene.Field(AddressType)
-
-    @staticmethod
-    def mutate(root, info, address_data=None):
-        Address.objects.filter(
-            pk=address_data.id).update(**address_data)
-        try:
-            address_instance = Address.objects.get(
-                pk=address_data.id)
-        except Address.DoesNotExist:
-            address_instance = None
-        return UpdateAddress(address=address_instance)
-
-
-class DeleteAddress(graphene.Mutation):
-    class Arguments:
-        id = graphene.ID()
-
-    address = graphene.Field(AddressType)
-
-    @staticmethod
-    def mutate(root, info, id):
-        try:
-            address_instance = Address.objects.get(pk=id)
-            address_instance.delete()
-        except Address.DoesNotExist:
-            return None
-        return DeleteAddress(address=address_instance)
-
 
 class Mutation(graphene.ObjectType):
     create_building = CreateBuilding.Field()
@@ -265,10 +186,6 @@ class Mutation(graphene.ObjectType):
     create_room = CreateRoom.Field()
     update_room = UpdateRoom.Field()
     delete_room = DeleteRoom.Field()
-
-    create_building_address = CreateAddress.Field()
-    update_building_address = UpdateAddress.Field()
-    delete_building_address = DeleteAddress.Field()
 
 
 schema_building = graphene.Schema(query=Query, mutation=Mutation)
