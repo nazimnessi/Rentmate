@@ -3,7 +3,7 @@ from datetime import datetime
 from graphene import relay
 from graphene_django import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
-from .models import Building, Room
+from .models import Building, Room, Request
 
 
 class BuildingType(DjangoObjectType):
@@ -28,6 +28,14 @@ class RoomType(DjangoObjectType):
         fields = '__all__'
 
 
+class RequestType(DjangoObjectType):
+    class Meta:
+        model = Request
+        filter_fields = {}
+        interfaces = (relay.Node,)
+        fields = '__all__'
+
+
 class Query(graphene.ObjectType):
     all_Buildings = DjangoFilterConnectionField(BuildingType)
     Buildings = relay.Node.Field(BuildingType)
@@ -35,11 +43,17 @@ class Query(graphene.ObjectType):
     all_Rooms = DjangoFilterConnectionField(RoomType)
     Rooms = relay.Node.Field(RoomType)
 
+    all_Request = DjangoFilterConnectionField(RequestType)
+    request = relay.Node.Field(RequestType)
+
     def resolve_all_Buildings(root, info, **kwargs):
         return Building.objects.order_by('-id')
 
     def resolve_all_Rooms(root, info, **kwargs):
         return Room.objects.order_by('-id')
+
+    def resolve_all_Request(root, info, **kwargs):
+        return Request.objects.order_by('-id')
 
 # Building section
 
@@ -178,6 +192,53 @@ class DeleteRoom(graphene.Mutation):
         return DeleteRoom(rooms=room_instance)
 
 
+class RequestInput(graphene.InputObjectType):
+    id = graphene.ID()
+    sender_id = graphene.Int()
+    receiver_id = graphene.Int()
+    text = graphene.String()
+    action = graphene.String()
+    room_id = graphene.Int()
+
+
+class CreateRequest(graphene.Mutation):
+    class Arguments:
+        request_data = RequestInput(required=True)
+    request = graphene.Field(RequestType)
+
+    @staticmethod
+    def mutate(root, info, request_data=None):
+        existing_request = None
+        try:
+            existing_request = Request.objects.get(**request_data)
+        except Request.DoesNotExist:
+            request_instance = Request.objects.create(**request_data)
+        if existing_request:
+            request_instance = 'Cant Send Request. Already Renter renting'
+        return CreateRequest(request=request_instance)
+
+
+class UpdateRequest(graphene.Mutation):
+    class Arguments:
+        request_data = RequestInput(required=True)
+    request = graphene.Field(RequestType)
+
+    @staticmethod
+    def mutate(root, info, request_data=None):
+        try:
+            request_instance = Request.objects.get(pk=request_data.id)
+            if request_instance.action == 'A':
+                return UpdateRequest(request='Cant except request')
+        except Request.DoesNotExist:
+            return UpdateRequest(request=None)
+
+        request_data['accepted'] = True
+        Request.objects.filter(pk=request_data.id).update(**request_data)
+        request_instance = Request.objects.get(pk=request_data.id)
+
+        return UpdateRequest(request=request_instance)
+
+
 class Mutation(graphene.ObjectType):
     create_building = CreateBuilding.Field()
     update_building = UpdateBuilding.Field()
@@ -186,6 +247,9 @@ class Mutation(graphene.ObjectType):
     create_room = CreateRoom.Field()
     update_room = UpdateRoom.Field()
     delete_room = DeleteRoom.Field()
+
+    create_request = CreateRequest.Field()
+    update_request = UpdateRequest.Field()
 
 
 schema_building = graphene.Schema(query=Query, mutation=Mutation)
