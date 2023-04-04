@@ -1,6 +1,12 @@
 from django.contrib import admin
-from .models import Documents, building_photos, Building, Room
+from .models import Documents, building_photos, Building, Room, Request
 # Register your models here.
+
+
+class RequestAdmin(admin.ModelAdmin):
+    list_display = ('id', 'sender', 'receiver', 'action', 'text', 'accepted', 'room')
+    search_fields = ['id', 'sender', 'receiver', 'text', 'room']
+    list_filter = ('action', 'accepted')
 
 
 class BuildingAdmin(admin.ModelAdmin):
@@ -25,3 +31,4 @@ admin.site.register(Documents)
 admin.site.register(building_photos)
 admin.site.register(Building, BuildingAdmin)
 admin.site.register(Room, RoomAdmin)
+admin.site.register(Request, RequestAdmin)
