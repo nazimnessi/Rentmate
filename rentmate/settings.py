@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'user',
     'building',
+    'notification',
     'graphene_django',
     'django_filters',
 ]
