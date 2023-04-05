@@ -1,6 +1,18 @@
 version: '3.4'
 
 services:
+  redis:
+    image: "redis"
+  celery:
+    build: .
+    links:
+      - redis
+    depends_on:
+      - redis
+      - db
+    restart: always
+    command: bash -c 
+      "celery -A rentmate worker -l INFO -Q rentmate"
   db:
     image: mysql:latest
     ports:
@@ -17,7 +29,7 @@ services:
       - db
     build: .
     ports: 
-      - "8000:8000"
+      - "8002:8000"
     image: rentmate_web:latest
     restart: always
     command: bash -c 
