@@ -10,3 +10,6 @@ phonenumbers==8.13.8
 mysqlclient==2.1.0
 graphene_django
 django-filter
+celery==4.4.0
+redis==3.4.1
+django-celery-results
