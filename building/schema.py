@@ -4,6 +4,7 @@ from graphene import relay
 from graphene_django import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
 from .models import Building, Room, Request
+from .tasks import reject_requests
 
 
 class BuildingType(DjangoObjectType):
@@ -228,12 +229,14 @@ class UpdateRequest(graphene.Mutation):
         try:
             request_instance = Request.objects.get(pk=request_data.id)
             if request_instance.action == 'A':
-                return UpdateRequest(request='Cant except request')
+                return UpdateRequest(request='Cant accept request')
         except Request.DoesNotExist:
             return UpdateRequest(request=None)
 
         request_data['accepted'] = True
         Request.objects.filter(pk=request_data.id).update(**request_data)
+        if request_data.get('action') == 'A':
+            reject_requests.delay(request_data)
         request_instance = Request.objects.get(pk=request_data.id)
 
         return UpdateRequest(request=request_instance)
