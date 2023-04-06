@@ -1,5 +1,6 @@
 import graphene
 from graphene import relay
+from graphene_file_upload.scalars import Upload
 from graphene_django import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
 from .models import User, Address
@@ -49,6 +50,7 @@ class UserInput(graphene.InputObjectType):
     id = graphene.ID()
     name = graphene.String()
     phone_number = graphene.String()
+    photo = Upload()
     alt_phone_number = graphene.String()
     email = graphene.String()
     aadhar = graphene.String()
@@ -62,8 +64,10 @@ class CreateUser(graphene.Mutation):
     @staticmethod
     def mutate(root, info, users_data=None):
         try:
+            photo = user_data.pop('photo')
             user_instance = User(**users_data)
             user_instance.save()
+            user.photo.save(photo.name, photo, save=True)
         except Exception:
             user_instance = None
         return CreateUser(users=user_instance)
