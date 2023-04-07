@@ -34,15 +34,6 @@ class Request(models.Model):
         return str(self.id)
 
 
-class building_photos(models.Model):
-    name = models.CharField(max_length=100)
-    file = models.FileField(
-        upload_to='files/', validators=[FileExtensionValidator(['pdf', 'jpg', 'jpeg', 'png'])])
-
-    def __str__(self):
-        return self.name
-
-
 class Building(models.Model):
     name = models.CharField(max_length=100)
     address = models.ForeignKey(
