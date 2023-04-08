@@ -1,5 +1,6 @@
 import phonenumbers
 from django.db import models
+from django.contrib.auth.models import AbstractUser
 from django.core.validators import FileExtensionValidator
 from django.core.exceptions import ValidationError
 
@@ -31,7 +32,7 @@ class Address(models.Model):
         return f'{self.address1}, {self.address2}, {self.city}, {self.state} {self.postal_code}'
 
 
-class User(models.Model):
+class User(AbstractUser):
     Role_choice = (
         ('T', 'Tenant'),
         ('O', 'Owner'),
