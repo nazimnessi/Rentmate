@@ -49,6 +49,7 @@ class Query(graphene.ObjectType):
 class UserInput(graphene.InputObjectType):
     id = graphene.ID()
     name = graphene.String()
+    password = graphene.string()
     phone_number = graphene.String()
     photo = Upload()
     alt_phone_number = graphene.String()
