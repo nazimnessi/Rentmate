@@ -37,7 +37,6 @@ class User(AbstractUser):
         ('T', 'Tenant'),
         ('O', 'Owner'),
     )
-    name = models.CharField(max_length=100)
     address = models.ForeignKey(
         Address, on_delete=models.CASCADE, null=True, blank=True)
     photo = models.ImageField(
@@ -69,4 +68,4 @@ class User(AbstractUser):
         return None
 
     def __str__(self):
-        return self.name
+        return self.username
