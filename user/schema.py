@@ -65,10 +65,10 @@ class CreateUser(graphene.Mutation):
     @staticmethod
     def mutate(root, info, users_data=None):
         try:
-            photo = user_data.pop('photo')
+            photo = users_data.pop('photo')
             user_instance = User(**users_data)
             user_instance.save()
-            user.photo.save(photo.name, photo, save=True)
+            user_instance.photo.save(photo.name, photo, save=True)
         except Exception:
             user_instance = None
         return CreateUser(users=user_instance)

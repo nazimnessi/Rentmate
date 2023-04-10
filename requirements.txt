@@ -15,3 +15,4 @@ redis==3.4.1
 django-celery-results
 graphene-file-upload
 djangorestframework==3.14.0
+flake8==3.9.2
