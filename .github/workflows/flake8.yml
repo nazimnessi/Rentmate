@@ -1,0 +1,12 @@
+name: Flake8
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  flake8:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Flake8 annotation
+        uses: multani/flake8-github-action@master
