@@ -10,7 +10,7 @@ class UserType(DjangoObjectType):
     class Meta:
         model = User
         filter_fields = {
-            'name': ['exact', 'icontains', 'istartswith'],
+            'username': ['exact', 'icontains', 'istartswith'],
             'phone_number': ['exact', 'icontains', 'istartswith'],
             'alt_phone_number': ['exact', 'icontains', 'istartswith'],
         }
@@ -49,7 +49,7 @@ class Query(graphene.ObjectType):
 class UserInput(graphene.InputObjectType):
     id = graphene.ID()
     name = graphene.String()
-    password = graphene.string()
+    password = graphene.String()
     phone_number = graphene.String()
     photo = Upload()
     alt_phone_number = graphene.String()
