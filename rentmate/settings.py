@@ -26,6 +26,7 @@ SECRET_KEY = 'django-insecure-rsrxxnepsk74&g2s@ck#=il6lsapvl(9uv@yf%#^235ncc@gg2
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
+CORS_ORIGIN_ALLOW_ALL = True
 
 
 # Application definition
@@ -44,6 +45,7 @@ INSTALLED_APPS = [
     'django_filters',
     'django_celery_results',
     'rest_framework',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -54,6 +56,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'rentmate.urls'
