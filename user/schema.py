@@ -10,6 +10,7 @@ class UserType(DjangoObjectType):
     class Meta:
         model = User
         filter_fields = {
+            "email": ['exact'],
             'username': ['exact', 'icontains', 'istartswith'],
             'phone_number': ['exact', 'icontains', 'istartswith'],
             'alt_phone_number': ['exact', 'icontains', 'istartswith'],

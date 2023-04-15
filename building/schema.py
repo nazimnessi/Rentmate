@@ -4,7 +4,9 @@ from graphene import relay
 from graphene_django import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
 from .models import Building, Room, Request
+from user.models import User
 from .tasks import reject_requests
+from django.db.models import Count
 
 
 class ExtendedConnection(graphene.Connection):
@@ -22,6 +24,12 @@ class ExtendedConnection(graphene.Connection):
 
 
 class BuildingType(DjangoObjectType):
+
+    total_renters = graphene.Int()
+
+    def resolve_total_renters(parent, info, **kwargs):
+        total_renters = User.objects.filter(room__building=parent).aggregate(Count('id'))['id__count']
+        return total_renters
 
     class Meta:
         model = Building
