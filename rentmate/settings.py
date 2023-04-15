@@ -46,6 +46,12 @@ INSTALLED_APPS = [
     'django_celery_results',
     'rest_framework',
     'corsheaders',
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
+    # 'crispy_forms'
 ]
 
 MIDDLEWARE = [
@@ -57,7 +63,10 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
+    # 'graphql_jwt.middleware.JSONWebTokenMiddleware',
 ]
+
+SITE_ID = 1
 
 ROOT_URLCONF = 'rentmate.urls'
 
@@ -68,7 +77,7 @@ GRAPHENE = {
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -76,6 +85,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.request',
             ],
         },
     },
@@ -83,6 +93,27 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'rentmate.wsgi.application'
 
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
+LOGIN_REDIRECT_URL = 'home'
+ACCOUNT_LOGOUT_REDIRECT_URL = 'account_login'
+
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE': [
+            'profile',
+            'email',
+        ],
+        'AUTH_PARAMS': {
+            'access_type': 'online',
+        },
+        'OAUTH_PKCE_ENABLED': True,
+
+    }
+}
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
@@ -150,3 +181,5 @@ MEDIA_URL = '/media/'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# CRISPY_TEMPLATE_PACK = 'account'
