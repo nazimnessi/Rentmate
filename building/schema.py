@@ -49,6 +49,7 @@ class RoomType(DjangoObjectType):
         filter_fields = {
             'room_no': ['exact', 'icontains', 'istartswith'],
             'criteria': ['exact', 'icontains', 'istartswith'],
+            'building': ['exact'],
         }
         interfaces = (relay.Node,)
         fields = '__all__'
