@@ -29,42 +29,13 @@ ALLOWED_HOSTS = ['*']
 CORS_ORIGIN_WHITELIST = (
     'http://localhost:3000',
     'http://127.0.0.1:3000',
-    'http://192.168.86.28:3000',
-    'http://192.168.86.33:3000',
 )
 
 CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_ALLOW_ALL = True
 
-
-ALLOWED_HOSTS = [
-    'localhost', '127.0.0.1', '[::1]',
-    "192.168.86.33", "192.168.86.28",
-    "localhost:3000"
-]
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
-]
-
-
-CORS_ALLOW_METHODS = [
-    "DELETE",
-    "GET",
-    "OPTIONS",
-    "PATCH",
-    "POST",
-    "PUT",
-]
-CORS_ALLOW_HEADERS = [
-    "accept",
-    "accept-encoding",
-    "authorization",
-    "content-type",
-    "dnt",
-    "origin",
-    "user-agent",
-    "x-csrftoken",
-    "x-requested-with",
 ]
 
 

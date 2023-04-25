@@ -40,7 +40,7 @@ class User(AbstractUser):
     address = models.ForeignKey(
         Address, on_delete=models.CASCADE, null=True, blank=True)
     photo = models.ImageField(
-        upload_to='images/', default='media/Default_user.png')
+        upload_to='media/', default='media/Default_user.png')
     phone_number = models.CharField(max_length=20, unique=True)
     alt_phone_number = models.CharField(max_length=20, blank=True)
     email = models.EmailField(unique=True)
