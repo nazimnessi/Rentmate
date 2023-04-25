@@ -7,6 +7,7 @@ from .models import User, Address
 from building.models import Building, Room
 from building.schema import RoomType
 from django.db.models import Count
+import graphql_jwt
 
 
 class RenterType(DjangoObjectType):
@@ -103,6 +104,14 @@ class CreateUser(graphene.Mutation):
         except Exception:
             user_instance = None
         return CreateUser(users=user_instance)
+
+
+class JWUserToken(graphql_jwt.JSONWebTokenMutation):
+    user = graphene.Field(UserType)
+
+    @classmethod
+    def resolve(cls, root, info, **kwargs):
+        return cls(user=info.context.user)
 
 
 class UpdateUser(graphene.Mutation):

@@ -1,10 +1,8 @@
 import phonenumbers
-from django.apps import apps
 from django.db import models
-from django.contrib.auth.models import AbstractUser, UserManager
+from django.contrib.auth.models import AbstractUser
 from django.core.validators import FileExtensionValidator
 from django.core.exceptions import ValidationError
-from django.contrib.auth.hashers import make_password
 
 
 # Create your models here.
@@ -34,18 +32,6 @@ class Address(models.Model):
         return f'{self.address1}, {self.address2}, {self.city}, {self.state} {self.postal_code}'
 
 
-class UserAccountManager(UserManager):
-    
-    def create_user(self, username, phone_number, aadhar, email=None, password=None, **extra_fields):
-        if not email:
-            raise ValueError("email must be given")
-        extra_fields['phone_number'] = phone_number
-        extra_fields['aadhar'] = aadhar
-        # extra_fields.setdefault("is_staff", False)
-        # extra_fields.setdefault("is_superuser", False)
-        return self._create_user(username, email, password, **extra_fields)
-
-
 class User(AbstractUser):
     Role_choice = (
         ('T', 'Tenant'),
@@ -64,12 +50,10 @@ class User(AbstractUser):
     role = models.CharField(max_length=1, choices=Role_choice, default='O')
     created_date = models.DateTimeField('User created date', auto_now_add=True)
     updated_date = models.DateTimeField('User Updated date', auto_now=True)
-    
+
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username', 'phone_number', 'aadhar']
-    
-    objects = UserAccountManager()
-    
+    REQUIRED_FIELDS = ['username', 'phone_number']
+
     def clean(self):
         try:
             phone_number = phonenumbers.parse(

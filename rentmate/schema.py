@@ -3,6 +3,7 @@ from building import schema as schema_building
 from graphene_django.debug import DjangoDebug
 from notification import schema as schema_notification
 from user import schema as schema_user
+import graphql_jwt
 
 
 class Query(
@@ -21,6 +22,9 @@ class Mutation(
     graphene.ObjectType,
 ):
     debug = graphene.Field(DjangoDebug, name="_debug")
+    token_auth = schema_user.JWUserToken.Field()
+    verify_token = graphql_jwt.Verify.Field()
+    refresh_token = graphql_jwt.Refresh.Field()
 
 
 schema = graphene.Schema(query=Query, mutation=Mutation)

@@ -68,7 +68,6 @@ CORS_ALLOW_HEADERS = [
 ]
 
 
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -113,7 +112,15 @@ ROOT_URLCONF = 'rentmate.urls'
 
 GRAPHENE = {
     "SCHEMA": "rentmate.schema.schema",
+    "MIDDLEWARE": [
+        "graphql_jwt.middleware.JSONWebTokenMiddleware",
+    ],
 }
+
+AUTHENTICATION_BACKENDS = [
+    "graphql_jwt.backends.JSONWebTokenBackend",
+    "django.contrib.auth.backends.ModelBackend",
+]
 
 TEMPLATES = [
     {

@@ -16,3 +16,4 @@ djangorestframework==3.14.0
 flake8==3.9.2
 django-cors-headers
 django-allauth
+django-graphql-jwt
