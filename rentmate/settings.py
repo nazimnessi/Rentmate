@@ -26,7 +26,46 @@ SECRET_KEY = 'django-insecure-rsrxxnepsk74&g2s@ck#=il6lsapvl(9uv@yf%#^235ncc@gg2
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
+CORS_ORIGIN_WHITELIST = (
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+    'http://192.168.86.28:3000',
+    'http://192.168.86.33:3000',
+)
+
+CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_ALLOW_ALL = True
+
+
+ALLOWED_HOSTS = [
+    'localhost', '127.0.0.1', '[::1]',
+    "192.168.86.33", "192.168.86.28",
+    "localhost:3000"
+]
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+]
+
+
+CORS_ALLOW_METHODS = [
+    "DELETE",
+    "GET",
+    "OPTIONS",
+    "PATCH",
+    "POST",
+    "PUT",
+]
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "accept-encoding",
+    "authorization",
+    "content-type",
+    "dnt",
+    "origin",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+]
 
 
 # Application definition
@@ -63,6 +102,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
+    'corsheaders.middleware.CorsPostCsrfMiddleware',
     # 'graphql_jwt.middleware.JSONWebTokenMiddleware',
 ]
 
@@ -72,7 +112,15 @@ ROOT_URLCONF = 'rentmate.urls'
 
 GRAPHENE = {
     "SCHEMA": "rentmate.schema.schema",
+    "MIDDLEWARE": [
+        "graphql_jwt.middleware.JSONWebTokenMiddleware",
+    ],
 }
+
+AUTHENTICATION_BACKENDS = [
+    "graphql_jwt.backends.JSONWebTokenBackend",
+    "django.contrib.auth.backends.ModelBackend",
+]
 
 TEMPLATES = [
     {
@@ -98,8 +146,10 @@ AUTHENTICATION_BACKENDS = [
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
-LOGIN_REDIRECT_URL = 'home'
-ACCOUNT_LOGOUT_REDIRECT_URL = 'account_login'
+LOGIN_REDIRECT_URL = 'http://localhost:3000/Buildings'
+ACCOUNT_LOGOUT_REDIRECT_URL = 'http://localhost:3000/Buildings'
+# LOGIN_URL = '/login/'
+
 
 SOCIALACCOUNT_PROVIDERS = {
     'google': {

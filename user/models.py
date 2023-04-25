@@ -45,11 +45,14 @@ class User(AbstractUser):
     alt_phone_number = models.CharField(max_length=20, blank=True)
     email = models.EmailField(unique=True)
     documents = models.ManyToManyField(Documents, blank=True)
-    aadhar = models.CharField(max_length=12, unique=True)
+    aadhar = models.CharField(max_length=12)
     is_active = models.BooleanField(default=True)
     role = models.CharField(max_length=1, choices=Role_choice, default='O')
     created_date = models.DateTimeField('User created date', auto_now_add=True)
     updated_date = models.DateTimeField('User Updated date', auto_now=True)
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username', 'phone_number']
 
     def clean(self):
         try:
@@ -68,4 +71,4 @@ class User(AbstractUser):
         return None
 
     def __str__(self):
-        return self.username
+        return self.first_name
