@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/4.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
+from datetime import timedelta
 import os
 from pathlib import Path
 
@@ -29,42 +30,13 @@ ALLOWED_HOSTS = ['*']
 CORS_ORIGIN_WHITELIST = (
     'http://localhost:3000',
     'http://127.0.0.1:3000',
-    'http://192.168.86.28:3000',
-    'http://192.168.86.33:3000',
 )
 
 CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_ALLOW_ALL = True
 
-
-ALLOWED_HOSTS = [
-    'localhost', '127.0.0.1', '[::1]',
-    "192.168.86.33", "192.168.86.28",
-    "localhost:3000"
-]
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
-]
-
-
-CORS_ALLOW_METHODS = [
-    "DELETE",
-    "GET",
-    "OPTIONS",
-    "PATCH",
-    "POST",
-    "PUT",
-]
-CORS_ALLOW_HEADERS = [
-    "accept",
-    "accept-encoding",
-    "authorization",
-    "content-type",
-    "dnt",
-    "origin",
-    "user-agent",
-    "x-csrftoken",
-    "x-requested-with",
 ]
 
 
@@ -90,6 +62,7 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
+    'graphql_jwt.refresh_token.apps.RefreshTokenConfig',
     # 'crispy_forms'
 ]
 
@@ -117,9 +90,19 @@ GRAPHENE = {
     ],
 }
 
+GRAPHQL_JWT = {
+    'JWT_ALLOW_ARGUMENT': True,
+    'JWT_VERIFY_AUDIENCE': True,
+    'JWT_VERIFY_EXPIRATION': True,
+    'JWT_LONG_RUNNING_REFRESH_TOKEN': True,
+    "JWT_EXPIRATION_DELTA": timedelta(minutes=5),
+    "JWT_REFRESH_EXPIRATION_DELTA": timedelta(days=7),
+}
+
 AUTHENTICATION_BACKENDS = [
     "graphql_jwt.backends.JSONWebTokenBackend",
     "django.contrib.auth.backends.ModelBackend",
+    # 'graphql_auth.backends.GraphQLAuthBackend'
 ]
 
 TEMPLATES = [
@@ -141,10 +124,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'rentmate.wsgi.application'
 
-AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.ModelBackend',
-    'allauth.account.auth_backends.AuthenticationBackend',
-]
 
 LOGIN_REDIRECT_URL = 'http://localhost:3000/Buildings'
 ACCOUNT_LOGOUT_REDIRECT_URL = 'http://localhost:3000/Buildings'
@@ -233,3 +212,4 @@ MEDIA_URL = '/media/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # CRISPY_TEMPLATE_PACK = 'account'
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # need to further config this
