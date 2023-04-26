@@ -8,6 +8,8 @@ from building.models import Building, Room
 from building.schema import RoomType
 from django.db.models import Count
 import graphql_jwt
+from graphql_jwt.decorators import login_required
+from django.core.exceptions import ValidationError
 
 
 class RenterType(DjangoObjectType):
@@ -67,12 +69,20 @@ class AddressType(DjangoObjectType):
 class Query(graphene.ObjectType):
     all_users = DjangoFilterConnectionField(UserType)
     users = relay.Node.Field(UserType)
+    logged_in_user = graphene.Field(UserType)
 
     all_address = DjangoFilterConnectionField(AddressType)
     address = relay.Node.Field(AddressType)
 
     def resolve_all_users(root, info, **kwargs):
         return User.objects.order_by('-id')
+
+    @login_required
+    def resolve_logged_in_user(root, info, **kwargs):
+        user = info.context.user
+        if not user.is_authenticated:
+            raise Exception("Authentication credentials were not provided")
+        return user
 
     def resolve_all_address(root, info, **kwargs):
         return Address.objects.order_by('-id')
@@ -81,7 +91,8 @@ class Query(graphene.ObjectType):
 class UserInput(graphene.InputObjectType):
     id = graphene.ID()
     name = graphene.String()
-    password = graphene.String()
+    password1 = graphene.String()
+    password2 = graphene.String()
     phone_number = graphene.String()
     photo = Upload()
     alt_phone_number = graphene.String()
@@ -97,10 +108,16 @@ class CreateUser(graphene.Mutation):
     @staticmethod
     def mutate(root, info, users_data=None):
         try:
-            photo = users_data.pop('photo')
-            user_instance = User(**users_data)
-            user_instance.save()
-            user_instance.photo.save(photo.name, photo, save=True)
+            # photo = users_data.pop('photo')
+            if users_data.get('password1') == users_data.get('password2'):
+                password = users_data.pop('password1')
+                users_data.pop('password2')
+                user_instance = User(**users_data)
+                user_instance.set_password(password)
+                user_instance.save()
+                # user_instance.photo.save(photo.name, photo, save=True)
+            else:
+                raise ValidationError('password does not match')
         except Exception:
             user_instance = None
         return CreateUser(users=user_instance)

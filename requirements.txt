@@ -1,6 +1,6 @@
 asgiref==3.6.0
 backports.zoneinfo==0.2.1
-Django==4.1.7
+Django
 sqlparse==0.4.3
 tomli==2.0.1
 Pillow==9.5.0
@@ -12,7 +12,7 @@ celery==4.4.0
 redis==3.4.1
 django-celery-results
 graphene-file-upload
-djangorestframework==3.14.0
+djangorestframework
 flake8==3.9.2
 django-cors-headers
 django-allauth
