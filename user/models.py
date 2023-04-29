@@ -34,8 +34,8 @@ class Address(models.Model):
 
 class User(AbstractUser):
     Role_choice = (
-        ('T', 'Tenant'),
-        ('O', 'Owner'),
+        ('Tenant', 'Tenant'),
+        ('Owner', 'Owner'),
     )
     address = models.ForeignKey(
         Address, on_delete=models.CASCADE, null=True, blank=True)
@@ -47,7 +47,7 @@ class User(AbstractUser):
     documents = models.ManyToManyField(Documents, blank=True)
     aadhar = models.CharField(max_length=12)
     is_active = models.BooleanField(default=True)
-    role = models.CharField(max_length=1, choices=Role_choice, default='O')
+    role = models.CharField(max_length=6, choices=Role_choice, default='Owner')
     created_date = models.DateTimeField('User created date', auto_now_add=True)
     updated_date = models.DateTimeField('User Updated date', auto_now=True)
 

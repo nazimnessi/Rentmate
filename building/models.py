@@ -17,13 +17,13 @@ class Documents(models.Model):
 
 class Request(models.Model):
     action_choice = (
-        ('A', 'Accepted'),
-        ('P', 'Pending'),
-        ('R', 'Rejected')
+        ('Accepted', 'Accepted'),
+        ('Pending', 'Pending'),
+        ('Rejected', 'Rejected')
     )
     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_requests')
     receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='recieved_requests')
-    action = models.CharField(max_length=1, choices=action_choice, default='P')
+    action = models.CharField(max_length=10, choices=action_choice, default='Pending')
     text = models.CharField(max_length=100, blank=True)
     created_date = models.DateTimeField('Request created date', auto_now_add=True)
     updated_date = models.DateTimeField('Request Updated date', auto_now=True)
@@ -53,22 +53,22 @@ class Building(models.Model):
 
 class Room(models.Model):
     criteria_choice = (
-        ('F', 'Fully Furnished'),
-        ('S', 'Semi Furnished'),
-        ('N', 'Not Furnished'),
+        ('Fully Furnished', 'Fully Furnished'),
+        ('Semi Furnished', 'Semi Furnished'),
+        ('Not Furnished', 'Not Furnished'),
     )
     room_choice = (
-        ('3', '3BHK'),
-        ('2', '2BHK'),
-        ('1', '1BHK'),
-        ('S', 'Studio'),
-        ('H', 'House'),
-        ('A', 'Appartment'),
-        ('O', 'Others'),
+        ('3BHK', '3BHK'),
+        ('2BHK', '2BHK'),
+        ('1BHK', '1BHK'),
+        ('Studio', 'Studio'),
+        ('House', 'House'),
+        ('Appartment', 'Appartment'),
+        ('Others', 'Others'),
     )
     room_no = models.CharField(max_length=10)
     criteria = models.CharField(
-        max_length=1, choices=criteria_choice, default='F')
+        max_length=15, choices=criteria_choice, default='Fully Furnished')
     appliences = models.CharField(max_length=100, blank=True)
     building = models.ForeignKey(
         Building, on_delete=models.CASCADE, default=None, related_name='rooms')
@@ -77,7 +77,7 @@ class Room(models.Model):
     rent_amount = models.CharField(max_length=10)
     advance = models.CharField(max_length=10, null=True, blank=True)
     room_type = models.CharField(
-        max_length=1, choices=room_choice, default='H')
+        max_length=10, choices=room_choice, default='House')
     additional_photo = models.ManyToManyField(Documents, blank=True)
     rent_period_start = models.DateField('rent period start')
     rent_period_end = models.DateField('rent period end')
