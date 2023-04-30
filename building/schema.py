@@ -3,8 +3,9 @@ from datetime import datetime
 from graphene import relay
 from graphene_django import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
+from user.schema import AddressInput
 from .models import Building, Room, Request
-from user.models import User
+from user.models import User, Address
 from .tasks import reject_requests
 from django.db.models import Count
 
@@ -93,40 +94,41 @@ class Query(graphene.ObjectType):
 class BuildingInput(graphene.InputObjectType):
     id = graphene.ID()
     name = graphene.String()
-    address_id = graphene.Int()
     house_number = graphene.String()
     owner_id = graphene.Int()
 
 
 class CreateBuilding(graphene.Mutation):
     class Arguments:
-        buildings_data = BuildingInput(required=True)
+        building = BuildingInput(required=True)
+        address = AddressInput(required=True)
     buildings = graphene.Field(BuildingType)
 
     @staticmethod
-    def mutate(root, info, buildings_data=None):
+    def mutate(root, info, building=None, address=None):
         try:
-            building_instance = Building(**buildings_data)
-            building_instance.save()
-        except Exception:
-            building_instance = None
+            address_instance, created = Address.objects.get_or_create(**address)
+            building['address'] = address_instance
+            building_instance = Building.objects.create(**building)
+        except Exception as exe:
+            building_instance = {'error': exe}
         return CreateBuilding(buildings=building_instance)
 
 
 class UpdateBuilding(graphene.Mutation):
     class Arguments:
-        buildings_data = BuildingInput(required=True)
+        building = BuildingInput(required=True)
+        address = AddressInput(required=True)
     buildings = graphene.Field(BuildingType)
 
     @staticmethod
-    def mutate(root, info, buildings_data=None):
-        Building.objects.filter(
-            pk=buildings_data.id).update(**buildings_data)
-        try:
-            building_instance = Building.objects.get(
-                name=buildings_data.name)
-        except Building.DoesNotExist:
-            building_instance = None
+    def mutate(root, info, building=None, address=None):
+        address_instance, created = Address.objects.get_or_create(**address)
+        building['address'] = address_instance
+        building_instance, created = Building.objects.update_or_create(
+            id=building['id'],
+            defaults=building
+        )
         return UpdateBuilding(buildings=building_instance)
 
 
@@ -140,9 +142,9 @@ class DeleteBuilding(graphene.Mutation):
     def mutate(root, info, id):
         try:
             building_instance = Building.objects.get(pk=id)
-            building_instance.delete()
         except Building.DoesNotExist:
             return None
+        building_instance.delete()
         return DeleteBuilding(buildings=building_instance)
 
 # Room section
