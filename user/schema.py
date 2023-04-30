@@ -5,11 +5,22 @@ from graphene_django import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
 from .models import User, Address
 from building.models import Building, Room
-from building.schema import RoomType
 from django.db.models import Count
 import graphql_jwt
 from graphql_jwt.decorators import login_required
 from django.core.exceptions import ValidationError
+
+
+class RoomType(DjangoObjectType):
+    class Meta:
+        model = Room
+        filter_fields = {
+            'room_no': ['exact', 'icontains', 'istartswith'],
+            'criteria': ['exact', 'icontains', 'istartswith'],
+            'building': ['exact'],
+        }
+        interfaces = (relay.Node,)
+        fields = '__all__'
 
 
 class RenterType(DjangoObjectType):
