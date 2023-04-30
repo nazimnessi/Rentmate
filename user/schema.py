@@ -110,6 +110,24 @@ class UserInput(graphene.InputObjectType):
     email = graphene.String()
 
 
+class UserUpdateInput(graphene.InputObjectType):
+    id = graphene.ID()
+    username = graphene.String()
+    phone_number = graphene.String()
+    first_name = graphene.String()
+    last_name = graphene.String()
+    role = graphene.Boolean()
+
+
+class AddressInput(graphene.InputObjectType):
+    id = graphene.ID()
+    address1 = graphene.String()
+    address2 = graphene.String()
+    city = graphene.String()
+    state = graphene.String()
+    postal_code = graphene.String()
+
+
 class CreateUser(graphene.Mutation):
     class Arguments:
         user = UserInput(required=True)
@@ -155,18 +173,16 @@ class JWUserToken(graphql_jwt.JSONWebTokenMutation):
 
 class UpdateUser(graphene.Mutation):
     class Arguments:
-        users_data = UserInput(required=True)
+        user = UserUpdateInput(required=True)
+        address = AddressInput()
     users = graphene.Field(UserType)
 
     @staticmethod
-    def mutate(root, info, users_data=None):
-        User.objects.filter(
-            pk=users_data.id).update(**users_data)
-        try:
-            user_instance = User.objects.get(
-                name=users_data.name)
-        except User.DoesNotExist:
-            user_instance = None
+    def mutate(root, info, user=None, address=None):
+        address_instance, created = Address.objects.get_or_create(**address)
+        user['address'] = address_instance
+        User.objects.filter(pk=user.id).update(**user)
+        user_instance = User.objects.get(id=user.id)
         return UpdateUser(users=user_instance)
 
 
