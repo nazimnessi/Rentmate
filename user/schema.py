@@ -1,7 +1,7 @@
 import graphene
 from graphene import relay
 from graphql import GraphQLError
-from graphene_file_upload.scalars import Upload
+# from graphene_file_upload.scalars import Upload
 from graphene_django import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
 from .models import User, Address
@@ -9,7 +9,6 @@ from building.models import Building, Room
 from django.db.models import Count
 import graphql_jwt
 from graphql_jwt.decorators import login_required
-from django.db.models import Q
 
 
 class RoomType(DjangoObjectType):
