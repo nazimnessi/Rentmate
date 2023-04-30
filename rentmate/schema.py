@@ -5,6 +5,8 @@ from notification import schema as schema_notification
 from user import schema as schema_user
 import graphql_jwt
 
+from user.mutations import JWUserToken
+
 
 class Query(
     schema_user.Query,
@@ -22,7 +24,7 @@ class Mutation(
     graphene.ObjectType,
 ):
     debug = graphene.Field(DjangoDebug, name="_debug")
-    token_auth = schema_user.JWUserToken.Field()
+    token_auth = JWUserToken.Field()
     verify_token = graphql_jwt.Verify.Field()
     refresh_token = graphql_jwt.Refresh.Field()
 
