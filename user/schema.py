@@ -1,6 +1,7 @@
 import graphene
 from graphene import relay
-from graphene_file_upload.scalars import Upload
+from graphql import GraphQLError
+# from graphene_file_upload.scalars import Upload
 from graphene_django import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
 from .models import User, Address
@@ -8,7 +9,6 @@ from building.models import Building, Room
 from django.db.models import Count
 import graphql_jwt
 from graphql_jwt.decorators import login_required
-from django.core.exceptions import ValidationError
 
 
 class RoomType(DjangoObjectType):
@@ -85,6 +85,7 @@ class Query(graphene.ObjectType):
     all_address = DjangoFilterConnectionField(AddressType)
     address = relay.Node.Field(AddressType)
 
+    @login_required
     def resolve_all_users(root, info, **kwargs):
         return User.objects.order_by('-id')
 
@@ -92,7 +93,7 @@ class Query(graphene.ObjectType):
     def resolve_logged_in_user(root, info, **kwargs):
         user = info.context.user
         if not user.is_authenticated:
-            raise Exception("Authentication credentials were not provided")
+            raise GraphQLError("Authentication credentials were not provided")
         return user
 
     def resolve_all_address(root, info, **kwargs):
@@ -101,36 +102,63 @@ class Query(graphene.ObjectType):
 
 class UserInput(graphene.InputObjectType):
     id = graphene.ID()
-    name = graphene.String()
+    username = graphene.String()
     password1 = graphene.String()
     password2 = graphene.String()
     phone_number = graphene.String()
-    photo = Upload()
-    alt_phone_number = graphene.String()
     email = graphene.String()
-    aadhar = graphene.String()
+
+
+class UserUpdateInput(graphene.InputObjectType):
+    id = graphene.ID()
+    username = graphene.String()
+    phone_number = graphene.String()
+    first_name = graphene.String()
+    last_name = graphene.String()
+    role = graphene.Boolean()
+
+
+class AddressInput(graphene.InputObjectType):
+    id = graphene.ID()
+    address1 = graphene.String()
+    address2 = graphene.String()
+    city = graphene.String()
+    state = graphene.String()
+    postal_code = graphene.String()
 
 
 class CreateUser(graphene.Mutation):
     class Arguments:
-        users_data = UserInput(required=True)
+        user = UserInput(required=True)
     users = graphene.Field(UserType)
 
     @staticmethod
-    def mutate(root, info, users_data=None):
+    def mutate(root, info, user=None):
         try:
-            # photo = users_data.pop('photo')
-            if users_data.get('password1') == users_data.get('password2'):
-                password = users_data.pop('password1')
-                users_data.pop('password2')
-                user_instance = User(**users_data)
-                user_instance.set_password(password)
-                user_instance.save()
-                # user_instance.photo.save(photo.name, photo, save=True)
-            else:
-                raise ValidationError('password does not match')
-        except Exception:
-            user_instance = None
+            # Check if email already exists
+            if User.objects.filter(email=user.get('email')).exists():
+                raise GraphQLError(f"User with email '{user.get('email')}' already exists")
+
+            # Check if username already exists
+            elif User.objects.filter(username=user.get('username')).exists():
+                raise GraphQLError(f"User with username '{user.get('username')}' already exists")
+
+            # Check if phone number already exists
+            elif User.objects.filter(phone_number=user.get('phone_number')).exists():
+                raise GraphQLError(f"User with phone number '{user.get('phone_number')}' already exists")
+
+            elif user.get('password1') != user.get('password2'):
+                raise GraphQLError("Provided passwords do not match.")
+
+            password = user.pop('password1')
+            user.pop('password2')
+            user_instance = User(**user)
+            user_instance.set_password(password)
+            user_instance.save()
+
+        except Exception as e:
+            raise GraphQLError(f"An unknown error occurred: {e}")
+
         return CreateUser(users=user_instance)
 
 
@@ -144,18 +172,16 @@ class JWUserToken(graphql_jwt.JSONWebTokenMutation):
 
 class UpdateUser(graphene.Mutation):
     class Arguments:
-        users_data = UserInput(required=True)
+        user = UserUpdateInput(required=True)
+        address = AddressInput()
     users = graphene.Field(UserType)
 
     @staticmethod
-    def mutate(root, info, users_data=None):
-        User.objects.filter(
-            pk=users_data.id).update(**users_data)
-        try:
-            user_instance = User.objects.get(
-                name=users_data.name)
-        except User.DoesNotExist:
-            user_instance = None
+    def mutate(root, info, user=None, address=None):
+        address_instance, created = Address.objects.get_or_create(**address)
+        user['address'] = address_instance
+        User.objects.filter(pk=user.id).update(**user)
+        user_instance = User.objects.get(id=user.id)
         return UpdateUser(users=user_instance)
 
 

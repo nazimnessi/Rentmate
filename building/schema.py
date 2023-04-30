@@ -7,6 +7,7 @@ from user.schema import AddressInput
 from .models import Building, Room, Request
 from user.models import User, Address
 from .tasks import reject_requests
+from graphql_jwt.decorators import login_required
 from django.db.models import Count
 
 
@@ -79,12 +80,15 @@ class Query(graphene.ObjectType):
     all_Request = DjangoFilterConnectionField(RequestType)
     request = relay.Node.Field(RequestType)
 
+    @login_required
     def resolve_all_Buildings(root, info, **kwargs):
         return Building.objects.order_by('-id')
 
+    @login_required
     def resolve_all_Rooms(root, info, **kwargs):
         return Room.objects.order_by('-id')
 
+    @login_required
     def resolve_all_Request(root, info, **kwargs):
         return Request.objects.order_by('-id')
 
@@ -105,6 +109,7 @@ class CreateBuilding(graphene.Mutation):
     buildings = graphene.Field(BuildingType)
 
     @staticmethod
+    @login_required
     def mutate(root, info, building=None, address=None):
         try:
             address_instance, created = Address.objects.get_or_create(**address)
@@ -122,6 +127,7 @@ class UpdateBuilding(graphene.Mutation):
     buildings = graphene.Field(BuildingType)
 
     @staticmethod
+    @login_required
     def mutate(root, info, building=None, address=None):
         address_instance, created = Address.objects.get_or_create(**address)
         building['address'] = address_instance
@@ -139,6 +145,7 @@ class DeleteBuilding(graphene.Mutation):
     buildings = graphene.Field(BuildingType)
 
     @staticmethod
+    @login_required
     def mutate(root, info, id):
         try:
             building_instance = Building.objects.get(pk=id)
@@ -178,6 +185,7 @@ class CreateRoom(graphene.Mutation):
     rooms = graphene.Field(RoomType)
 
     @staticmethod
+    @login_required
     def mutate(root, info, rooms_data=None):
         try:
             rooms_data["rent_period_start"] = datetime.strptime(rooms_data.rent_period_start, '%Y, %m, %d')
@@ -195,6 +203,7 @@ class UpdateRoom(graphene.Mutation):
     rooms = graphene.Field(RoomType)
 
     @staticmethod
+    @login_required
     def mutate(root, info, rooms_data=None):
         if rooms_data.get('rent_period_start'):
             rooms_data["rent_period_start"] = datetime.strptime(rooms_data.rent_period_start, '%Y, %m, %d')
@@ -217,6 +226,7 @@ class DeleteRoom(graphene.Mutation):
     rooms = graphene.Field(RoomType)
 
     @staticmethod
+    @login_required
     def mutate(root, info, id):
         try:
             room_instance = Room.objects.get(pk=id)
@@ -241,6 +251,7 @@ class CreateRequest(graphene.Mutation):
     request = graphene.Field(RequestType)
 
     @staticmethod
+    @login_required
     def mutate(root, info, request_data=None):
         existing_request = None
         try:
@@ -258,6 +269,7 @@ class UpdateRequest(graphene.Mutation):
     request = graphene.Field(RequestType)
 
     @staticmethod
+    @login_required
     def mutate(root, info, request_data=None):
         try:
             request_instance = Request.objects.get(pk=request_data.id)

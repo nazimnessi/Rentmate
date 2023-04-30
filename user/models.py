@@ -40,12 +40,12 @@ class User(AbstractUser):
     address = models.ForeignKey(
         Address, on_delete=models.CASCADE, null=True, blank=True)
     photo = models.ImageField(
-        upload_to='media/', default='media/Default_user.png')
+        upload_to='media/', default='Default_user.png')
     phone_number = models.CharField(max_length=20, unique=True)
     alt_phone_number = models.CharField(max_length=20, blank=True)
     email = models.EmailField(unique=True)
     documents = models.ManyToManyField(Documents, blank=True)
-    aadhar = models.CharField(max_length=12)
+    aadhar = models.CharField(max_length=12, blank=True, null=True)
     is_active = models.BooleanField(default=True)
     role = models.CharField(max_length=6, choices=Role_choice, default='Owner')
     created_date = models.DateTimeField('User created date', auto_now_add=True)
