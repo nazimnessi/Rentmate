@@ -39,7 +39,7 @@ class Building(models.Model):
     address = models.ForeignKey(
         Address, on_delete=models.CASCADE, null=True, blank=True)
     photo = models.ImageField(
-        upload_to='images/', default='media/Default_user.png')
+        upload_to='images/', default='Default_user.png')
     house_number = models.CharField(max_length=20, unique=True)
     documents = models.ManyToManyField(Documents, blank=True)
     created_date = models.DateTimeField('Building created date', auto_now_add=True)
