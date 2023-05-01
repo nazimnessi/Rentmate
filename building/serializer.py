@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from .models import Room, Documents, Building
+
+from .models import Building, Documents, Room
 
 
 class BuildingProfilePictureSerializer(serializers.ModelSerializer):
@@ -7,13 +8,13 @@ class BuildingProfilePictureSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Building
-        fields = ['photo', 'name']
+        fields = ["photo", "name"]
 
 
 class DocumentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Documents
-        fields = '__all__'
+        fields = "__all__"
 
 
 class BuildingSerializer(serializers.ModelSerializer):
@@ -21,7 +22,7 @@ class BuildingSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Building
-        fields = '__all__'
+        fields = "__all__"
 
 
 class BuildingDocumentSerializer(serializers.Serializer):
@@ -34,7 +35,7 @@ class RoomSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Room
-        fields = '__all__'
+        fields = "__all__"
 
 
 class RoomDocumentSerializer(serializers.Serializer):

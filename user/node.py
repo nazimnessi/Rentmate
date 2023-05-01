@@ -1,36 +1,37 @@
 import graphene
+from django.db.models import Count
 from graphene import relay
 from graphene_django import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
-from .models import User, Address
+
 from building.models import Building, Room
-from django.db.models import Count
+
+from .models import Address, User
 
 
 class RoomType(DjangoObjectType):
     class Meta:
         model = Room
         filter_fields = {
-            'room_no': ['exact', 'icontains', 'istartswith'],
-            'criteria': ['exact', 'icontains', 'istartswith'],
-            'building': ['exact'],
+            "room_no": ["exact", "icontains", "istartswith"],
+            "criteria": ["exact", "icontains", "istartswith"],
+            "building": ["exact"],
         }
         interfaces = (relay.Node,)
-        fields = '__all__'
+        fields = "__all__"
 
 
 class RenterType(DjangoObjectType):
-
     class Meta:
         model = User
         filter_fields = {
-            "email": ['exact'],
-            'username': ['exact', 'icontains', 'istartswith'],
-            'phone_number': ['exact', 'icontains', 'istartswith'],
-            'alt_phone_number': ['exact', 'icontains', 'istartswith'],
+            "email": ["exact"],
+            "username": ["exact", "icontains", "istartswith"],
+            "phone_number": ["exact", "icontains", "istartswith"],
+            "alt_phone_number": ["exact", "icontains", "istartswith"],
         }
         interfaces = (relay.Node,)
-        fields = '__all__'
+        fields = "__all__"
 
 
 class UserType(DjangoObjectType):
@@ -45,32 +46,32 @@ class UserType(DjangoObjectType):
         return User.objects.filter(room__building__owner=parent)
 
     def resolve_total_buildings(parent, info, **kwargs):
-        return Building.objects.filter(owner=parent).aggregate(Count('id'))['id__count']
+        return Building.objects.filter(owner=parent).aggregate(Count("id"))["id__count"]
 
     class Meta:
         model = User
         filter_fields = {
-            "email": ['exact'],
-            'username': ['exact', 'icontains', 'istartswith'],
-            'phone_number': ['exact', 'icontains', 'istartswith'],
-            'alt_phone_number': ['exact', 'icontains', 'istartswith'],
+            "email": ["exact"],
+            "username": ["exact", "icontains", "istartswith"],
+            "phone_number": ["exact", "icontains", "istartswith"],
+            "alt_phone_number": ["exact", "icontains", "istartswith"],
         }
         interfaces = (relay.Node,)
-        fields = '__all__'
+        fields = "__all__"
 
 
 class AddressType(DjangoObjectType):
     class Meta:
         model = Address
         filter_fields = {
-            'postal_code': ['exact', 'icontains', 'istartswith'],
-            'state': ['exact', 'icontains', 'istartswith'],
-            'city': ['exact', 'icontains', 'istartswith'],
-            'address1': ['exact', 'icontains', 'istartswith'],
-            'address2': ['exact', 'icontains', 'istartswith'],
+            "postal_code": ["exact", "icontains", "istartswith"],
+            "state": ["exact", "icontains", "istartswith"],
+            "city": ["exact", "icontains", "istartswith"],
+            "address1": ["exact", "icontains", "istartswith"],
+            "address2": ["exact", "icontains", "istartswith"],
         }
         interfaces = (relay.Node,)
-        fields = '__all__'
+        fields = "__all__"
 
 
 class UserInput(graphene.InputObjectType):

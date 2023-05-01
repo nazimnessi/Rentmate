@@ -1,10 +1,10 @@
 import graphene
-from building import schema as schema_building
+import graphql_jwt
 from graphene_django.debug import DjangoDebug
+
+from building import schema as schema_building
 from notification import schema as schema_notification
 from user import schema as schema_user
-import graphql_jwt
-
 from user.mutations import JWUserToken
 
 

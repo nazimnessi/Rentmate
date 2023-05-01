@@ -1,11 +1,14 @@
 import graphene
+
 from notification.node import NotificationsInput, NotificationsType
+
 from .models import Notifications
 
 
 class CreateNotifications(graphene.Mutation):
     class Arguments:
         notification_data = NotificationsInput(required=True)
+
     notifications = graphene.Field(NotificationsType)
 
     @staticmethod
@@ -21,11 +24,14 @@ class CreateNotifications(graphene.Mutation):
 class UpdateNotifications(graphene.Mutation):
     class Arguments:
         notification_data = NotificationsInput(required=True)
+
     notifications = graphene.Field(NotificationsType)
 
     @staticmethod
     def mutate(root, info, notification_data=None):
-        Notifications.objects.update_or_create(pk=notification_data.id, defaults=notification_data)
+        Notifications.objects.update_or_create(
+            pk=notification_data.id, defaults=notification_data
+        )
         notification_instance = Notifications.objects.get(pk=notification_data.id)
         return UpdateNotifications(notifications=notification_instance)
 
