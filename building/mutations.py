@@ -1,5 +1,7 @@
 import graphene
 from datetime import datetime
+
+from graphql import GraphQLError
 from building.nodes import BuildingInput, BuildingType, RequestInput, RequestType, RoomInput, RoomType
 from user.node import AddressInput
 from .models import Building, Room, Request
@@ -22,7 +24,7 @@ class CreateBuilding(graphene.Mutation):
             building['address'] = address_instance
             building_instance = Building.objects.create(**building)
         except Exception as exe:
-            building_instance = {'error': exe}
+            raise GraphQLError(f"unknown error occurred {exe}")
         return CreateBuilding(buildings=building_instance)
 
 
@@ -63,18 +65,18 @@ class DeleteBuilding(graphene.Mutation):
 
 class CreateRoom(graphene.Mutation):
     class Arguments:
-        rooms_data = RoomInput(required=True)
+        room = RoomInput(required=True)
     rooms = graphene.Field(RoomType)
 
     @staticmethod
-    def mutate(root, info, rooms_data=None):
+    def mutate(root, info, room=None):
         try:
-            rooms_data["rent_period_start"] = datetime.strptime(rooms_data.rent_period_start, '%Y, %m, %d')
-            rooms_data["rent_period_end"] = datetime.strptime(rooms_data.rent_period_end, '%Y, %m, %d')
-            room_instance = Room(**rooms_data)
+            room["rent_period_start"] = datetime.strptime(room.rent_period_start, '%Y, %m, %d')
+            room["rent_period_end"] = datetime.strptime(room.rent_period_end, '%Y, %m, %d')
+            room_instance = Room(**room)
             room_instance.save()
-        except Exception:
-            room_instance = None
+        except Exception as exe:
+            raise GraphQLError(f"unknown error occurred {exe}")
         return CreateRoom(rooms=room_instance)
 
 
