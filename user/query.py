@@ -1,13 +1,11 @@
 import graphene
 from graphene import relay
-
+from graphql import GraphQLError
 # from graphene_file_upload.scalars import Upload
 from graphene_django.filter import DjangoFilterConnectionField
-from graphql import GraphQLError
 
 from user.node import AddressType, UserType
-
-from .models import Address, User
+from .models import User, Address
 
 
 class Query(graphene.ObjectType):
@@ -19,7 +17,7 @@ class Query(graphene.ObjectType):
     address = relay.Node.Field(AddressType)
 
     def resolve_all_users(root, info, **kwargs):
-        return User.objects.order_by("-id")
+        return User.objects.order_by('-id')
 
     def resolve_logged_in_user(root, info, **kwargs):
         user = info.context.user
@@ -28,4 +26,4 @@ class Query(graphene.ObjectType):
         return user
 
     def resolve_all_address(root, info, **kwargs):
-        return Address.objects.order_by("-id")
+        return Address.objects.order_by('-id')

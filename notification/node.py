@@ -1,7 +1,6 @@
 import graphene
 from graphene import relay
 from graphene_django import DjangoObjectType
-
 from .models import Notifications
 
 
@@ -10,7 +9,7 @@ class NotificationsType(DjangoObjectType):
         model = Notifications
         filter_fields = {}
         interfaces = (relay.Node,)
-        fields = "__all__"
+        fields = '__all__'
 
 
 class NotificationsInput(graphene.InputObjectType):
