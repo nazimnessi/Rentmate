@@ -1,9 +1,19 @@
-import graphene
 from datetime import datetime
-from building.nodes import BuildingInput, BuildingType, RequestInput, RequestType, RoomInput, RoomType
-from user.node import AddressInput
-from .models import Building, Room, Request
+
+import graphene
+
+from building.nodes import (
+    BuildingInput,
+    BuildingType,
+    RequestInput,
+    RequestType,
+    RoomInput,
+    RoomType,
+)
 from user.models import Address
+from user.node import AddressInput
+
+from .models import Building, Request, Room
 from .tasks import reject_requests
 
 # Building section
@@ -13,16 +23,17 @@ class CreateBuilding(graphene.Mutation):
     class Arguments:
         building = BuildingInput(required=True)
         address = AddressInput(required=True)
+
     buildings = graphene.Field(BuildingType)
 
     @staticmethod
     def mutate(root, info, building=None, address=None):
         try:
             address_instance, created = Address.objects.get_or_create(**address)
-            building['address'] = address_instance
+            building["address"] = address_instance
             building_instance = Building.objects.create(**building)
         except Exception as exe:
-            building_instance = {'error': exe}
+            building_instance = {"error": exe}
         return CreateBuilding(buildings=building_instance)
 
 
@@ -30,15 +41,15 @@ class UpdateBuilding(graphene.Mutation):
     class Arguments:
         building = BuildingInput(required=True)
         address = AddressInput(required=True)
+
     buildings = graphene.Field(BuildingType)
 
     @staticmethod
     def mutate(root, info, building=None, address=None):
         address_instance, created = Address.objects.get_or_create(**address)
-        building['address'] = address_instance
+        building["address"] = address_instance
         building_instance, created = Building.objects.update_or_create(
-            id=building['id'],
-            defaults=building
+            id=building["id"], defaults=building
         )
         return UpdateBuilding(buildings=building_instance)
 
@@ -61,16 +72,22 @@ class DeleteBuilding(graphene.Mutation):
 
 # Room section
 
+
 class CreateRoom(graphene.Mutation):
     class Arguments:
         rooms_data = RoomInput(required=True)
+
     rooms = graphene.Field(RoomType)
 
     @staticmethod
     def mutate(root, info, rooms_data=None):
         try:
-            rooms_data["rent_period_start"] = datetime.strptime(rooms_data.rent_period_start, '%Y, %m, %d')
-            rooms_data["rent_period_end"] = datetime.strptime(rooms_data.rent_period_end, '%Y, %m, %d')
+            rooms_data["rent_period_start"] = datetime.strptime(
+                rooms_data.rent_period_start, "%Y, %m, %d"
+            )
+            rooms_data["rent_period_end"] = datetime.strptime(
+                rooms_data.rent_period_end, "%Y, %m, %d"
+            )
             room_instance = Room(**rooms_data)
             room_instance.save()
         except Exception:
@@ -81,19 +98,22 @@ class CreateRoom(graphene.Mutation):
 class UpdateRoom(graphene.Mutation):
     class Arguments:
         rooms_data = RoomInput(required=True)
+
     rooms = graphene.Field(RoomType)
 
     @staticmethod
     def mutate(root, info, rooms_data=None):
-        if rooms_data.get('rent_period_start'):
-            rooms_data["rent_period_start"] = datetime.strptime(rooms_data.rent_period_start, '%Y, %m, %d')
-        if rooms_data.get('rent_period_end'):
-            rooms_data["rent_period_end"] = datetime.strptime(rooms_data.rent_period_end, '%Y, %m, %d')
-        Room.objects.filter(
-            pk=rooms_data.id).update(**rooms_data)
+        if rooms_data.get("rent_period_start"):
+            rooms_data["rent_period_start"] = datetime.strptime(
+                rooms_data.rent_period_start, "%Y, %m, %d"
+            )
+        if rooms_data.get("rent_period_end"):
+            rooms_data["rent_period_end"] = datetime.strptime(
+                rooms_data.rent_period_end, "%Y, %m, %d"
+            )
+        Room.objects.filter(pk=rooms_data.id).update(**rooms_data)
         try:
-            room_instance = Room.objects.get(
-                pk=rooms_data.id)
+            room_instance = Room.objects.get(pk=rooms_data.id)
         except Room.DoesNotExist:
             room_instance = None
         return UpdateRoom(rooms=room_instance)
@@ -117,9 +137,11 @@ class DeleteRoom(graphene.Mutation):
 
 # request section
 
+
 class CreateRequest(graphene.Mutation):
     class Arguments:
         request_data = RequestInput(required=True)
+
     request = graphene.Field(RequestType)
 
     @staticmethod
@@ -130,27 +152,28 @@ class CreateRequest(graphene.Mutation):
         except Request.DoesNotExist:
             request_instance = Request.objects.create(**request_data)
         if existing_request:
-            request_instance = 'Cant Send Request. Already Renter renting'
+            request_instance = "Cant Send Request. Already Renter renting"
         return CreateRequest(request=request_instance)
 
 
 class UpdateRequest(graphene.Mutation):
     class Arguments:
         request_data = RequestInput(required=True)
+
     request = graphene.Field(RequestType)
 
     @staticmethod
     def mutate(root, info, request_data=None):
         try:
             request_instance = Request.objects.get(pk=request_data.id)
-            if request_instance.action == 'A':
-                return UpdateRequest(request='Cant accept request')
+            if request_instance.action == "A":
+                return UpdateRequest(request="Cant accept request")
         except Request.DoesNotExist:
             return UpdateRequest(request=None)
 
-        request_data['accepted'] = True
+        request_data["accepted"] = True
         Request.objects.filter(pk=request_data.id).update(**request_data)
-        if request_data.get('action') == 'A':
+        if request_data.get("action") == "A":
             reject_requests.delay(request_data)
         request_instance = Request.objects.get(pk=request_data.id)
 

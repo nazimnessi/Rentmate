@@ -4,25 +4,28 @@
 # from django.utils.decorators import method_decorator
 # from django.views.decorators.csrf import csrf_exempt
 # from allauth.account.views import LoginView
-from django.shortcuts import redirect
-from rest_framework import generics
-from rest_framework.parsers import FileUploadParser, MultiPartParser, FormParser
-from rest_framework.response import Response
-from rest_framework.views import APIView
-from rest_framework import status
 import urllib3
-from rest_framework import permissions
-# from rest_framework.authentication import SessionAuthentication
-from .models import User, Documents
-from .serializer import UserProfilePictureSerializer, UserSerializer, UserDocumentSerializer
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 from dj_rest_auth.registration.views import SocialLoginView
+from django.shortcuts import redirect
+from rest_framework import generics, permissions, status
+from rest_framework.parsers import FileUploadParser, FormParser, MultiPartParser
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+# from rest_framework.authentication import SessionAuthentication
+from .models import Documents, User
+from .serializer import (
+    UserDocumentSerializer,
+    UserProfilePictureSerializer,
+    UserSerializer,
+)
 
 
 class GoogleLogin(SocialLoginView):
     adapter_class = GoogleOAuth2Adapter
-    callback_url = 'http://localhost:8002/accounts/google/login/callback/'
+    callback_url = "http://localhost:8002/accounts/google/login/callback/"
     client_class = OAuth2Client
 
 
@@ -34,7 +37,7 @@ class UserProfilePictureView(generics.UpdateAPIView):
 
     def put(self, request, *args, **kwargs):
         user = self.get_object()
-        user.photo = request.data['file']
+        user.photo = request.data["file"]
         user.save()
         serializer = self.get_serializer(user)
         return Response(serializer.data)
@@ -44,11 +47,11 @@ class UserDocumentView(APIView):
     parser_classes = (MultiPartParser, FormParser)
 
     def post(self, request, *args, **kwargs):
-        user = User.objects.get(pk=kwargs.get('pk'))
+        user = User.objects.get(pk=kwargs.get("pk"))
         serializer = UserDocumentSerializer(data=request.data)
 
         if serializer.is_valid():
-            for document in request.FILES.getlist('documents'):
+            for document in request.FILES.getlist("documents"):
                 file_obj = Documents(file=document, name=document.name)
                 file_obj.save()
                 user.documents.add(file_obj)
@@ -61,7 +64,7 @@ class UserDocumentView(APIView):
 def google_callback(request):
     params = urllib3.parse.urlencode(request.GET)
     print(params)
-    return redirect(f'http://localhost:3000/buildings/{params}')
+    return redirect(f"http://localhost:3000/buildings/{params}")
 
 
 # class UserSignUp(APIView):

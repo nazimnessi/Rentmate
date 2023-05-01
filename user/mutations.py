@@ -1,36 +1,44 @@
 import graphene
+import graphql_jwt
 from graphql import GraphQLError
 
 from user.node import AddressInput, AddressType, UserInput, UserType, UserUpdateInput
-from .models import User, Address
-import graphql_jwt
+
+from .models import Address, User
 
 
 class CreateUser(graphene.Mutation):
     class Arguments:
         user = UserInput(required=True)
+
     users = graphene.Field(UserType)
 
     @staticmethod
     def mutate(root, info, user=None):
         try:
             # Check if email already exists
-            if User.objects.filter(email=user.get('email')).exists():
-                raise GraphQLError(f"User with email '{user.get('email')}' already exists")
+            if User.objects.filter(email=user.get("email")).exists():
+                raise GraphQLError(
+                    f"User with email '{user.get('email')}' already exists"
+                )
 
             # Check if username already exists
-            elif User.objects.filter(username=user.get('username')).exists():
-                raise GraphQLError(f"User with username '{user.get('username')}' already exists")
+            elif User.objects.filter(username=user.get("username")).exists():
+                raise GraphQLError(
+                    f"User with username '{user.get('username')}' already exists"
+                )
 
             # Check if phone number already exists
-            elif User.objects.filter(phone_number=user.get('phone_number')).exists():
-                raise GraphQLError(f"User with phone number '{user.get('phone_number')}' already exists")
+            elif User.objects.filter(phone_number=user.get("phone_number")).exists():
+                raise GraphQLError(
+                    f"User with phone number '{user.get('phone_number')}' already exists"
+                )
 
-            elif user.get('password1') != user.get('password2'):
+            elif user.get("password1") != user.get("password2"):
                 raise GraphQLError("Provided passwords do not match.")
 
-            password = user.pop('password1')
-            user.pop('password2')
+            password = user.pop("password1")
+            user.pop("password2")
             user_instance = User(**user)
             user_instance.set_password(password)
             user_instance.save()
@@ -53,12 +61,13 @@ class UpdateUser(graphene.Mutation):
     class Arguments:
         user = UserUpdateInput(required=True)
         address = AddressInput()
+
     users = graphene.Field(UserType)
 
     @staticmethod
     def mutate(root, info, user=None, address=None):
         address_instance, created = Address.objects.get_or_create(**address)
-        user['address'] = address_instance
+        user["address"] = address_instance
         User.objects.filter(pk=user.id).update(**user)
         user_instance = User.objects.get(id=user.id)
         return UpdateUser(users=user_instance)
@@ -83,6 +92,7 @@ class DeleteUser(graphene.Mutation):
 class CreateAddress(graphene.Mutation):
     class Arguments:
         address_data = AddressInput(required=True)
+
     address = graphene.Field(AddressType)
 
     @staticmethod
@@ -101,15 +111,14 @@ class CreateAddress(graphene.Mutation):
 class UpdateAddress(graphene.Mutation):
     class Arguments:
         address_data = AddressInput(required=True)
+
     address = graphene.Field(AddressType)
 
     @staticmethod
     def mutate(root, info, address_data=None):
-        Address.objects.filter(
-            pk=address_data.id).update(**address_data)
+        Address.objects.filter(pk=address_data.id).update(**address_data)
         try:
-            address_instance = Address.objects.get(
-                pk=address_data.id)
+            address_instance = Address.objects.get(pk=address_data.id)
         except Address.DoesNotExist:
             address_instance = None
         return UpdateAddress(address=address_instance)
