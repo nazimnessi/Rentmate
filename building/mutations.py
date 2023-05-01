@@ -93,11 +93,8 @@ class UpdateRoom(graphene.Mutation):
             rooms_data["rent_period_end"] = datetime.strptime(rooms_data.rent_period_end, '%Y, %m, %d')
         Room.objects.filter(
             pk=rooms_data.id).update(**rooms_data)
-        try:
-            room_instance = Room.objects.get(
-                pk=rooms_data.id)
-        except Room.DoesNotExist:
-            room_instance = None
+        room_instance = Room.objects.get(
+            pk=rooms_data.id)
         return UpdateRoom(rooms=room_instance)
 
 
