@@ -4,13 +4,11 @@
 # from django.utils.decorators import method_decorator
 # from django.views.decorators.csrf import csrf_exempt
 # from allauth.account.views import LoginView
-from django.shortcuts import redirect
 from rest_framework import generics
 from rest_framework.parsers import FileUploadParser, MultiPartParser, FormParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
-import urllib3
 from rest_framework import permissions
 # from rest_framework.authentication import SessionAuthentication
 from .models import User, Documents
@@ -49,10 +47,10 @@ class UserDocumentView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-def google_callback(request):
-    params = urllib3.parse.urlencode(request.GET)
-    print(params)
-    return redirect(f'http://localhost:3000/buildings/{params}')
+# def google_callback(request):
+#     params = urllib3.parse.urlencode(request.GET)
+#     print(params)
+#     return redirect(f'http://localhost:3000/buildings/{params}')
 
 
 # class UserSignUp(APIView):
