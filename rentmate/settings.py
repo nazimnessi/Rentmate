@@ -58,12 +58,20 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'django.contrib.sites',
+
+    # allauth
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
     'graphql_jwt.refresh_token.apps.RefreshTokenConfig',
     # 'crispy_forms'
+
+    # dj_rest_auth
+    'rest_framework.authtoken',
+    'dj_rest_auth',
+    'dj_rest_auth.registration',
+
 ]
 
 MIDDLEWARE = [
@@ -102,7 +110,10 @@ GRAPHQL_JWT = {
 AUTHENTICATION_BACKENDS = [
     "graphql_jwt.backends.JSONWebTokenBackend",
     "django.contrib.auth.backends.ModelBackend",
-    # 'graphql_auth.backends.GraphQLAuthBackend'
+
+    # `allauth` specific authentication methods, such as login by e-mail
+    'allauth.account.auth_backends.AuthenticationBackend',
+
 ]
 
 TEMPLATES = [
@@ -116,7 +127,6 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'django.template.context_processors.request',
             ],
         },
     },
@@ -125,8 +135,8 @@ TEMPLATES = [
 WSGI_APPLICATION = 'rentmate.wsgi.application'
 
 
-LOGIN_REDIRECT_URL = 'http://localhost:3000/Buildings'
-ACCOUNT_LOGOUT_REDIRECT_URL = 'http://localhost:3000/Buildings'
+LOGIN_REDIRECT_URL = 'http://localhost:3000/user/Buildings'
+ACCOUNT_LOGOUT_REDIRECT_URL = 'http://localhost:3000/login'
 # LOGIN_URL = '/login/'
 
 

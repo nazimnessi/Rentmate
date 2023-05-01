@@ -15,6 +15,15 @@ from rest_framework import permissions
 # from rest_framework.authentication import SessionAuthentication
 from .models import User, Documents
 from .serializer import UserProfilePictureSerializer, UserSerializer, UserDocumentSerializer
+from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
+from allauth.socialaccount.providers.oauth2.client import OAuth2Client
+from dj_rest_auth.registration.views import SocialLoginView
+
+
+class GoogleLogin(SocialLoginView):
+    adapter_class = GoogleOAuth2Adapter
+    callback_url = 'http://localhost:8002/accounts/google/login/callback/'
+    client_class = OAuth2Client
 
 
 class UserProfilePictureView(generics.UpdateAPIView):

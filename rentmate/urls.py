@@ -23,7 +23,7 @@ from django.urls import include, path
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("graphql", csrf_exempt(GraphQLView.as_view(graphiql=True))),
-    path('api/', include('user.urls')),
-    path('api/', include('building.urls')),
+    path('api/v1/user/', include('user.urls')),
+    path('api/v1/buildings/', include('building.urls')),
     path('accounts/', include('allauth.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
