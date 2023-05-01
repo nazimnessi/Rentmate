@@ -4,7 +4,6 @@
 # from django.utils.decorators import method_decorator
 # from django.views.decorators.csrf import csrf_exempt
 # from allauth.account.views import LoginView
-from django.shortcuts import redirect
 from rest_framework import generics
 from rest_framework.parsers import FileUploadParser, MultiPartParser, FormParser
 from rest_framework.response import Response
