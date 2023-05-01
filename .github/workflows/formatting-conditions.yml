@@ -1,0 +1,33 @@
+name: Formatting-conditions
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  style-check:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Setup Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: "3.x"
+
+    - name: Install dependencies
+      run: pip install flake8 black isort
+
+    - name: Check style with Flake8
+      run: flake8 .
+
+    - name: Check style with Black
+      run: black --check .
+
+    - name: Check imports with isort
+      run: isort --check-only .
