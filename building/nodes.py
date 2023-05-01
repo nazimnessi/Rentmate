@@ -1,11 +1,9 @@
 import graphene
-from django.db.models import Count
 from graphene import relay
 from graphene_django import DjangoObjectType
-
+from .models import Building, Room, Request
 from user.models import User
-
-from .models import Building, Request, Room
+from django.db.models import Count
 
 
 class ExtendedConnection(graphene.Connection):
@@ -23,30 +21,27 @@ class ExtendedConnection(graphene.Connection):
 
 
 class BuildingType(DjangoObjectType):
+
     total_renters = graphene.Int()
     total_rooms = graphene.Int()
 
     def resolve_total_renters(parent, info, **kwargs):
-        total_renters = User.objects.filter(room__building=parent).aggregate(
-            Count("id")
-        )["id__count"]
+        total_renters = User.objects.filter(room__building=parent).aggregate(Count('id'))['id__count']
         return total_renters
 
     def resolve_total_rooms(parent, info, **kwargs):
-        total_renters = Room.objects.filter(building=parent).aggregate(Count("id"))[
-            "id__count"
-        ]
+        total_renters = Room.objects.filter(building=parent).aggregate(Count('id'))['id__count']
         return total_renters
 
     class Meta:
         model = Building
         filter_fields = {
-            "name": ["exact", "icontains", "istartswith"],
-            "house_number": ["exact", "icontains", "istartswith"],
-            "owner": ["exact"],
+            'name': ['exact', 'icontains', 'istartswith'],
+            'house_number': ['exact', 'icontains', 'istartswith'],
+            'owner': ['exact'],
         }
         interfaces = (relay.Node,)
-        fields = "__all__"
+        fields = '__all__'
         connection_class = ExtendedConnection
 
 
@@ -54,12 +49,12 @@ class RoomType(DjangoObjectType):
     class Meta:
         model = Room
         filter_fields = {
-            "room_no": ["exact", "icontains", "istartswith"],
-            "criteria": ["exact", "icontains", "istartswith"],
-            "building": ["exact"],
+            'room_no': ['exact', 'icontains', 'istartswith'],
+            'criteria': ['exact', 'icontains', 'istartswith'],
+            'building': ['exact'],
         }
         interfaces = (relay.Node,)
-        fields = "__all__"
+        fields = '__all__'
 
 
 class RequestType(DjangoObjectType):
@@ -67,7 +62,7 @@ class RequestType(DjangoObjectType):
         model = Request
         filter_fields = {}
         interfaces = (relay.Node,)
-        fields = "__all__"
+        fields = '__all__'
 
 
 class BuildingInput(graphene.InputObjectType):
