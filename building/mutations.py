@@ -82,19 +82,17 @@ class CreateRoom(graphene.Mutation):
 
 class UpdateRoom(graphene.Mutation):
     class Arguments:
-        rooms_data = RoomInput(required=True)
+        room = RoomInput(required=True)
     rooms = graphene.Field(RoomType)
 
     @staticmethod
-    def mutate(root, info, rooms_data=None):
-        if rooms_data.get('rent_period_start'):
-            rooms_data["rent_period_start"] = datetime.strptime(rooms_data.rent_period_start, '%Y, %m, %d')
-        if rooms_data.get('rent_period_end'):
-            rooms_data["rent_period_end"] = datetime.strptime(rooms_data.rent_period_end, '%Y, %m, %d')
-        Room.objects.filter(
-            pk=rooms_data.id).update(**rooms_data)
-        room_instance = Room.objects.get(
-            pk=rooms_data.id)
+    def mutate(root, info, room=None):
+        if room.get('rent_period_start'):
+            room["rent_period_start"] = datetime.strptime(room.rent_period_start, '%Y, %m, %d')
+        if room.get('rent_period_end'):
+            room["rent_period_end"] = datetime.strptime(room.rent_period_end, '%Y, %m, %d')
+        Room.objects.filter(pk=room.id).update(**room)
+        room_instance = Room.objects.get(pk=room.id)
         return UpdateRoom(rooms=room_instance)
 
 
