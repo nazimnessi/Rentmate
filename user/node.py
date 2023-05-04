@@ -2,6 +2,8 @@ import graphene
 from graphene import relay
 from graphene_django import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
+
+from user.filterset import UserFilterClass
 from .models import User, Address
 from building.models import Building, Room
 from django.db.models import Count
@@ -49,14 +51,15 @@ class UserType(DjangoObjectType):
 
     class Meta:
         model = User
-        filter_fields = {
-            "email": ['exact'],
-            'username': ['exact', 'icontains', 'istartswith'],
-            'phone_number': ['exact', 'icontains', 'istartswith'],
-            'alt_phone_number': ['exact', 'icontains', 'istartswith'],
-        }
+        # filter_fields = {
+        #     "email": ['exact'],
+        #     'username': ['exact', 'icontains', 'istartswith'],
+        #     'phone_number': ['exact', 'icontains', 'istartswith'],
+        #     'alt_phone_number': ['exact', 'icontains', 'istartswith'],
+        # }
         interfaces = (relay.Node,)
         fields = '__all__'
+        filterset_class = UserFilterClass
 
 
 class AddressType(DjangoObjectType):
