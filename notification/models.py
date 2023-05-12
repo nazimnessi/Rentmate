@@ -17,6 +17,7 @@ class Notifications(models.Model):
     is_read = models.BooleanField(default=False)
     notification_type = models.CharField(max_length=20, choices=NOTIFICATION_TYPES, default='Others')
     description = models.TextField(blank=True, null=True)
+    request = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
         return str(self.recipient)

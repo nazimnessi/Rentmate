@@ -1,12 +1,23 @@
-import graphene
 from datetime import datetime
 
+import graphene
 from graphql import GraphQLError
-from building.nodes import BuildingInput, BuildingType, RequestInput, RequestType, RoomInput, RoomType
-from user.node import AddressInput
-from .models import Building, Room, Request
+
+from building.nodes import (
+    BuildingInput,
+    BuildingType,
+    RequestInput,
+    RequestType,
+    RoomInput,
+    RoomType,
+)
+from building.utils import get_or_404
+from notification.models import Notifications
 from user.models import Address
-from .tasks import reject_requests
+from user.node import AddressInput
+from django.db import transaction
+
+from .models import Building, Request, Room
 
 # Building section
 
@@ -15,13 +26,14 @@ class CreateBuilding(graphene.Mutation):
     class Arguments:
         building = BuildingInput(required=True)
         address = AddressInput(required=True)
+
     buildings = graphene.Field(BuildingType)
 
     @staticmethod
     def mutate(root, info, building=None, address=None):
         try:
             address_instance, created = Address.objects.get_or_create(**address)
-            building['address'] = address_instance
+            building["address"] = address_instance
             building_instance = Building.objects.create(**building)
         except Exception as exe:
             raise GraphQLError(f"unknown error occurred {exe}")
@@ -32,15 +44,15 @@ class UpdateBuilding(graphene.Mutation):
     class Arguments:
         building = BuildingInput(required=True)
         address = AddressInput(required=True)
+
     buildings = graphene.Field(BuildingType)
 
     @staticmethod
     def mutate(root, info, building=None, address=None):
         address_instance, created = Address.objects.get_or_create(**address)
-        building['address'] = address_instance
+        building["address"] = address_instance
         building_instance, created = Building.objects.update_or_create(
-            id=building['id'],
-            defaults=building
+            id=building["id"], defaults=building
         )
         return UpdateBuilding(buildings=building_instance)
 
@@ -63,16 +75,22 @@ class DeleteBuilding(graphene.Mutation):
 
 # Room section
 
+
 class CreateRoom(graphene.Mutation):
     class Arguments:
         room = RoomInput(required=True)
+
     rooms = graphene.Field(RoomType)
 
     @staticmethod
     def mutate(root, info, room=None):
         try:
-            room["rent_period_start"] = datetime.strptime(room.rent_period_start, '%Y, %m, %d')
-            room["rent_period_end"] = datetime.strptime(room.rent_period_end, '%Y, %m, %d')
+            room["rent_period_start"] = datetime.strptime(
+                room.rent_period_start, "%Y, %m, %d"
+            )
+            room["rent_period_end"] = datetime.strptime(
+                room.rent_period_end, "%Y, %m, %d"
+            )
             room_instance = Room(**room)
             room_instance.save()
         except Exception as exe:
@@ -83,14 +101,19 @@ class CreateRoom(graphene.Mutation):
 class UpdateRoom(graphene.Mutation):
     class Arguments:
         room = RoomInput(required=True)
+
     rooms = graphene.Field(RoomType)
 
     @staticmethod
     def mutate(root, info, room=None):
-        if room.get('rent_period_start'):
-            room["rent_period_start"] = datetime.strptime(room.rent_period_start, '%Y, %m, %d')
-        if room.get('rent_period_end'):
-            room["rent_period_end"] = datetime.strptime(room.rent_period_end, '%Y, %m, %d')
+        if room.get("rent_period_start"):
+            room["rent_period_start"] = datetime.strptime(
+                room.rent_period_start, "%Y, %m, %d"
+            )
+        if room.get("rent_period_end"):
+            room["rent_period_end"] = datetime.strptime(
+                room.rent_period_end, "%Y, %m, %d"
+            )
         Room.objects.filter(pk=room.id).update(**room)
         room_instance = Room.objects.get(pk=room.id)
         return UpdateRoom(rooms=room_instance)
@@ -114,42 +137,86 @@ class DeleteRoom(graphene.Mutation):
 
 # request section
 
+
 class CreateRequest(graphene.Mutation):
     class Arguments:
-        request_data = RequestInput(required=True)
+        data = RequestInput(required=True)
+
     request = graphene.Field(RequestType)
 
     @staticmethod
-    def mutate(root, info, request_data=None):
+    def mutate(root, info, data=None):
         existing_request = None
-        try:
-            existing_request = Request.objects.get(**request_data)
-        except Request.DoesNotExist:
-            request_instance = Request.objects.create(**request_data)
+        if data["sender_id"] == data["receiver_id"]:
+            raise GraphQLError("Can't send a request to yourself")
+        existing_request = get_or_404(Request, **data)
         if existing_request:
-            request_instance = 'Cant Send Request. Already Renter renting'
+            raise GraphQLError("Can't send request. Already sent a request")
+        try:
+            with transaction.atomic():
+                request_instance = Request.objects.create(**data)
+                Notifications.objects.create(
+                    recipient_id=data["receiver_id"],
+                    notification_type="Application",
+                    message=f"{request_instance.sender.username} sent a request",
+                    description=data.get("text"),
+                    request=str(request_instance.id),
+                )
+        except Exception:
+            transaction.rollback()
+            GraphQLError("Unexpected error occurred")
         return CreateRequest(request=request_instance)
 
 
 class UpdateRequest(graphene.Mutation):
     class Arguments:
-        request_data = RequestInput(required=True)
+        data = RequestInput(required=True)
+
     request = graphene.Field(RequestType)
 
     @staticmethod
-    def mutate(root, info, request_data=None):
+    def mutate(root, info, data=None):
         try:
-            request_instance = Request.objects.get(pk=request_data.id)
-            if request_instance.action == 'A':
-                return UpdateRequest(request='Cant accept request')
+            request_instance = Request.objects.get(id=data.id)
+            if request_instance.action == "Accepted":
+                request_instance.delete()
+                raise GraphQLError("Already accepted")
         except Request.DoesNotExist:
-            return UpdateRequest(request=None)
+            return GraphQLError("Request no longer exists")
 
-        request_data['accepted'] = True
-        Request.objects.filter(pk=request_data.id).update(**request_data)
-        if request_data.get('action') == 'A':
-            reject_requests.delay(request_data)
-        request_instance = Request.objects.get(pk=request_data.id)
+        try:
+            with transaction.atomic():
+                if data.get("action") == "Accepted":
+                    data["accepted"] = True
+                    Request.objects.filter(pk=data.id).update(**data)
+                    request_instance = Request.objects.get(pk=data.id)
+                    Notifications.objects.create(
+                        recipient_id=request_instance.sender.id,
+                        notification_type="Application",
+                        message=f"{request_instance.receiver.username} Accepted your request",
+                        description=request_instance.text,
+                        request=str(request_instance.id),
+                    )
+                    room_instance = Room.objects.get(id=data.get("room_id"))
+                    if room_instance.renter:
+                        return GraphQLError("Already a renter exists")
+                    if room_instance.building.owner_id == request_instance.sender_id:
+                        renter_id = request_instance.receiver
+                    elif (
+                        room_instance.building.owner_id == request_instance.receiver_id
+                    ):
+                        renter_id = request_instance.sender
+                    room_instance.update(renter_id=renter_id)
+                elif data.get("action") == "Reject":
+                    request_instance = Request.objects.get(pk=data.id)
+                request_instance.delete()
+        except Request.DoesNotExist:
+            return GraphQLError("Request no longer exists")
+        except Room.DoesNotExist:
+            return GraphQLError("Room no longer exists")
+        except Exception:
+            transaction.rollback()
+            GraphQLError("Unexpected error occurred")
 
         return UpdateRequest(request=request_instance)
 

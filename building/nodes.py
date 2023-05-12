@@ -95,8 +95,8 @@ class RoomInput(graphene.InputObjectType):
 
 class RequestInput(graphene.InputObjectType):
     id = graphene.ID()
-    sender_id = graphene.Int()
-    receiver_id = graphene.Int()
+    sender_id = graphene.ID()
+    receiver_id = graphene.ID()
     text = graphene.String()
     action = graphene.String()
-    room_id = graphene.Int()
+    room_id = graphene.ID()
