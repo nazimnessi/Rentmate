@@ -3,7 +3,6 @@ from graphene import relay
 from graphene_django.filter import DjangoFilterConnectionField
 
 from notification.node import NotificationsType
-from .models import Notifications
 
 
 class Query(graphene.ObjectType):
