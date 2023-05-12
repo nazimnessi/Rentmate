@@ -11,6 +11,11 @@ class NotificationsType(DjangoObjectType):
         interfaces = (relay.Node,)
         fields = '__all__'
 
+    @classmethod
+    def get_queryset(cls, queryset, info):
+        user = info.context.user
+        return queryset.filter(recipient_id=user.id).order_by("-id")
+
 
 class NotificationsInput(graphene.InputObjectType):
     id = graphene.ID()

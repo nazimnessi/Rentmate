@@ -22,7 +22,7 @@ class Request(models.Model):
         ('Rejected', 'Rejected')
     )
     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_requests')
-    receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='recieved_requests')
+    receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_requests')
     action = models.CharField(max_length=10, choices=action_choice, default='Pending')
     text = models.CharField(max_length=100, blank=True)
     created_date = models.DateTimeField('Request created date', auto_now_add=True)
