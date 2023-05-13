@@ -63,13 +63,13 @@ class Room(models.Model):
         ('1BHK', '1BHK'),
         ('Studio', 'Studio'),
         ('House', 'House'),
-        ('Appartment', 'Appartment'),
+        ('Apartment', 'Apartment'),
         ('Others', 'Others'),
     )
     room_no = models.CharField(max_length=10)
     criteria = models.CharField(
         max_length=15, choices=criteria_choice, default='Fully Furnished')
-    appliences = models.CharField(max_length=100, blank=True)
+    appliances = models.CharField(max_length=100, blank=True)
     building = models.ForeignKey(
         Building, on_delete=models.CASCADE, default=None, related_name='rooms')
     renter = models.ForeignKey(
@@ -77,7 +77,7 @@ class Room(models.Model):
     rent_amount = models.CharField(max_length=10)
     advance = models.CharField(max_length=10, null=True, blank=True)
     room_type = models.CharField(
-        max_length=10, choices=room_choice, default='House')
+        max_length=10, choices=room_choice, default='House', db_column='room_type')
     additional_photo = models.ManyToManyField(Documents, blank=True)
     rent_period_start = models.DateField('rent period start')
     rent_period_end = models.DateField('rent period end')
