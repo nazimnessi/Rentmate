@@ -41,10 +41,10 @@ class UserType(DjangoObjectType):
     total_rooms = DjangoFilterConnectionField(RoomType)
 
     def resolve_total_rooms(parent, info, **kwargs):
-        return Room.objects.filter(building__owner=parent)
+        return Room.objects.filter(building__owner=parent).order_by('-id')
 
     def resolve_total_renters(parent, info, **kwargs):
-        return User.objects.filter(room__building__owner=parent)
+        return User.objects.filter(room__building__owner=parent).order_by('-id')
 
     def resolve_total_buildings(parent, info, **kwargs):
         return Building.objects.filter(owner=parent).aggregate(Count('id'))['id__count']

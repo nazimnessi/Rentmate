@@ -1,12 +1,14 @@
 import graphene
 from graphene import relay
 from graphene_django import DjangoObjectType
+
+from building.utils import convert_string_to_display
 from .models import Building, Room, Request
 from user.models import User
 from django.db.models import Count
 
 
-class ExtendedConnection(graphene.Connection):
+class ExtendedConnectionBuilding(graphene.Connection):
     class Meta:
         abstract = True
 
@@ -42,10 +44,21 @@ class BuildingType(DjangoObjectType):
         }
         interfaces = (relay.Node,)
         fields = '__all__'
-        connection_class = ExtendedConnection
+        connection_class = ExtendedConnectionBuilding
 
 
 class RoomType(DjangoObjectType):
+    room_type = graphene.String()
+    criteria = graphene.String()
+
+    def resolve_criteria(root, info, **kwargs):
+        return convert_string_to_display(root.criteria)
+
+    def resolve_room_type(root, info, **kwargs):
+        print(root.room_type)
+        strip_list = ["3BHK", "2BHK", "1BHK"]
+        return root.room_type.lstrip('A_') if root.room_type in strip_list else root.room_type
+
     class Meta:
         model = Room
         filter_fields = {
@@ -55,6 +68,12 @@ class RoomType(DjangoObjectType):
         }
         interfaces = (relay.Node,)
         fields = '__all__'
+        # connection_class = ExtendedConnectionRoom
+
+        # @classmethod
+        # def get_queryset(cls, queryset, info):
+        #     user = info.context.user
+        #     return queryset.filter(Building__owner_id=user.id).order_by("-id")
 
 
 class RequestType(DjangoObjectType):
@@ -76,7 +95,7 @@ class RoomInput(graphene.InputObjectType):
     id = graphene.ID()
     room_no = graphene.String()
     criteria = graphene.String()
-    appliences = graphene.String()
+    appliances = graphene.String()
     building_id = graphene.ID()
     renter_id = graphene.ID()
     rent_amount = graphene.Int()
