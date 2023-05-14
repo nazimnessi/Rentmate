@@ -151,14 +151,15 @@ class CreateRequest(graphene.Mutation):
             raise GraphQLError("Can't send a request to yourself")
         existing_request = get_or_404(Request, **data)
         if existing_request:
-            raise GraphQLError("Can't send request. Already sent a request")
+            raise GraphQLError("Can't send request. Already sent a request for this Room")
         try:
             with transaction.atomic():
                 request_instance = Request.objects.create(**data)
                 Notifications.objects.create(
                     recipient_id=data["receiver_id"],
+                    sender_id=data["sender_id"],
                     notification_type="Application",
-                    message=f"{request_instance.sender.username} sent a request",
+                    message=f"{request_instance.sender.username} sent a request for {request_instance.room.room_no}",
                     description=data.get("text"),
                     request=str(request_instance.id),
                 )
@@ -188,16 +189,18 @@ class UpdateRequest(graphene.Mutation):
             with transaction.atomic():
                 if data.get("action") == "Accepted":
                     data["accepted"] = True
-                    Request.objects.filter(pk=data.id).update(**data)
                     request_instance = Request.objects.get(pk=data.id)
+                    Notifications.objects.filter(request=data.id).delete()
                     Notifications.objects.create(
                         recipient_id=request_instance.sender.id,
+                        sender_id=request_instance.receiver.id,
                         notification_type="Application",
                         message=f"{request_instance.receiver.username} Accepted your request",
                         description=request_instance.text,
                         request=str(request_instance.id),
                     )
-                    room_instance = Room.objects.get(id=data.get("room_id"))
+
+                    room_instance = Room.objects.get(id=request_instance.room.id)
                     if room_instance.renter:
                         return GraphQLError("Already a renter exists")
                     if room_instance.building.owner_id == request_instance.sender_id:
@@ -206,15 +209,19 @@ class UpdateRequest(graphene.Mutation):
                         room_instance.building.owner_id == request_instance.receiver_id
                     ):
                         renter_id = request_instance.sender
-                    room_instance.update(renter_id=renter_id)
+                    room_instance.renter_id = renter_id
+                    room_instance.save()
+                    Request.objects.filter(pk=data.id).update(**data)
                 elif data.get("action") == "Reject":
                     request_instance = Request.objects.get(pk=data.id)
+                    Notifications.objects.filter(request=data.id).delete()
                 request_instance.delete()
         except Request.DoesNotExist:
             return GraphQLError("Request no longer exists")
         except Room.DoesNotExist:
             return GraphQLError("Room no longer exists")
-        except Exception:
+        except Exception as exe:
+            print(exe)
             transaction.rollback()
             GraphQLError("Unexpected error occurred")
 

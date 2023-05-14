@@ -55,7 +55,6 @@ class RoomType(DjangoObjectType):
         return convert_string_to_display(root.criteria)
 
     def resolve_room_type(root, info, **kwargs):
-        print(root.room_type)
         strip_list = ["3BHK", "2BHK", "1BHK"]
         return root.room_type.lstrip('A_') if root.room_type in strip_list else root.room_type
 
@@ -70,10 +69,10 @@ class RoomType(DjangoObjectType):
         fields = '__all__'
         # connection_class = ExtendedConnectionRoom
 
-        # @classmethod
-        # def get_queryset(cls, queryset, info):
-        #     user = info.context.user
-        #     return queryset.filter(Building__owner_id=user.id).order_by("-id")
+        @classmethod
+        def get_queryset(cls, queryset, info):
+            user = info.context.user
+            return queryset.filter(Building__owner_id=user.id).order_by("-id")
 
 
 class RequestType(DjangoObjectType):

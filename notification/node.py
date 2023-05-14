@@ -12,7 +12,7 @@ class NotificationsType(DjangoObjectType):
         fields = '__all__'
 
     @classmethod
-    def get_queryset(cls, queryset, info):
+    def get_queryset(cls, queryset, info, **kwargs):
         user = info.context.user
         return queryset.filter(recipient_id=user.id).order_by("-id")
 

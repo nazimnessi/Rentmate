@@ -10,7 +10,8 @@ class Notifications(models.Model):
         ('Application', 'Application'),
         ('Others', 'Others'),
     )
-    recipient = models.ForeignKey(User, on_delete=models.CASCADE)
+    recipient = models.ForeignKey(User, on_delete=models.CASCADE, related_name="recipient")
+    sender = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True, related_name="sender")
     created_date = models.DateTimeField('Notifications created date', auto_now_add=True)
     updated_date = models.DateTimeField('Notifications updated date', auto_now_add=True)
     message = models.CharField(max_length=255, blank=True, null=True)
