@@ -31,6 +31,7 @@ class CreateUser(graphene.Mutation):
 
             password = user.pop('password1')
             user.pop('password2')
+            user['country_code'] = user.get('country_code').replace("+", "code_")
             user_instance = User(**user)
             user_instance.set_password(password)
             user_instance.save()

@@ -38,12 +38,12 @@ class User(AbstractUser):
         ('Owner', 'Owner'),
     )
     COUNTRY_CHOICES = (
-        ('+1', 'United States'),
-        ('+91', 'India'),
-        ('+86', 'China'),
-        ('+44', 'United Kingdom'),
-        ('+49', 'Germany'),
-        ('+966', 'Saudi Arabia'),
+        ('code_1', 'United States'),
+        ('code_91', 'India'),
+        ('code_86', 'China'),
+        ('code_44', 'United Kingdom'),
+        ('code_49', 'Germany'),
+        ('code_966', 'Saudi Arabia'),
     )
 
     address = models.ForeignKey(
@@ -51,7 +51,7 @@ class User(AbstractUser):
     photo = models.ImageField(
         upload_to='media/', default='Default_user.png')
     phone_number = models.CharField(max_length=20, unique=True)
-    country_code = models.CharField(max_length=6, choices=COUNTRY_CHOICES, default='India', db_column='building_type')
+    country_code = models.CharField(max_length=10, choices=COUNTRY_CHOICES, default='India', db_column='building_type')
     alt_phone_number = models.CharField(max_length=20, blank=True)
     email = models.EmailField(unique=True)
     documents = models.ManyToManyField(Documents, blank=True)
@@ -67,7 +67,7 @@ class User(AbstractUser):
     def clean(self):
         try:
             phone_number = phonenumbers.parse(
-                f'{self.country_code}{self.phone_number}', self.get_country_code())
+                f'{self.country_code.replace("code_", "+")}{self.phone_number}', self.get_country_code())
             if not phonenumbers.is_valid_number(phone_number):
                 raise ValidationError('Invalid phone number.')
         except phonenumbers.NumberParseException:
@@ -75,7 +75,7 @@ class User(AbstractUser):
 
     def get_country_code(self):
         if self.phone_number and self.country_code:
-            phone_number = phonenumbers.parse(f'{self.country_code}{self.phone_number}', None)
+            phone_number = phonenumbers.parse(f'{self.country_code.replace("code_", "+")}{self.phone_number}', None)
             if phone_number.country_code:
                 return str(phone_number.country_code)
         return None

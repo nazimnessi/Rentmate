@@ -83,6 +83,7 @@ class UserInput(graphene.InputObjectType):
     password2 = graphene.String()
     phone_number = graphene.String()
     email = graphene.String()
+    country_code = graphene.String()
 
 
 class UserUpdateInput(graphene.InputObjectType):
