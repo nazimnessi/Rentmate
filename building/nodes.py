@@ -88,6 +88,7 @@ class BuildingInput(graphene.InputObjectType):
     name = graphene.String()
     house_number = graphene.String()
     owner_id = graphene.Int()
+    building_Type = graphene.String()
 
 
 class RoomInput(graphene.InputObjectType):
