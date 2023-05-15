@@ -35,11 +35,18 @@ class Request(models.Model):
 
 
 class Building(models.Model):
+    building_choice = (
+        ('House', 'House'),
+        ('Apartment', 'Apartment'),
+        ('Others', 'Others'),
+    )
     name = models.CharField(max_length=100)
     address = models.ForeignKey(
         Address, on_delete=models.CASCADE, null=True, blank=True)
     photo = models.ImageField(
         upload_to='images/', default='Default_user.png')
+    building_type = models.CharField(
+        max_length=10, choices=building_choice, default='House', db_column='building_type')
     house_number = models.CharField(max_length=20, unique=True)
     documents = models.ManyToManyField(Documents, blank=True)
     created_date = models.DateTimeField('Building created date', auto_now_add=True)
@@ -64,19 +71,12 @@ class Room(models.Model):
         ('Studio', 'Studio'),
         ('Others', 'Others'),
     )
-    building_choice = (
-        ('House', 'House'),
-        ('Apartment', 'Apartment'),
-        ('Others', 'Others'),
-    )
     room_no = models.CharField(max_length=10)
     criteria = models.CharField(
         max_length=15, choices=criteria_choice, default='Fully Furnished')
     appliances = models.CharField(max_length=100, blank=True)
     building = models.ForeignKey(
         Building, on_delete=models.CASCADE, default=None, related_name='rooms')
-    building_type = models.CharField(
-        max_length=10, choices=building_choice, default='House', db_column='building_type')
     renter = models.ForeignKey(
         User, on_delete=models.CASCADE, null=True, blank=True, default=None)
     rent_amount = models.CharField(max_length=10)
