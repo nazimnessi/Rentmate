@@ -26,17 +26,33 @@ class CreateBuilding(graphene.Mutation):
     class Arguments:
         building = BuildingInput(required=True)
         address = AddressInput(required=True)
+        rooms = graphene.List(RoomInput)
 
     buildings = graphene.Field(BuildingType)
 
     @staticmethod
-    def mutate(root, info, building=None, address=None):
+    def mutate(root, info, building=None, address=None, rooms=None):
         try:
-            address_instance, created = Address.objects.get_or_create(**address)
-            building["address"] = address_instance
-            building_instance = Building.objects.create(**building)
+            with transaction.atomic():
+                address_instance, created = Address.objects.get_or_create(**address)
+                building["address"] = address_instance
+                building_instance = Building.objects.create(**building)
+                if rooms:
+                    room_objects = []
+                    for room in rooms:
+                        try:
+                            room["rent_period_start"] = datetime.strptime(room["rent_period_start"], "%Y, %m, %d")
+                            room["rent_period_end"] = datetime.strptime(room["rent_period_end"], "%Y, %m, %d")
+                            room['building_id'] = building_instance.id
+                            room_objects.append(Room(**room))
+
+                        except Exception as exe:
+                            transaction.rollback()
+                            raise GraphQLError(f"Unknown error occurred in room creation: {exe}")
+                    Room.objects.bulk_create(room_objects)
         except Exception as exe:
-            raise GraphQLError(f"unknown error occurred {exe}")
+            transaction.rollback()
+            raise GraphQLError(f"unknown error occurred in building creation error: {exe}")
         return CreateBuilding(buildings=building_instance)
 
 
@@ -220,8 +236,7 @@ class UpdateRequest(graphene.Mutation):
             return GraphQLError("Request no longer exists")
         except Room.DoesNotExist:
             return GraphQLError("Room no longer exists")
-        except Exception as exe:
-            print(exe)
+        except Exception:
             transaction.rollback()
             GraphQLError("Unexpected error occurred")
 
