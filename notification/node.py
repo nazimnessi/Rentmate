@@ -24,3 +24,7 @@ class NotificationsInput(graphene.InputObjectType):
     is_read = graphene.Boolean()
     notification_type = graphene.String()
     description = graphene.String()
+
+
+class NotificationsReadInput(graphene.InputObjectType):
+    ids = graphene.List(graphene.ID)
