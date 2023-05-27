@@ -89,6 +89,8 @@ class BuildingInput(graphene.InputObjectType):
     house_number = graphene.String()
     owner_id = graphene.Int()
     building_type = graphene.String()
+    photo = graphene.String()
+    building_documents = graphene.List(graphene.JSONString)
 
 
 class RoomInput(graphene.InputObjectType):

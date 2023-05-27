@@ -36,6 +36,9 @@ class CreateBuilding(graphene.Mutation):
             with transaction.atomic():
                 address_instance, created = Address.objects.get_or_create(**address)
                 building["address"] = address_instance
+                building["building_document_Url"] = building.pop("building_documents")
+                building["building_document_Url"] = building["building_document_Url"][0]
+                building["building_photo_url"] = building.pop("photo")
                 building_instance = Building.objects.create(**building)
                 if rooms:
                     room_objects = []

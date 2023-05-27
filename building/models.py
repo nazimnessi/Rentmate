@@ -53,6 +53,8 @@ class Building(models.Model):
     updated_date = models.DateTimeField('Building Updated date', auto_now=True)
     owner = models.ForeignKey(
         User, on_delete=models.CASCADE, null=True, blank=True, default=None)
+    building_photo_url = models.CharField(max_length=500, blank=True, null=True)
+    building_document_Url = models.JSONField(blank=True, null=True)
 
     def __str__(self):
         return self.name
@@ -95,6 +97,8 @@ class Room(models.Model):
     bathroom_count = models.CharField(max_length=2, null=True, blank=True)
     kitchen_count = models.CharField(max_length=2, null=True, blank=True)
     is_parking_available = models.BooleanField(default=True)
+    room_photo_Url = models.JSONField(blank=True, null=True)
+    room_document_Url = models.JSONField(blank=True, null=True)
 
     def clean(self):
         if self.renter == self.building.owner:
