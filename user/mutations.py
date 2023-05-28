@@ -4,6 +4,7 @@ from graphql import GraphQLError
 from user.node import AddressInput, AddressType, UserInput, UserType, UserUpdateInput
 from .models import User, Address
 import graphql_jwt
+from django.db import transaction
 
 
 class CreateUser(graphene.Mutation):
@@ -28,15 +29,17 @@ class CreateUser(graphene.Mutation):
 
             elif user.get('password1') != user.get('password2'):
                 raise GraphQLError("Provided passwords do not match.")
-
-            password = user.pop('password1')
-            user.pop('password2')
-            user['country_code'] = user.get('country_code').replace("+", "code_")
-            user_instance = User(**user)
-            user_instance.set_password(password)
-            user_instance.save()
+            with transaction.atomic():
+                password = user.pop('password1')
+                user.pop('password2')
+                user['country_code'] = user.get('country_code').replace("+", "code_")
+                user['first_name'] = user.get('email').split('@')[0]
+                user_instance = User(**user)
+                user_instance.set_password(password)
+                user_instance.save()
 
         except Exception as e:
+            transaction.rollback()
             raise GraphQLError(f"An unknown error occurred: {e}")
 
         return CreateUser(users=user_instance)

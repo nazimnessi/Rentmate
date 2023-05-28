@@ -84,6 +84,8 @@ class UserInput(graphene.InputObjectType):
     phone_number = graphene.String()
     email = graphene.String()
     country_code = graphene.String()
+    user_photo_url = graphene.String()
+    user_document_Url = graphene.List(graphene.JSONString)
 
 
 class UserUpdateInput(graphene.InputObjectType):

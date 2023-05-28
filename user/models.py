@@ -46,20 +46,28 @@ class User(AbstractUser):
         ('code_966', 'Saudi Arabia'),
     )
 
+    IDENTIFICATION_TYPE = (
+        ('Aadhar', 'Aadhar'),
+        ('Driving_Licence', 'Driving_Licence'),
+    )
+
     address = models.ForeignKey(
         Address, on_delete=models.CASCADE, null=True, blank=True)
     photo = models.ImageField(
         upload_to='media/', default='Default_user.png')
     phone_number = models.CharField(max_length=20, unique=True)
-    country_code = models.CharField(max_length=10, choices=COUNTRY_CHOICES, default='India', db_column='building_type')
+    country_code = models.CharField(max_length=10, choices=COUNTRY_CHOICES, default='India', db_column='country_code')
     alt_phone_number = models.CharField(max_length=20, blank=True)
     email = models.EmailField(unique=True)
     documents = models.ManyToManyField(Documents, blank=True)
-    aadhar = models.CharField(max_length=12, blank=True, null=True)
+    identification_number = models.CharField(max_length=50, blank=True, null=True)
+    identification_type = models.CharField(max_length=50, choices=IDENTIFICATION_TYPE, default='Aadhar', db_column='identification_type', blank=True, null=True)
     is_active = models.BooleanField(default=True)
     role = models.CharField(max_length=6, choices=Role_choice, default='Owner')
     created_date = models.DateTimeField('User created date', auto_now_add=True)
     updated_date = models.DateTimeField('User Updated date', auto_now=True)
+    user_photo_url = models.CharField(max_length=500, blank=True, null=True)
+    user_document_Url = models.JSONField(blank=True, null=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'phone_number']
