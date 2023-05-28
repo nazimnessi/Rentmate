@@ -47,6 +47,7 @@ class CreateBuilding(graphene.Mutation):
                             room["rent_period_start"] = datetime.strptime(room["rent_period_start"], "%Y, %m, %d")
                             room["rent_period_end"] = datetime.strptime(room["rent_period_end"], "%Y, %m, %d")
                             room['building_id'] = building_instance.id
+                            room["room_document_Url"] = room["room_document_Url"][0]
                             room_objects.append(Room(**room))
 
                         except Exception as exe:

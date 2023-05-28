@@ -112,6 +112,7 @@ class RoomInput(graphene.InputObjectType):
     bathroom_count = graphene.Int()
     kitchen_count = graphene.Int()
     is_parking_available = graphene.Boolean()
+    room_document_Url = graphene.List(graphene.JSONString)
 
 
 class RequestInput(graphene.InputObjectType):
