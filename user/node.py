@@ -7,6 +7,7 @@ from user.filterset import UserFilterClass
 from .models import User, Address
 from building.models import Building, Room
 from django.db.models import Count
+from django.db.models import Sum
 
 
 class RoomType(DjangoObjectType):
@@ -22,6 +23,22 @@ class RoomType(DjangoObjectType):
 
 
 class RenterType(DjangoObjectType):
+
+    room_name = graphene.List(graphene.String)
+    building_name = graphene.List(graphene.String)
+    rent_amount = graphene.Int()
+
+    def resolve_room_name(parent, info, **kwargs):
+        room_name = parent.room_set.values_list('room_no', flat=True)
+        return room_name
+
+    def resolve_building_name(parent, info, **kwargs):
+        building_name = parent.room_set.values_list('building__name', flat=True).distinct()
+        return building_name
+
+    def resolve_rent_amount(parent, info, **kwargs):
+        rent_amount = parent.room_set.aggregate(total=Sum('rent_amount'))['total']
+        return rent_amount
 
     class Meta:
         model = User

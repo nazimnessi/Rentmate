@@ -6,6 +6,7 @@ from building.utils import convert_string_to_display
 from .models import Building, Room, Request
 from user.models import User
 from django.db.models import Count
+from django.db.models import Sum
 
 
 class ExtendedConnectionBuilding(graphene.Connection):
@@ -26,6 +27,8 @@ class BuildingType(DjangoObjectType):
 
     total_renters = graphene.Int()
     total_rooms = graphene.Int()
+    total_rent_amount = graphene.Int()
+    total_rent_amount_from_renter = graphene.Int()
 
     def resolve_total_renters(parent, info, **kwargs):
         total_renters = User.objects.filter(room__building=parent).aggregate(Count('id'))['id__count']
@@ -34,6 +37,14 @@ class BuildingType(DjangoObjectType):
     def resolve_total_rooms(parent, info, **kwargs):
         total_renters = Room.objects.filter(building=parent).aggregate(Count('id'))['id__count']
         return total_renters
+
+    def resolve_total_rent_amount(parent, info, **kwargs):
+        total_rent_amount = parent.rooms.aggregate(total=Sum('rent_amount'))['total']
+        return total_rent_amount if total_rent_amount else 0
+
+    def resolve_total_rent_amount_from_renter(parent, info, **kwargs):
+        total_rent_amount = parent.rooms.filter(renter__isnull=False).aggregate(total=Sum('rent_amount'))['total']
+        return total_rent_amount if total_rent_amount else 0
 
     class Meta:
         model = Building
