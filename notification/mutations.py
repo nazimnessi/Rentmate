@@ -1,6 +1,8 @@
 import graphene
 from notification.node import NotificationsInput, NotificationsReadInput, NotificationsType
 from .models import Notifications
+from graphql import GraphQLError
+from datetime import datetime
 
 
 class CreateNotifications(graphene.Mutation):
@@ -37,7 +39,7 @@ class NotificationRead(graphene.Mutation):
 
     @staticmethod
     def mutate(root, info, data=None):
-        Notifications.objects.filter(id__in=data.get('ids')).update(is_read=True)
+        Notifications.objects.filter(id__in=data.get('ids'), last_read=None).update(is_read=True, last_read=datetime.now())
         return NotificationRead(message="All Notifications read")
 
 
