@@ -16,6 +16,7 @@ class Notifications(models.Model):
     updated_date = models.DateTimeField('Notifications updated date', auto_now_add=True)
     message = models.CharField(max_length=255, blank=True, null=True)
     is_read = models.BooleanField(default=False)
+    last_read = models.DateField("Notifications read date", blank=True, null=True)
     notification_type = models.CharField(max_length=20, choices=NOTIFICATION_TYPES, default='Others')
     description = models.TextField(blank=True, null=True)
     request = models.CharField(max_length=255, blank=True, null=True)

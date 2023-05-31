@@ -80,7 +80,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "corsheaders.middleware.CorsMiddleware",
-    "corsheaders.middleware.CorsPostCsrfMiddleware",
+    # "corsheaders.middleware.CorsPostCsrfMiddleware",
     # 'graphql_jwt.middleware.JSONWebTokenMiddleware',
 ]
 
