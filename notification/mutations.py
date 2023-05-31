@@ -1,7 +1,6 @@
 import graphene
 from notification.node import NotificationsInput, NotificationsReadInput, NotificationsType
 from .models import Notifications
-from graphql import GraphQLError
 from datetime import datetime
 
 
