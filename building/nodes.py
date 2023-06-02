@@ -51,6 +51,7 @@ class BuildingType(DjangoObjectType):
         filter_fields = {
             'name': ['exact', 'icontains', 'istartswith'],
             'house_number': ['exact', 'icontains', 'istartswith'],
+            'building_type': ['exact'],
             'owner': ['exact'],
         }
         interfaces = (relay.Node,)
