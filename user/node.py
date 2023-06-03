@@ -16,7 +16,9 @@ class RoomType(DjangoObjectType):
         filter_fields = {
             'room_no': ['exact', 'icontains', 'istartswith'],
             'criteria': ['exact', 'icontains', 'istartswith'],
-            'building': ['exact'],
+            'building__name': ['exact', 'icontains'],
+            'building__building_type': ['exact'],
+            'renter__username': ['icontains'],
         }
         interfaces = (relay.Node,)
         fields = '__all__'
@@ -45,6 +47,7 @@ class RenterType(DjangoObjectType):
         filter_fields = {
             "email": ['exact'],
             'username': ['exact', 'icontains', 'istartswith'],
+            "first_name": ['exact', 'icontains'],
             'phone_number': ['exact', 'icontains', 'istartswith'],
             'alt_phone_number': ['exact', 'icontains', 'istartswith'],
         }
