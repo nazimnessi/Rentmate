@@ -214,7 +214,7 @@ class UpdateRequest(graphene.Mutation):
                     Notifications.objects.create(
                         recipient_id=request_instance.sender.id,
                         sender_id=request_instance.receiver.id,
-                        notification_type="Application",
+                        notification_type="Others",
                         message=f"{request_instance.receiver.username} Accepted your request",
                         description=request_instance.text,
                         request=str(request_instance.id),
