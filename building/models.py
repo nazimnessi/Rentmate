@@ -94,9 +94,10 @@ class Room(models.Model):
     area = models.CharField(max_length=100, null=True, blank=True)
     floor = models.CharField(max_length=100, null=True, blank=True)
     max_capacity = models.CharField(max_length=2, null=True, blank=True)
-    bathroom_count = models.CharField(max_length=2, null=True, blank=True)
-    kitchen_count = models.CharField(max_length=2, null=True, blank=True)
+    bathroom_count = models.CharField(max_length=3, null=True, blank=True)
+    kitchen_count = models.CharField(max_length=3, null=True, blank=True)
     is_parking_available = models.BooleanField(default=True)
+    garage_count =  models.CharField(max_length=3, null=True, blank=True)
     room_photo_Url = models.JSONField(blank=True, null=True)
     room_document_Url = models.JSONField(blank=True, null=True)
 
