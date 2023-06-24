@@ -73,7 +73,7 @@ class Room(models.Model):
         ('Studio', 'Studio'),
         ('Others', 'Others'),
     )
-    room_no = models.CharField(max_length=10)
+    room_no = models.CharField(max_length=100)
     criteria = models.CharField(
         max_length=15, choices=criteria_choice, default='Fully Furnished')
     appliances = models.CharField(max_length=100, blank=True)
