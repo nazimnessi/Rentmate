@@ -58,7 +58,6 @@ INSTALLED_APPS = [
     "rest_framework",
     "corsheaders",
     "django.contrib.sites",
-
     "graphql_jwt.refresh_token.apps.RefreshTokenConfig",
     # 'crispy_forms'
     # dj_rest_auth
