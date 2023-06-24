@@ -25,7 +25,6 @@ urlpatterns = [
     path("graphql", csrf_exempt(GraphQLView.as_view(graphiql=True))),
     path('api/', include('user.urls')),
     path('api/', include('building.urls')),
-    path('accounts/', include('allauth.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

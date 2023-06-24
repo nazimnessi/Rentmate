@@ -58,11 +58,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "corsheaders",
     "django.contrib.sites",
-    # allauth
-    "allauth",
-    "allauth.account",
-    "allauth.socialaccount",
-    "allauth.socialaccount.providers.google",
+
     "graphql_jwt.refresh_token.apps.RefreshTokenConfig",
     # 'crispy_forms'
     # dj_rest_auth
@@ -107,8 +103,6 @@ GRAPHQL_JWT = {
 AUTHENTICATION_BACKENDS = [
     "graphql_jwt.backends.JSONWebTokenBackend",
     "django.contrib.auth.backends.ModelBackend",
-    # `allauth` specific authentication methods, such as login by e-mail
-    "allauth.account.auth_backends.AuthenticationBackend",
 ]
 
 TEMPLATES = [
@@ -128,11 +122,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "rentmate.wsgi.application"
-
-
-LOGIN_REDIRECT_URL = "http://localhost:3000/user/Buildings"
-ACCOUNT_LOGOUT_REDIRECT_URL = "http://localhost:3000/login"
-# LOGIN_URL = '/login/'
 
 
 SOCIALACCOUNT_PROVIDERS = {
