@@ -10,19 +10,6 @@ from django.db.models import Count
 from django.db.models import Sum
 
 
-class ExtendedConnectionRoom(graphene.Connection):
-    class Meta:
-        abstract = True
-
-    total_count = graphene.Int()
-    edge_count = graphene.Int()
-
-    def resolve_total_count(root, info, **kwargs):
-        return root.length
-
-    def resolve_edge_count(root, info, **kwargs):
-        return len(root.edges)
-
 class RoomType(DjangoObjectType):
     class Meta:
         model = Room
@@ -35,8 +22,6 @@ class RoomType(DjangoObjectType):
         }
         interfaces = (relay.Node,)
         fields = '__all__'
-        connection_class = ExtendedConnectionRoom
-        
 
 
 class RenterType(DjangoObjectType):
@@ -44,7 +29,6 @@ class RenterType(DjangoObjectType):
     room_name = graphene.List(graphene.String)
     building_name = graphene.List(graphene.String)
     rent_amount = graphene.Int()
-    
 
     def resolve_room_name(parent, info, **kwargs):
         room_name = parent.room_set.values_list('room_no', flat=True)
@@ -77,12 +61,12 @@ class UserType(DjangoObjectType):
     total_rooms = DjangoFilterConnectionField(RoomType)
     full_address = graphene.String()
     room_count = graphene.Int()
-    
+
     def resolve_room_count(parent, info, **kwargs):
         user = info.context.user
         roomCount = Room.objects.filter(renter=parent, building__owner=user).count()
         return roomCount
-    
+
     def resolve_full_address(parent, info, **kwargs):
         return parent.address
 
