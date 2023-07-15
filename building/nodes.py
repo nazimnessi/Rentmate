@@ -44,7 +44,7 @@ class BuildingType(DjangoObjectType):
     total_rent_amount = graphene.Int()
     total_rent_amount_from_renter = graphene.Int()
     full_address = graphene.String()
-    
+
     def resolve_full_address(parent, info, **kwargs):
         return parent.address
 
