@@ -98,7 +98,7 @@ class Room(models.Model):
     kitchen_count = models.CharField(max_length=3, null=True, blank=True)
     is_parking_available = models.BooleanField(default=True)
     garage_count =  models.CharField(max_length=3, null=True, blank=True)
-    room_photo_Url = models.JSONField(blank=True, null=True)
+    room_photo_Url = models.CharField(max_length=900,blank=True, null=True)
     room_document_Url = models.JSONField(blank=True, null=True)
 
     def clean(self):
