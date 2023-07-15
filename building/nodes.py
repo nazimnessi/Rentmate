@@ -9,6 +9,20 @@ from django.db.models import Count
 from django.db.models import Sum
 
 
+class ExtendedConnectionRoom(graphene.Connection):
+    class Meta:
+        abstract = True
+
+    total_count = graphene.Int()
+    edge_count = graphene.Int()
+
+    def resolve_total_count(root, info, **kwargs):
+        return root.length
+
+    def resolve_edge_count(root, info, **kwargs):
+        return len(root.edges)
+
+
 class ExtendedConnectionBuilding(graphene.Connection):
     class Meta:
         abstract = True
@@ -29,6 +43,10 @@ class BuildingType(DjangoObjectType):
     total_rooms = graphene.Int()
     total_rent_amount = graphene.Int()
     total_rent_amount_from_renter = graphene.Int()
+    full_address = graphene.String()
+    
+    def resolve_full_address(parent, info, **kwargs):
+        return parent.address
 
     def resolve_total_renters(parent, info, **kwargs):
         total_renters = User.objects.filter(room__building=parent).aggregate(Count('id'))['id__count']
@@ -76,10 +94,14 @@ class RoomType(DjangoObjectType):
             'room_no': ['exact', 'icontains', 'istartswith'],
             'criteria': ['exact', 'icontains', 'istartswith'],
             'building': ['exact'],
+            'building__owner_id': ['exact'],
+            'building__name': ['exact', 'icontains'],
+            'building__building_type': ['exact'],
+            'renter__username': ['icontains'],
         }
         interfaces = (relay.Node,)
         fields = '__all__'
-        # connection_class = ExtendedConnectionRoom
+        connection_class = ExtendedConnectionRoom
 
         @classmethod
         def get_queryset(cls, queryset, info):
