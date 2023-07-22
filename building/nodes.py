@@ -94,10 +94,12 @@ class RoomType(DjangoObjectType):
             'room_no': ['exact', 'icontains', 'istartswith'],
             'criteria': ['exact', 'icontains', 'istartswith'],
             'building': ['exact'],
-            'building__owner_id': ['exact'],
+            'building__owner__id': ['exact'],
             'building__name': ['exact', 'icontains'],
             'building__building_type': ['exact'],
             'renter__username': ['icontains'],
+            'renter__first_name': ['icontains'],
+            'renter__phone_number': ['icontains'],
         }
         interfaces = (relay.Node,)
         fields = '__all__'

@@ -11,6 +11,7 @@ class Query(graphene.ObjectType):
 
     all_Rooms = DjangoFilterConnectionField(RoomType)
     Rooms = relay.Node.Field(RoomType)
+    all_Renters = DjangoFilterConnectionField(RoomType)
 
     all_Request = DjangoFilterConnectionField(RequestType)
     request = relay.Node.Field(RequestType)
@@ -20,6 +21,9 @@ class Query(graphene.ObjectType):
 
     def resolve_all_Rooms(root, info, **kwargs):
         return Room.objects.order_by('-id')
+
+    def resolve_all_Renters(root, info, **kwargs):
+        return Room.objects.filter(renter__isnull=False).order_by('-id')
 
     def resolve_all_Request(root, info, **kwargs):
         return Request.objects.order_by('-id')
