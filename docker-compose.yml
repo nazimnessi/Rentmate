@@ -23,7 +23,7 @@ services:
       MYSQL_ROOT_PASSWORD: testuser123
       MYSQL_DATABASE: rentmate_db
       # MYSQL_USER: root
-    command: --default-authentication-plugin=mysql_native_password
+    command: --default-authentication-plugin=caching_sha2_password
   web:
     depends_on:
       - db
