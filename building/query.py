@@ -3,7 +3,6 @@ from graphene import relay
 from graphene_django.filter import DjangoFilterConnectionField
 from building.nodes import BuildingType, RequestType, RoomType
 from building.models import Building, Room, Request
-from user.models import User
 from django.db.models import Count
 
 
@@ -21,15 +20,15 @@ class Query(graphene.ObjectType):
     def resolve_all_Buildings(root, info, **kwargs):
         if 'address' in kwargs.get('orderBy'):
             return Building.objects.order_by(
-                    f'{kwargs.get("orderBy")}__address1',
-                    f'{kwargs.get("orderBy")}__address2',
-                    f'{kwargs.get("orderBy")}__city',
-                    f'{kwargs.get("orderBy")}__state',
-                    f'{kwargs.get("orderBy")}__postal_code',
-                )
-        elif 'total_renter' in  kwargs.get("orderBy"):
+                f'{kwargs.get("orderBy")}__address1',
+                f'{kwargs.get("orderBy")}__address2',
+                f'{kwargs.get("orderBy")}__city',
+                f'{kwargs.get("orderBy")}__state',
+                f'{kwargs.get("orderBy")}__postal_code',
+            )
+        elif 'total_renter' in kwargs.get("orderBy"):
             return Building.objects.annotate(total_renter=Count('rooms__renter')).order_by(kwargs.get("orderBy"))
-        elif 'total_rooms' in  kwargs.get("orderBy"):
+        elif 'total_rooms' in kwargs.get("orderBy"):
             return Building.objects.annotate(total_rooms=Count('rooms__id')).order_by(kwargs.get("orderBy"))
         return Building.objects.order_by(kwargs.get('orderBy', '-id'))
 
