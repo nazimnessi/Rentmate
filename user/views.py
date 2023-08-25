@@ -10,6 +10,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework import permissions
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.conf import settings
 # from rest_framework.authentication import SessionAuthentication
 from .models import User, Documents
 from .serializer import UserProfilePictureSerializer, UserSerializer, UserDocumentSerializer
@@ -45,6 +48,35 @@ class UserDocumentView(APIView):
             return Response(user_serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UserContactUsMail(APIView):
+
+    def post(self, request, *args, **kwargs):
+        name = request.data.get('name')
+        from_email = request.data.get('from_email')
+        subject = request.data.get('subject')
+        message = request.data.get('message')
+
+        if name and from_email and subject and message:
+            html_message = render_to_string('contactUs.html', {
+                'name': name,
+                'subject': subject,
+                'from_email': from_email,
+                'message': message,
+            })
+
+            send_mail(
+                subject=subject,
+                message="",
+                from_email=from_email,
+                recipient_list=[settings.EMAIL_HOST_USER],
+                html_message=html_message
+            )
+
+            return Response({'message': 'Email sent successfully!'}, status=status.HTTP_200_OK)
+        else:
+            return Response({'error': 'Incomplete data'}, status=400)
 
 
 # def google_callback(request):

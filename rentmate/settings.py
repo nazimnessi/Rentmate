@@ -107,7 +107,7 @@ AUTHENTICATION_BACKENDS = [
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / "templates"],
+        "DIRS": [BASE_DIR, "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -205,7 +205,10 @@ MEDIA_URL = "/media/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# CRISPY_TEMPLATE_PACK = 'account'
-EMAIL_BACKEND = (
-    "django.core.mail.backends.console.EmailBackend"  # need to further config this
-)
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'rentmate.properties@gmail.com'  # Replace with your Gmail address
+EMAIL_HOST_PASSWORD = 'rnypxtsfyaczuuxi'  # Replace with your Gmail app password
