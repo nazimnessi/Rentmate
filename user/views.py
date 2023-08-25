@@ -63,7 +63,7 @@ class UserContactUsMail(APIView):
                 'name': name,
                 'subject': subject,
                 'from_email': from_email,
-                'message': message,
+                'message': message.replace('\\n', '<br>'),
             })
 
             send_mail(
