@@ -49,9 +49,14 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+
+    # created Apps
     "user",
     "building",
     "notification",
+    "JobApplication",
+
+    # external packages
     "graphene_django",
     "django_filters",
     "django_celery_results",
