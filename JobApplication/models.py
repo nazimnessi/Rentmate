@@ -4,14 +4,17 @@ from django.core.exceptions import ValidationError
 # Create your models here.
 
 
+class Job_Types(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    created_date = models.DateTimeField('job type created date', auto_now_add=True)
+    updated_date = models.DateTimeField('job type Updated date', auto_now=True)
+
+    def __str__(self):
+        return f'{self.name}'
+
+
 class Job_List(models.Model):
-    JOB_TYPES = (
-        ('Management', 'Management'),
-        ('Sales', 'Sales'),
-        ('Developer', 'Developer'),
-        ('Marketing', 'Marketing'),
-    )
-    job_type = models.CharField(max_length=100, choices=JOB_TYPES, default='Developer')
+    jobTypes = models.ForeignKey(Job_Types, on_delete=models.CASCADE, related_name='Job_type')
     name = models.CharField(max_length=200)
     small_description = models.CharField(max_length=1000)
     characteristics = models.JSONField(max_length=100)
