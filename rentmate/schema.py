@@ -23,6 +23,7 @@ class Mutation(
     schema_user.Mutation,
     schema_building.Mutation,
     schema_notification.Mutation,
+    schema_job.Mutation,
     graphene.ObjectType,
 ):
     debug = graphene.Field(DjangoDebug, name="_debug")
