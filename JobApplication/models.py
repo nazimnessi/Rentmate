@@ -18,6 +18,7 @@ class Job_List(models.Model):
     name = models.CharField(max_length=200)
     small_description = models.CharField(max_length=1000)
     characteristics = models.JSONField(max_length=100)
+    questions = models.JSONField(blank=True, null=True)
     created_date = models.DateTimeField('job created date', auto_now_add=True)
     updated_date = models.DateTimeField('job Updated date', auto_now=True)
 
@@ -26,7 +27,7 @@ class Job_List(models.Model):
 
 
 class Job_Application(models.Model):
-    full_name = models.CharField(max_length=100, unique=True)
+    full_name = models.CharField(max_length=100, unique=False)
     Job_List = models.ForeignKey(Job_List, on_delete=models.SET_NULL, blank=True, null=True, related_name='Job_list')
     email = models.CharField(max_length=50, unique=True)
     phone_number = models.CharField(max_length=100, unique=True)
@@ -34,9 +35,10 @@ class Job_Application(models.Model):
     github = models.CharField(max_length=300, blank=True, null=True, unique=True)
     website = models.CharField(max_length=300, blank=True, null=True, unique=True)
     total_experience = models.IntegerField()
-    question1 = models.TextField(max_length=1000, help_text="How did you hear about this position?:")
-    question2 = models.TextField(max_length=1000, help_text="Why are you interested in joining the Rentmate team?:")
-    question3 = models.TextField(max_length=1000, blank=True, null=True, help_text="ny additional information you'd like to share:")
+    # question1 = models.TextField(max_length=1000, help_text="How did you hear about this position?:")
+    # question2 = models.TextField(max_length=1000, help_text="Why are you interested in joining the Rentmate team?:")
+    # question3 = models.TextField(max_length=1000, blank=True, null=True, help_text="ny additional information you'd like to share:")
+    questions = models.JSONField(blank=True, null=True)
     resume = models.CharField(max_length=200)
     cover_letter = models.CharField(max_length=200, blank=True, null=True)
     created_date = models.DateTimeField('job created date', auto_now_add=True)
