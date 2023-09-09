@@ -47,3 +47,4 @@ class JobApplicationInput(graphene.InputObjectType):
     questions = graphene.List(graphene.JSONString)
     resume = graphene.String()
     cover_letter = graphene.String()
+    photo = graphene.String()

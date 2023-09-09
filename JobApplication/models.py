@@ -41,6 +41,7 @@ class Job_Application(models.Model):
     questions = models.JSONField(blank=True, null=True)
     resume = models.CharField(max_length=200)
     cover_letter = models.CharField(max_length=200, blank=True, null=True)
+    photo = models.CharField(max_length=200, blank=True, null=True)
     created_date = models.DateTimeField('job created date', auto_now_add=True)
     updated_date = models.DateTimeField('job Updated date', auto_now=True)
 
