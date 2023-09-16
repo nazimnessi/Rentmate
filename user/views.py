@@ -124,9 +124,8 @@ class IsUserLoginView(APIView):
 
 
 class UserLogoutView(APIView):
-    permission_classes = [permissions.AllowAny]
 
-    def post(self, request):
+    def get(self, request):
         logout(request)
         return Response({"message": "User logged out successfully."}, status=status.HTTP_200_OK)
 
