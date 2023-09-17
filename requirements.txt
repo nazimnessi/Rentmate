@@ -18,3 +18,5 @@ django-cors-headers
 django-graphql-jwt
 django-graphql-auth
 dj-rest-auth
+google-auth
+requests
