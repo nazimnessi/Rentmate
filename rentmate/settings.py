@@ -187,6 +187,10 @@ USE_I18N = True
 
 USE_TZ = True
 
+# Google Client ID for user authentication
+# website: https://console.cloud.google.com/apis/credentials?project=pivotal-store-383806
+CLIENT_ID = '303739980881-oktvl011f3p6h3spc4nldatfn2lv9p9r.apps.googleusercontent.com'
+
 CELERY_BROKER_URL = "redis://redis:6379/0"
 CELERY_RESULT_BACKEND = "redis://redis:6379/0"
 CELERY_ACCEPT_CONTENT = ["application/json"]
