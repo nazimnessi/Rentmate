@@ -17,6 +17,8 @@ from django.conf import settings
 from .models import User, Documents
 from .serializer import UserProfilePictureSerializer, UserSerializer, UserDocumentSerializer
 from django.contrib.auth import authenticate, login, logout
+from google.oauth2 import id_token
+from google.auth.transport import requests
 
 
 class UserProfilePictureView(generics.UpdateAPIView):
@@ -110,7 +112,7 @@ class UserLoginView(APIView):
         auth_user = authenticate(request, email=user.email, password=request.data.get('password'))
         if auth_user:
             login(request, auth_user)
-            return Response({"status": True, "username": auth_user.username, }, status=status.HTTP_200_OK,)
+            return Response({"status": True, "username": auth_user.username, "user_id": request.user.id}, status=status.HTTP_200_OK,)
         return Response({"error": {"message": "Your username and password didn't match. Please try again"}}, status=status.HTTP_401_UNAUTHORIZED)
 
 
@@ -119,7 +121,7 @@ class IsUserLoginView(APIView):
 
     def get(self, request):
         if request.user.is_authenticated:
-            return Response({"status": True, "username": request.user.username}, status=status.HTTP_200_OK)
+            return Response({"status": True, "username": request.user.username, "user_id": request.user.id}, status=status.HTTP_200_OK)
         return Response({"status": False}, status=status.HTTP_401_UNAUTHORIZED)
 
 
@@ -128,6 +130,23 @@ class UserLogoutView(APIView):
     def get(self, request):
         logout(request)
         return Response({"message": "User logged out successfully."}, status=status.HTTP_200_OK)
+
+
+class UserAuthenticateView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request):
+        token = request.GET.get('token')
+        user_info = id_token.verify_oauth2_token(token, requests.Request(), settings.CLIENT_ID)
+        try:
+            user = User.objects.get(email=user_info.get('email'))
+        except Exception:
+            return Response({"error": {"message": "User Does not have an account"}}, status=status.HTTP_401_UNAUTHORIZED)
+
+        if user:
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+            return Response({"status": True, "username": user.username, "user_id": user.id}, status=status.HTTP_200_OK,)
+        return Response({"error": {"message": "account not found. try login manually or create a new account"}}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 # class UserView(APIView):
