@@ -68,6 +68,8 @@ class User(AbstractUser):
     updated_date = models.DateTimeField('User Updated date', auto_now=True)
     user_photo_url = models.CharField(max_length=500, blank=True, null=True)
     user_document_Url = models.JSONField(blank=True, null=True)
+    is_verified_email = models.BooleanField(("Email Verified"), default=False, help_text=("Designates whether the user email is verified or not"))
+    is_verified_phone_number = models.BooleanField(("Phone Number Verified"), default=False, help_text=("Designates whether the user phone number is verified or not"))
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'phone_number']

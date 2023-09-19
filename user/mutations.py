@@ -5,6 +5,7 @@ from user.node import AddressInput, AddressType, UserInput, UserType, UserUpdate
 from .models import User, Address
 import graphql_jwt
 from django.db import transaction
+from django.contrib.auth import authenticate
 
 
 class CreateUser(graphene.Mutation):
@@ -135,10 +136,40 @@ class DeleteAddress(graphene.Mutation):
         return DeleteAddress(address=address_instance)
 
 
+class UpdatePassword(graphene.Mutation):
+    class Arguments:
+        id = graphene.ID()
+        current_password = graphene.String()
+        new_password = graphene.String()
+
+    users = graphene.Field(UserType)
+
+    @staticmethod
+    def mutate(root, info, id=None, current_password=None, new_password=None):
+        try:
+            user_instance = User.objects.get(id=id)
+            auth_user = authenticate(email=user_instance.email, password=current_password)
+            if auth_user:
+                user_instance.set_password(new_password)
+                user_instance.save()
+                return UpdatePassword(users=user_instance)
+            else:
+                return GraphQLError("Current Password Incorrect")
+
+        except Address.DoesNotExist:
+            user_instance = None
+            raise GraphQLError("User Does Not Exist")
+        except Exception as e:
+            transaction.rollback()
+            raise GraphQLError(f"An unknown error occurred: {e}")
+
+
 class Mutation(graphene.ObjectType):
     create_user = CreateUser.Field()
     update_user = UpdateUser.Field()
     delete_user = DeleteUser.Field()
+
+    update_password = UpdatePassword.Field()
 
     create_user_address = CreateAddress.Field()
     update_user_address = UpdateAddress.Field()

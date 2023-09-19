@@ -1,9 +1,7 @@
-# import json
-# from django.contrib.auth import login, logout
-# from django.http import JsonResponse
-# from django.utils.decorators import method_decorator
-# from django.views.decorators.csrf import csrf_exempt
-# from allauth.account.views import LoginView
+
+from .utils import email_verification_token_generator
+
+
 from rest_framework import generics
 from rest_framework.parsers import FileUploadParser, MultiPartParser, FormParser
 from rest_framework.response import Response
@@ -13,7 +11,6 @@ from rest_framework import permissions
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.conf import settings
-# from rest_framework.authentication import SessionAuthentication
 from .models import User, Documents
 from .serializer import UserProfilePictureSerializer, UserSerializer, UserDocumentSerializer
 from django.contrib.auth import authenticate, login, logout
@@ -149,19 +146,60 @@ class UserAuthenticateView(APIView):
         return Response({"error": {"message": "account not found. try login manually or create a new account"}}, status=status.HTTP_401_UNAUTHORIZED)
 
 
-# class UserView(APIView):
-#     permission_classes = (permissions.IsAuthenticated,)
-#     authentication_classes = (SessionAuthentication,)
+class SendVerificationEmail(APIView):
+    permission_classes = [permissions.IsAuthenticated]
 
-#     def get(self, request):
-#         serializer = UserSerializer(request.user)
-#         return Response({'user': serializer.data}, status=status.HTTP_200_OK)
+    def get(self, request):
+        email = request.GET.get('email')
+
+        if not email:
+            return Response({'error': 'Email is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # You can use Django's built-in User model or your custom User model.
+        user = User.objects.filter(email=email).first()
+
+        if not user:
+            return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Generate a verification token
+        token = email_verification_token_generator.make_token(user)
+
+        # Construct the verification link with the token
+        verification_link = f'http://localhost:3000/verify-email/?email={email}&token={token}'
+
+        # Send the email with the verification link
+        subject = 'Email Verification'
+        message = f'Click the following link to verify your email: {verification_link}'
+        from_email = settings.EMAIL_HOST_USER
+        recipient_list = [email]
+
+        try:
+            send_mail(subject, message, from_email, recipient_list)
+            return Response({'message': 'Verification email sent successfully.'}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-# class UserLogOut(APIView):
-#     permissions_classes = (permissions.IsAuthenticated,)
-#     authentication_classes = (SessionAuthentication,)
+class VerifyEmail(APIView):
+    permission_classes = [permissions.IsAuthenticated]
 
-#     def post(self, request):
-#         logout(request)
-#         return Response(status=status.HTTP_200_OK)
+    def get(self, request):
+        email = request.GET.get('email')
+        token = request.GET.get('token')
+
+        if not email or not token:
+            return Response({'error': 'Email and token are required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        user = User.objects.filter(email=email).first()
+
+        if not user:
+            return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Verify the token
+        if email_verification_token_generator.check_token(user, token):
+            # Mark the email as verified (You can customize this logic)]
+            user.is_verified = True
+            user.save()
+            return Response({'message': 'Email verified successfully.'}, status=status.HTTP_200_OK)
+        else:
+            return Response({'error': 'Invalid token.'}, status=status.HTTP_400_BAD_REQUEST)
