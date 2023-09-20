@@ -183,7 +183,7 @@ class SendVerificationEmail(APIView):
         recipient_list = [email]
         email = EmailMessage(
             subject,
-            email_message,  # The HTML content
+            message,
             from_email,
             recipient_list,
         )
