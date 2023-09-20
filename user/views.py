@@ -147,7 +147,8 @@ class UserAuthenticateView(APIView):
 
 
 class SendVerificationEmail(APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
 
     def get(self, request):
         email = request.GET.get('email')
@@ -181,7 +182,8 @@ class SendVerificationEmail(APIView):
 
 
 class VerifyEmail(APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
 
     def get(self, request):
         email = request.GET.get('email')
@@ -198,7 +200,7 @@ class VerifyEmail(APIView):
         # Verify the token
         if email_verification_token_generator.check_token(user, token):
             # Mark the email as verified (You can customize this logic)]
-            user.is_verified = True
+            user.is_verified_email = True
             user.save()
             return Response({'message': 'Email verified successfully.'}, status=status.HTTP_200_OK)
         else:

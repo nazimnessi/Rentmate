@@ -131,6 +131,7 @@ class UserUpdateInput(graphene.InputObjectType):
     first_name = graphene.String()
     last_name = graphene.String()
     role = graphene.Boolean()
+    email = graphene.String()
 
 
 class AddressInput(graphene.InputObjectType):
