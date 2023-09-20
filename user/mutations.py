@@ -64,6 +64,13 @@ class UpdateUser(graphene.Mutation):
     def mutate(root, info, user=None, address=None):
         address_instance, created = Address.objects.get_or_create(**address)
         user['address'] = address_instance
+        user_instance = User.objects.get(id=user.get('id'))
+        if user_instance.email != user.get('email'):
+            user_instance.is_verified_email = False
+            user_instance.save()
+        if user_instance.phone_number != user.get('phone_number'):
+            user_instance.is_verified_phone_number = False
+            user_instance.save()
         User.objects.filter(pk=user.id).update(**user)
         user_instance = User.objects.get(id=user.id)
         return UpdateUser(users=user_instance)
