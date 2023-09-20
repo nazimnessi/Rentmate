@@ -16,6 +16,7 @@ from .serializer import UserProfilePictureSerializer, UserSerializer, UserDocume
 from django.contrib.auth import authenticate, login, logout
 from google.oauth2 import id_token
 from google.auth.transport import requests
+from django.core.mail import EmailMessage
 
 
 class UserProfilePictureView(generics.UpdateAPIView):
@@ -168,14 +169,28 @@ class SendVerificationEmail(APIView):
         # Construct the verification link with the token
         verification_link = f'http://localhost:3000/verify-email/?email={email}&token={token}'
 
+        email_message = render_to_string('EmailVerificationMail.html', {
+            'user_name': user.username,
+            "website_name": "Rentmate",
+            "verification_url": verification_link,
+            "support_email_address": 'http://localhost:3000/contact-us'
+        })
+
         # Send the email with the verification link
         subject = 'Email Verification'
-        message = f'Click the following link to verify your email: {verification_link}'
+        message = email_message
         from_email = settings.EMAIL_HOST_USER
         recipient_list = [email]
+        email = EmailMessage(
+            subject,
+            email_message,  # The HTML content
+            from_email,
+            recipient_list,
+        )
+        email.content_subtype = 'html'
 
         try:
-            send_mail(subject, message, from_email, recipient_list)
+            email.send()
             return Response({'message': 'Verification email sent successfully.'}, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
