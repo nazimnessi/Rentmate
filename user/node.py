@@ -2,12 +2,27 @@ import graphene
 from graphene import relay
 from graphene_django import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
+from building.nodes import BuildingType
 
 from user.filterset import UserFilterClass
 from .models import User, Address
 from building.models import Building, Room
 from django.db.models import Count
 from django.db.models import Sum
+
+
+class ExtendedConnectionRenter(graphene.Connection):
+    class Meta:
+        abstract = True
+
+    total_count = graphene.Int()
+    edge_count = graphene.Int()
+
+    def resolve_total_count(root, info, **kwargs):
+        return root.length
+
+    def resolve_edge_count(root, info, **kwargs):
+        return len(root.edges)
 
 
 class RoomType(DjangoObjectType):
@@ -29,18 +44,30 @@ class RenterType(DjangoObjectType):
     room_name = graphene.List(graphene.String)
     building_name = graphene.List(graphene.String)
     rent_amount = graphene.Int()
+    room_node = DjangoFilterConnectionField(RoomType)
+    building_node = DjangoFilterConnectionField(BuildingType)
+    full_address = graphene.String()
 
     def resolve_room_name(parent, info, **kwargs):
-        room_name = parent.room_set.values_list('room_no', flat=True)
+        room_name = parent.renter.values_list('room_no', flat=True)
         return room_name
 
     def resolve_building_name(parent, info, **kwargs):
-        building_name = parent.room_set.values_list('building__name', flat=True).distinct()
+        building_name = parent.renter.values_list('building__name', flat=True).distinct()
         return building_name
 
     def resolve_rent_amount(parent, info, **kwargs):
-        rent_amount = parent.room_set.aggregate(total=Sum('rent_amount'))['total']
+        rent_amount = parent.renter.aggregate(total=Sum('rent_amount'))['total']
         return rent_amount
+
+    def resolve_room_node(parent, info, **kwargs):
+        return Room.objects.filter(renter=parent).order_by('-id')
+
+    def resolve_building_node(parent, info, **kwargs):
+        return Building.objects.filter(rooms__renter=parent).order_by('-id')
+
+    def resolve_full_address(parent, info, **kwargs):
+        return parent.address
 
     class Meta:
         model = User
@@ -50,15 +77,20 @@ class RenterType(DjangoObjectType):
             "first_name": ['exact', 'icontains'],
             'phone_number': ['exact', 'icontains', 'istartswith'],
             'alt_phone_number': ['exact', 'icontains', 'istartswith'],
+            'renter__building__owner__id': ['exact'],
+            "renter__building__id": ["exact"]
         }
         interfaces = (relay.Node,)
         fields = '__all__'
+        connection_class = ExtendedConnectionRenter
 
 
 class UserType(DjangoObjectType):
     total_buildings = graphene.Int()
-    total_renters = DjangoFilterConnectionField(RenterType)
-    total_rooms = DjangoFilterConnectionField(RoomType)
+    total_renters_node = DjangoFilterConnectionField(RenterType)
+    total_renters = graphene.Int()
+    total_rooms_node = DjangoFilterConnectionField(RoomType)
+    total_rooms = graphene.Int()
     full_address = graphene.String()
     room_count = graphene.Int()
     total_rent_amount = graphene.Int()
@@ -80,7 +112,7 @@ class UserType(DjangoObjectType):
         return Room.objects.filter(building__owner=parent).order_by('-id')
 
     def resolve_total_renters(parent, info, **kwargs):
-        return User.objects.filter(room__building__owner=parent).order_by('-id')
+        return User.objects.filter(building__owner=parent).order_by('-id')
 
     def resolve_total_buildings(parent, info, **kwargs):
         return Building.objects.filter(owner=parent).aggregate(Count('id'))['id__count']

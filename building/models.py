@@ -52,7 +52,7 @@ class Building(models.Model):
     created_date = models.DateTimeField('Building created date', auto_now_add=True)
     updated_date = models.DateTimeField('Building Updated date', auto_now=True)
     owner = models.ForeignKey(
-        User, on_delete=models.CASCADE, null=True, blank=True, default=None)
+        User, on_delete=models.CASCADE, null=True, blank=True, default=None, related_name='building')
     building_photo_url = models.CharField(max_length=500, blank=True, null=True)
     building_document_Url = models.JSONField(blank=True, null=True)
 
@@ -80,7 +80,7 @@ class Room(models.Model):
     building = models.ForeignKey(
         Building, on_delete=models.CASCADE, default=None, related_name='rooms')
     renter = models.ForeignKey(
-        User, on_delete=models.CASCADE, null=True, blank=True, default=None)
+        User, on_delete=models.CASCADE, null=True, blank=True, default=None, related_name='renter')
     rent_amount = models.CharField(max_length=10)
     advance = models.CharField(max_length=10, null=True, blank=True)
     room_type = models.CharField(
