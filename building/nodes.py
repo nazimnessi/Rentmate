@@ -49,7 +49,7 @@ class BuildingType(DjangoObjectType):
         return parent.address
 
     def resolve_total_renters(parent, info, **kwargs):
-        total_renters = User.objects.filter(room__building=parent).aggregate(Count('id'))['id__count']
+        total_renters = User.objects.filter(renter__building=parent).aggregate(Count('id'))['id__count']
         return total_renters
 
     def resolve_total_rooms(parent, info, **kwargs):

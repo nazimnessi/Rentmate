@@ -4,7 +4,7 @@ from graphql import GraphQLError
 # from graphene_file_upload.scalars import Upload
 from graphene_django.filter import DjangoFilterConnectionField
 
-from user.node import AddressType, UserType
+from user.node import AddressType, RenterType, UserType
 from .models import User, Address
 
 
@@ -12,6 +12,7 @@ class Query(graphene.ObjectType):
     all_users = DjangoFilterConnectionField(UserType)
     users = relay.Node.Field(UserType)
     logged_in_user = graphene.Field(UserType)
+    all_Renters = DjangoFilterConnectionField(RenterType)
 
     all_address = DjangoFilterConnectionField(AddressType)
     address = relay.Node.Field(AddressType)
@@ -27,3 +28,6 @@ class Query(graphene.ObjectType):
 
     def resolve_all_address(root, info, **kwargs):
         return Address.objects.order_by('-id')
+
+    def resolve_all_Renters(root, info, **kwargs):
+        return User.objects.filter(renter__building__owner=info.context.user).distinct()
