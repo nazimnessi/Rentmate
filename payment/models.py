@@ -1,6 +1,7 @@
 from django.db import models
 from user.models import User
 from building.models import Room
+from django.core.exceptions import ValidationError
 
 
 class Payment(models.Model):
@@ -19,3 +20,7 @@ class Payment(models.Model):
 
     def __str__(self):
         return str(f"{self.payer} paid {self.amount} to {self.payee}")
+
+    def clean(self):
+        if self.payer == self.payee:
+            raise ValidationError("Payer cannot be same as payee.")
