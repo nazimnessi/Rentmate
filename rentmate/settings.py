@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     "building",
     "notification",
     "JobApplication",
+    "payment",
 
     # external packages
     "graphene_django",
