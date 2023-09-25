@@ -20,6 +20,7 @@ class NotificationsType(DjangoObjectType):
 class NotificationsInput(graphene.InputObjectType):
     id = graphene.ID()
     recipient_id = graphene.Int()
+    recipient_ids = graphene.List(graphene.Int)
     message = graphene.String()
     is_read = graphene.Boolean()
     notification_type = graphene.String()

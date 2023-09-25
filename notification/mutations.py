@@ -42,7 +42,21 @@ class NotificationRead(graphene.Mutation):
         return NotificationRead(message="All Notifications read")
 
 
+class SendNotification(graphene.Mutation):
+    class Arguments:
+        notification_data = NotificationsInput(required=True)
+    message = graphene.String()
+
+    @staticmethod
+    def mutate(root, info, notification_data=None):
+        recipient_ids = notification_data.pop("recipient_ids")
+        for recipient in recipient_ids:
+            Notifications.objects.create(**notification_data, recipient_id=recipient)
+        return NotificationRead(message="Notification Send")
+
+
 class Mutation(graphene.ObjectType):
     create_notification = CreateNotifications.Field()
     update_notification = UpdateNotifications.Field()
     is_notification_read = NotificationRead.Field()
+    send_notification = SendNotification.Field()
