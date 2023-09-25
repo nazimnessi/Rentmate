@@ -51,7 +51,8 @@ class SendNotification(graphene.Mutation):
     def mutate(root, info, notification_data=None):
         recipient_ids = notification_data.pop("recipient_ids")
         for recipient in recipient_ids:
-            Notifications.objects.create(**notification_data, recipient_id=recipient)
+            notification_instance = Notifications(**notification_data, recipient_id=recipient, created_date=datetime.now(), updated_date=datetime.now())
+            notification_instance.save()
         return NotificationRead(message="Notification Send")
 
 
