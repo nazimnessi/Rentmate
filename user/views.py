@@ -52,6 +52,7 @@ class UserDocumentView(APIView):
 
 
 class UserContactUsMail(APIView):
+    permission_classes = [permissions.AllowAny]
 
     def post(self, request, *args, **kwargs):
         name = request.data.get('name')
@@ -78,24 +79,6 @@ class UserContactUsMail(APIView):
             return Response({'message': 'Email sent successfully!'}, status=status.HTTP_200_OK)
         else:
             return Response({'error': 'Incomplete data'}, status=400)
-
-
-# def google_callback(request):
-#     params = urllib3.parse.urlencode(request.GET)
-#     print(params)
-#     return redirect(f'http://localhost:3000/buildings/{params}')
-
-
-# class UserSignUp(APIView):
-#     permission_classes = (permissions.AllowAny,)
-
-#     def post(self, request):
-#         serializer = UserSignUpSerializer(data=request.data)
-#         if serializer.is_valid(raise_exception=True):
-#             user = serializer.create(data=request.data)
-#             if user:
-#                 return Response(serializer.data, status=status.HTTP_201_CREATED)
-#             return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserLoginView(APIView):
@@ -148,8 +131,7 @@ class UserAuthenticateView(APIView):
 
 
 class SendVerificationEmail(APIView):
-    # permission_classes = [permissions.IsAuthenticated]
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
         email = request.GET.get('email')
@@ -197,8 +179,7 @@ class SendVerificationEmail(APIView):
 
 
 class VerifyEmail(APIView):
-    # permission_classes = [permissions.IsAuthenticated]
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
         email = request.GET.get('email')
