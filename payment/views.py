@@ -1,8 +1,9 @@
-from django.conf import settings # new
-from django.http.response import JsonResponse # new
-from django.views.decorators.csrf import csrf_exempt # new
+from django.conf import settings
+from django.http.response import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.base import TemplateView
 import stripe
+
 
 class HomePageView(TemplateView):
     template_name = 'home.html'
@@ -14,7 +15,7 @@ def stripe_config(request):
     if request.method == 'GET':
         stripe_config = {'publicKey': settings.STRIPE_PUBLISHABLE_KEY}
         return JsonResponse(stripe_config, safe=False)
-    
+
 
 @csrf_exempt
 def create_checkout_session(request):
@@ -41,10 +42,10 @@ def create_checkout_session(request):
                 line_items=[
                     {
                         'quantity': 1,
-                        'price_data':{
+                        'price_data': {
                             'currency': "usd",
                             'unit_amount': f'{int(float(rent_amount) * 100)}',
-                            'product_data':{
+                            'product_data': {
                                 'name': 'Skyline 12B 3BHK',
                             }
                         }
@@ -54,6 +55,7 @@ def create_checkout_session(request):
             return JsonResponse({'sessionId': checkout_session['id']})
         except Exception as e:
             return JsonResponse({'error': str(e)})
-        
+
+
 class SuccessView(TemplateView):
     template_name = 'success.html'
