@@ -222,3 +222,6 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'rentmate.properties@gmail.com'  # Replace with your Gmail address
 EMAIL_HOST_PASSWORD = 'rnypxtsfyaczuuxi'  # Replace with your Gmail app password
+
+STRIPE_PUBLISHABLE_KEY = 'pk_test_51NucvsSBz4ftWqg84QJ323zuDuc0n2KhMHSPJkGkIKIrdh9cUMKL91XCTAPjVBRHOLjB898503A4zFlUGRD7yr8800yG0ULdLp'
+STRIPE_SECRET_KEY = 'sk_test_51NucvsSBz4ftWqg8BoN1XJYIUmhXgsU3QJ8uAB4PgRvArTa4lHVTXciASY00Gyr0d04L2oJAcNMcBJ4G7iccx5QD00pd7roifE'

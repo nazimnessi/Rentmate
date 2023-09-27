@@ -20,3 +20,4 @@ django-graphql-auth
 dj-rest-auth
 google-auth
 requests
+stripe==5.5.0
