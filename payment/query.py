@@ -1,9 +1,5 @@
 import graphene
-from graphene import relay
-from graphql import GraphQLError
-# from graphene_file_upload.scalars import Upload
 from graphene_django.filter import DjangoFilterConnectionField
-
 from .models import Payment
 from payment.node import PaymentType
 from datetime import datetime, timedelta
