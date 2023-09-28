@@ -4,6 +4,7 @@ from graphene_django.debug import DjangoDebug
 from notification import schema as schema_notification
 from user import schema as schema_user
 from JobApplication import schema as schema_job
+from payment import schema as schema_payment
 import graphql_jwt
 
 from user.mutations import JWUserToken
@@ -14,6 +15,7 @@ class Query(
     schema_building.Query,
     schema_notification.Query,
     schema_job.Query,
+    schema_payment.Query,
     graphene.ObjectType,
 ):
     debug = graphene.Field(DjangoDebug, name="_debug")
