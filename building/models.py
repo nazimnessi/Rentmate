@@ -86,8 +86,10 @@ class Room(models.Model):
     room_type = models.CharField(
         max_length=10, choices=room_choice, default='Studio', db_column='room_type')
     additional_photo = models.ManyToManyField(Documents, blank=True)
-    rent_period_start = models.DateField('rent period start')
-    rent_period_end = models.DateField('rent period end')
+    rent_period_start = models.DateField('rent period start', help_text=("Rent period contract start date"))
+    rent_period_end = models.DateField('rent period end', help_text=("Rent period contract end date"))
+    rent_payment_date = models.DateField('rent payment date', blank=True, null=True, help_text=("Date from which the payment of a month start"))
+    rent_payment_interval = models.IntegerField(max_length=31, blank=True, null=True, help_text=("No of days a renter can have before the payment is due"))
     created_date = models.DateTimeField('Room created date', auto_now_add=True)
     updated_date = models.DateTimeField('Room Updated date', auto_now=True)
     description = models.CharField(max_length=100, null=True, blank=True)
