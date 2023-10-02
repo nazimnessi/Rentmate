@@ -5,13 +5,12 @@ from .models import Payment
 
 
 class PaymentFilterClass(OrderedFilterSet):
-    id_not = django_filters.CharFilter(field_name='id', exclude=True)
 
     class Meta:
         model = Payment
-        fields = '__all__'
-        filter_fields = {
+        fields = {
             "created_date": ['exact'],
+            "payer": ['exact'],
             "payer__username": ['exact', 'icontains', 'istartswith'],
             "payer__first_name": ['exact', 'icontains', 'istartswith'],
             "room__room_no": ['exact', "icontains", "istartswith"],
