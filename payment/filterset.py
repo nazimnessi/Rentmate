@@ -1,4 +1,3 @@
-import django_filters
 
 from user.extentfilter import OrderedFilterSet
 from .models import Payment
