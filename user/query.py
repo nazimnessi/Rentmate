@@ -13,6 +13,7 @@ class Query(graphene.ObjectType):
     users = relay.Node.Field(UserType)
     logged_in_user = graphene.Field(UserType)
     all_Renters = DjangoFilterConnectionField(RenterType)
+    renter = relay.Node.Field(RenterType)
 
     all_address = DjangoFilterConnectionField(AddressType)
     address = relay.Node.Field(AddressType)

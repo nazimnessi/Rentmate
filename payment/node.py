@@ -5,9 +5,11 @@ from graphene_django import DjangoObjectType
 from payment.filterset import PaymentFilterClass
 from .models import Payment
 from django.db.models import Sum, Avg, Q
+from graphql_relay import from_global_id
 
 
 class PaymentFilterInput(graphene.InputObjectType):
+    payer = graphene.ID()
     payer__username = graphene.String()
     payer__first_name = graphene.String()
     room__room_no = graphene.String()
@@ -32,20 +34,23 @@ class ExtendedConnectionPayment(graphene.Connection):
 
     def get_queryset(self, info, filter=None):
         query = Payment.objects.filter(payee=info.context.user)
-        if filter.start_date and filter.end_date:
+        if filter and filter.start_date and filter.end_date:
             query = query.filter(
                 created_date__gte=filter.start_date,
                 created_date__lte=filter.end_date
             )
-        if filter.payer__username:
+        if filter and filter.payer:
+            _, django_id = from_global_id(filter.payer)
+            query = query.filter(payer=django_id)
+        if filter and filter.payer__username:
             query = query.filter(payer__username__icontains=filter.payer__username)
-        if filter.payer__first_name:
+        if filter and filter.payer__first_name:
             query = query.filter(payer__first_name__icontains=filter.payer__first_name)
-        if filter.room__room_no:
+        if filter and filter.room__room_no:
             query = query.filter(room__room_no__icontains=filter.room__room_no)
-        if filter.status:
+        if filter and filter.status:
             query = query.filter(status=filter.status)
-        if filter.transaction_id:
+        if filter and filter.transaction_id:
             query = query.filter(transaction_id__icontains=filter.transaction_id)
         return query
 
@@ -62,19 +67,20 @@ class ExtendedConnectionPayment(graphene.Connection):
             return "Paid"
 
     def resolve_total_paid_amount(root, info, filter=None, **kwargs):
-        query = root.get_common_queryset(info, filter)
+        query = root.get_queryset(info, filter)
         return query.filter(status="paid").aggregate(total_amount=Sum('amount'))['total_amount']
 
     def resolve_average_amount(root, info, filter=None, **kwargs):
-        query = root.get_common_queryset(info, filter)
+        query = root.get_queryset(info, filter)
         return query.filter(status="paid").aggregate(avg_amount=Avg('amount'))['avg_amount']
 
     def resolve_total_unpaid_amount(root, info, filter=None, **kwargs):
-        query = root.get_common_queryset(info, filter)
+        query = root.get_queryset(info, filter)
         return query.filter(status="unpaid").aggregate(total_amount=Sum('amount'))['total_amount']
 
     def resolve_total_pending_amount(root, info, filter=None, **kwargs):
-        query = root.get_common_queryset(info, filter)
+        query = root.get_queryset(info, filter)
+        print(query)
         return query.filter(Q(status="unpaid") | Q(status="pending")).aggregate(total_amount=Sum('amount'))['total_amount']
 
 
@@ -91,4 +97,4 @@ class PaymentType(DjangoObjectType):
     @classmethod
     def get_queryset(cls, queryset, info, **kwargs):
         user = info.context.user
-        return queryset.filter(room__building__owner_id=user.id).order_by("-id")
+        return queryset.filter(payee=user.id).order_by("-id")
