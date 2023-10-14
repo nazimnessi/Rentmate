@@ -20,3 +20,5 @@ django-graphql-auth
 dj-rest-auth
 google-auth
 requests
+psycopg2
+
