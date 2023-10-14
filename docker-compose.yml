@@ -13,17 +13,6 @@ services:
     restart: always
     command: bash -c 
       "celery -A rentmate worker -l INFO -Q rentmate"
-  db:
-    image: mysql:latest
-    ports:
-      - '3307:3306'
-    restart: always
-    environment:
-      # MYSQL_PASSWORD: testuser123
-      MYSQL_ROOT_PASSWORD: testuser123
-      MYSQL_DATABASE: rentmate_db
-      # MYSQL_USER: root
-    command: --default-authentication-plugin=caching_sha2_password
   web:
     depends_on:
       - db
@@ -40,3 +29,7 @@ services:
     volumes:
       - .:/rentmate
     tty: true
+  db:
+    image: postgres
+    environment : 
+      -  POSTGRES_PASSWORD=postgres 
