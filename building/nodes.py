@@ -5,8 +5,9 @@ from graphene_django import DjangoObjectType
 from building.utils import convert_string_to_display
 from .models import Building, Room, Request
 from user.models import User
-from django.db.models import Count
-from django.db.models import Sum
+from django.db.models import Count, Sum
+from django.db.models.functions import Cast
+from django.db import models
 
 
 class ExtendedConnectionRoom(graphene.Connection):
@@ -57,12 +58,14 @@ class BuildingType(DjangoObjectType):
         return total_renters
 
     def resolve_total_rent_amount(parent, info, **kwargs):
-        total_rent_amount = parent.rooms.aggregate(total=Sum('rent_amount'))['total']
+        total_rent_amount = parent.rooms.annotate(rent_amount_numeric=Cast('rent_amount', models.DecimalField(max_digits=10, decimal_places=2))).aggregate(total=Sum('rent_amount_numeric'))['total']
         return total_rent_amount if total_rent_amount else 0
 
     def resolve_total_rent_amount_from_renter(parent, info, **kwargs):
-        total_rent_amount = parent.rooms.filter(renter__isnull=False).aggregate(total=Sum('rent_amount'))['total']
-        return total_rent_amount if total_rent_amount else 0
+        total_rent_amount = parent.rooms.filter(renter__isnull=False).annotate(
+            rent_amount_numeric=Cast('rent_amount', models.DecimalField(max_digits=10, decimal_places=2))
+        ).aggregate(total=Sum('rent_amount_numeric'))['total']
+        return total_rent_amount if total_rent_amount else 0.0
 
     class Meta:
         model = Building

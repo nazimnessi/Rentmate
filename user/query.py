@@ -10,6 +10,7 @@ from .models import User, Address
 
 class Query(graphene.ObjectType):
     all_users = DjangoFilterConnectionField(UserType)
+    search_user_list = DjangoFilterConnectionField(UserType)
     users = relay.Node.Field(UserType)
     logged_in_user = graphene.Field(UserType)
     all_Renters = DjangoFilterConnectionField(RenterType)
@@ -20,6 +21,12 @@ class Query(graphene.ObjectType):
 
     def resolve_all_users(root, info, **kwargs):
         return User.objects.order_by('-id')
+
+    def resolve_search_user_list(self, info, **kwargs):
+        user = info.context.user
+        if not user.is_authenticated:
+            raise GraphQLError("Authentication credentials were not provided")
+        return User.objects.exclude(id=user.id).all().order_by("id")
 
     def resolve_logged_in_user(root, info, **kwargs):
         user = info.context.user
