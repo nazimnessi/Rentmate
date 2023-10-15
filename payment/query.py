@@ -7,11 +7,11 @@ from django.db.models import Q
 
 
 class Query(graphene.ObjectType):
-    all_payments = DjangoFilterConnectionField(PaymentType, start_data=graphene.String(), end_date=graphene.String())
+    all_payments = DjangoFilterConnectionField(PaymentType, start_date=graphene.String(), end_date=graphene.String())
     # payment = relay.Node.Field(UserType)
 
     def resolve_all_payments(root, info, **kwargs):
-        start_date = kwargs.get("start_data")
+        start_date = kwargs.get("start_date")
         end_date = kwargs.get("end_date")
         if end_date and not start_date:
             end_date = datetime.strptime(end_date, '%Y-%m-%d').date()

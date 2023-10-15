@@ -7,8 +7,9 @@ from building.nodes import BuildingType
 from user.filterset import UserFilterClass
 from .models import User, Address
 from building.models import Building, Room
-from django.db.models import Count
-from django.db.models import Sum
+from django.db.models import Count, Sum
+from django.db.models.functions import Cast
+from django.db import models
 
 
 class ExtendedConnectionRenter(graphene.Connection):
@@ -57,7 +58,7 @@ class RenterType(DjangoObjectType):
         return building_name
 
     def resolve_rent_amount(parent, info, **kwargs):
-        rent_amount = parent.renter.aggregate(total=Sum('rent_amount'))['total']
+        rent_amount = parent.renter.annotate(rent_amount_numeric=Cast('rent_amount', models.DecimalField(max_digits=10, decimal_places=2))).aggregate(total=Sum('rent_amount_numeric'))['total']
         return rent_amount
 
     def resolve_room_node(parent, info, **kwargs):
@@ -97,7 +98,7 @@ class UserType(DjangoObjectType):
 
     def resolve_total_rent_amount(parent, info, **kwargs):
         user = info.context.user
-        total_rent_amount = Room.objects.filter(renter=parent, building__owner=user).aggregate(total_rent=Sum('rent_amount'))['total_rent']
+        total_rent_amount = Room.objects.filter(renter=parent, building__owner=user).annotate(rent_amount_numeric=Cast('rent_amount', models.DecimalField(max_digits=10, decimal_places=2))).aggregate(total=Sum('rent_amount_numeric'))['total']
         return total_rent_amount
 
     def resolve_room_count(parent, info, **kwargs):

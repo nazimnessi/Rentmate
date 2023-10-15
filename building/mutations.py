@@ -18,6 +18,7 @@ from user.node import AddressInput
 from django.db import transaction
 
 from .models import Building, Request, Room
+from user.models import User
 
 # Building section
 
@@ -158,7 +159,29 @@ class DeleteRoom(graphene.Mutation):
         return DeleteRoom(rooms=room_instance)
 
 
-# request section
+class SetupRenterToRoom(graphene.Mutation):
+    class Arguments:
+        room_id = graphene.ID(required=True)
+        renter_id = graphene.ID(required=True)
+
+    rooms = graphene.Field(RoomType)
+
+    @staticmethod
+    def mutate(self, info, room_id, renter_id):
+        try:
+            room_instance = Room.objects.get(pk=room_id)
+            if room_instance.renter:
+                raise GraphQLError("Room already have a renter. please either remove the renter or assign the renter to a new room")
+            renter_instance = User.objects.get(pk=renter_id)
+            if int(renter_id) == room_instance.building.owner_id:
+                raise GraphQLError("owner cannot be a renter")
+            room_instance.renter = renter_instance
+            room_instance.save()
+        except Room.DoesNotExist:
+            raise GraphQLError("Selected room does not exist")
+        except User.DoesNotExist:
+            raise GraphQLError("Selected renter does not exist")
+        return SetupRenterToRoom(rooms=room_instance)
 
 
 class CreateRequest(graphene.Mutation):
@@ -261,3 +284,5 @@ class Mutation(graphene.ObjectType):
 
     create_request = CreateRequest.Field()
     update_request = UpdateRequest.Field()
+
+    setup_renter_to_room = SetupRenterToRoom.Field()

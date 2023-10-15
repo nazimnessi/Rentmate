@@ -12,7 +12,8 @@ class PaymentFilterInput(graphene.InputObjectType):
     payer = graphene.ID()
     payer__username = graphene.String()
     payer__first_name = graphene.String()
-    room__room_no = graphene.String()
+    room = graphene.ID()
+    room__building = graphene.ID()
     status = graphene.String()
     transaction_id = graphene.String()
     start_date = graphene.String()
@@ -46,8 +47,12 @@ class ExtendedConnectionPayment(graphene.Connection):
             query = query.filter(payer__username__icontains=filter.payer__username)
         if filter and filter.payer__first_name:
             query = query.filter(payer__first_name__icontains=filter.payer__first_name)
-        if filter and filter.room__room_no:
-            query = query.filter(room__room_no__icontains=filter.room__room_no)
+        if filter and filter.room:
+            _, django_id = from_global_id(filter.room)
+            query = query.filter(room_id=django_id)
+        if filter and filter.room__building:
+            _, django_id = from_global_id(filter.room__building)
+            query = query.filter(room__building_id=django_id)
         if filter and filter.status:
             query = query.filter(status=filter.status)
         if filter and filter.transaction_id:
@@ -58,13 +63,16 @@ class ExtendedConnectionPayment(graphene.Connection):
         query = root.get_queryset(info, filter)
         unpaid_exists = query.filter(status='Unpaid').exists()
         pending_exists = query.filter(status="Pending").exists()
+        paid_exists = query.filter(status="Paid").exists()
 
         if unpaid_exists:
             return "Unpaid"
         elif pending_exists:
             return "Pending"
-        else:
+        elif paid_exists:
             return "Paid"
+        else:
+            return None
 
     def resolve_total_paid_amount(root, info, filter=None, **kwargs):
         query = root.get_queryset(info, filter)
@@ -80,7 +88,6 @@ class ExtendedConnectionPayment(graphene.Connection):
 
     def resolve_total_pending_amount(root, info, filter=None, **kwargs):
         query = root.get_queryset(info, filter)
-        print(query)
         return query.filter(Q(status="unpaid") | Q(status="pending")).aggregate(total_amount=Sum('amount'))['total_amount']
 
 
