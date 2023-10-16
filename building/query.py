@@ -7,7 +7,7 @@ from django.db.models import Count
 
 
 class Query(graphene.ObjectType):
-    all_Buildings = DjangoFilterConnectionField(BuildingType, orderBy=graphene.String() or None)
+    all_Buildings = DjangoFilterConnectionField(BuildingType, orderBy=graphene.String() or None, globalSearch=graphene.Boolean(), searchTerm=graphene.String())
     Buildings = relay.Node.Field(BuildingType)
 
     all_Rooms = DjangoFilterConnectionField(RoomType)
@@ -18,6 +18,9 @@ class Query(graphene.ObjectType):
     request = relay.Node.Field(RequestType)
 
     def resolve_all_Buildings(root, info, **kwargs):
+        queryset = Building.objects.all() if kwargs.get('globalSearch') else Building.objects.filter(owner=info.context.user)
+        if kwargs.get('searchTerm'):
+            queryset = queryset.filter(name__icontains=kwargs.get('searchTerm'))
         if 'address' in kwargs.get('orderBy'):
             return Building.objects.order_by(
                 f'{kwargs.get("orderBy")}__address1',
@@ -27,10 +30,10 @@ class Query(graphene.ObjectType):
                 f'{kwargs.get("orderBy")}__postal_code',
             )
         elif 'total_renter' in kwargs.get("orderBy"):
-            return Building.objects.annotate(total_renter=Count('rooms__renter')).order_by(kwargs.get("orderBy"))
+            return queryset.annotate(total_renter=Count('rooms__renter')).order_by(kwargs.get("orderBy"))
         elif 'total_rooms' in kwargs.get("orderBy"):
-            return Building.objects.annotate(total_rooms=Count('rooms__id')).order_by(kwargs.get("orderBy"))
-        return Building.objects.order_by(kwargs.get('orderBy', '-id'))
+            return queryset.annotate(total_rooms=Count('rooms__id')).order_by(kwargs.get("orderBy"))
+        return queryset.order_by(kwargs.get('orderBy', '-id'))
 
     def resolve_all_Rooms(root, info, **kwargs):
         return Room.objects.order_by('-id')
