@@ -61,16 +61,11 @@ INSTALLED_APPS = [
     # external packages
     "graphene_django",
     "django_filters",
-    "django_celery_results",
     "rest_framework",
     "corsheaders",
     "django.contrib.sites",
     "graphql_jwt.refresh_token.apps.RefreshTokenConfig",
-    # 'crispy_forms'
-    # dj_rest_auth
     "rest_framework.authtoken",
-    "dj_rest_auth",
-    "dj_rest_auth.registration",
 ]
 
 MIDDLEWARE = [
@@ -82,8 +77,6 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "corsheaders.middleware.CorsMiddleware",
-    # "corsheaders.middleware.CorsPostCsrfMiddleware",
-    # 'graphql_jwt.middleware.JSONWebTokenMiddleware',
 ]
 
 SITE_ID = 1
@@ -148,12 +141,12 @@ SOCIALACCOUNT_PROVIDERS = {
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': 'postgres',
-        'PASSWORD': 'postgres',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'rentmate_db',
+        'USER': 'root',
+        'PASSWORD': 'testuser123',
         'HOST': 'db',
-        'PORT': 5432,
+        'PORT': "3306",
     }
 }
 
