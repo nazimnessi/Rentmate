@@ -24,12 +24,15 @@ services:
     command: bash -c 
         "python manage.py migrate
         && python manage.py runserver 0.0.0.0:8000"
-    # environment:
-    #   - REDIS_HOST=redis
     volumes:
       - .:/rentmate
     tty: true
   db:
-    image: postgres
-    environment : 
-      -  POSTGRES_PASSWORD=postgres 
+    image: mysql:latest
+    ports:
+      - '3307:3306'
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: testuser123
+      MYSQL_DATABASE: rentmate_db
+    command: --default-authentication-plugin=mysql_native_password

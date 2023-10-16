@@ -43,8 +43,6 @@ class Building(models.Model):
     name = models.CharField(max_length=100)
     address = models.ForeignKey(
         Address, on_delete=models.CASCADE, null=True, blank=True)
-    photo = models.ImageField(
-        upload_to='images/', default='Default_user.png')
     building_type = models.CharField(
         max_length=10, choices=building_choice, default='House', db_column='building_type')
     house_number = models.CharField(max_length=20, unique=True)
@@ -89,7 +87,7 @@ class Room(models.Model):
     rent_period_start = models.DateField('rent period start', help_text=("Rent period contract start date"))
     rent_period_end = models.DateField('rent period end', help_text=("Rent period contract end date"))
     rent_payment_date = models.DateField('rent payment date', blank=True, null=True, help_text=("Date from which the payment of a month start"))
-    rent_payment_interval = models.IntegerField(max_length=31, blank=True, null=True, help_text=("No of days a renter can have before the payment is due"))
+    rent_payment_interval = models.IntegerField(blank=True, null=True, help_text=("No of days a renter can have before the payment is due"))
     created_date = models.DateTimeField('Room created date', auto_now_add=True)
     updated_date = models.DateTimeField('Room Updated date', auto_now=True)
     description = models.CharField(max_length=100, null=True, blank=True)
