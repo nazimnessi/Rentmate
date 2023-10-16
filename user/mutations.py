@@ -64,7 +64,7 @@ class UpdateUser(graphene.Mutation):
     def mutate(root, info, user=None, address=None):
         address_instance, created = Address.objects.get_or_create(**address)
         user['address'] = address_instance
-        user_instance = User.objects.get(id=user.get('id'))
+        user_instance = User.objects.get(id=info.context.user.id)
         if user_instance.email != user.get('email'):
             user_instance.is_verified_email = False
             user_instance.save()
@@ -145,16 +145,15 @@ class DeleteAddress(graphene.Mutation):
 
 class UpdatePassword(graphene.Mutation):
     class Arguments:
-        id = graphene.ID()
         current_password = graphene.String()
         new_password = graphene.String()
 
     users = graphene.Field(UserType)
 
     @staticmethod
-    def mutate(root, info, id=None, current_password=None, new_password=None):
+    def mutate(root, info, current_password=None, new_password=None):
         try:
-            user_instance = User.objects.get(id=id)
+            user_instance = User.objects.get(id=info.context.user.id)
             auth_user = authenticate(email=user_instance.email, password=current_password)
             if auth_user:
                 user_instance.set_password(new_password)
@@ -163,7 +162,7 @@ class UpdatePassword(graphene.Mutation):
             else:
                 return GraphQLError("Current Password Incorrect")
 
-        except Address.DoesNotExist:
+        except User.DoesNotExist:
             user_instance = None
             raise GraphQLError("User Does Not Exist")
         except Exception as e:

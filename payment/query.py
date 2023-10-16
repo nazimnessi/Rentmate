@@ -22,7 +22,7 @@ class Query(graphene.ObjectType):
 
         if start_date and end_date:
             return Payment.objects.filter(
-                Q(created_date__gte=start_date) & Q(created_date__lte=end_date)
+                Q(created_date__gte=start_date) & Q(created_date__lte=end_date) & Q(payee=info.context.user)
             ).order_by('-id')
         else:
             return Payment.objects.order_by('-id')
