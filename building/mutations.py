@@ -33,6 +33,9 @@ class CreateBuilding(graphene.Mutation):
 
     @staticmethod
     def mutate(root, info, building=None, address=None, rooms=None):
+        user = info.context.user
+        if not user.is_authenticated:
+            raise GraphQLError("USer not authenticated")
         try:
             with transaction.atomic():
                 address_instance, created = Address.objects.get_or_create(**address)
@@ -40,6 +43,7 @@ class CreateBuilding(graphene.Mutation):
                 building["building_document_Url"] = building.pop("building_documents")
                 building["building_document_Url"] = building["building_document_Url"][0]
                 building["building_photo_url"] = building.pop("photo")
+                building["owner_id"] = info.context.user.id
                 building_instance = Building.objects.create(**building)
                 if rooms:
                     room_objects = []

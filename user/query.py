@@ -31,8 +31,11 @@ class Query(graphene.ObjectType):
     def resolve_logged_in_user(root, info, **kwargs):
         user = info.context.user
         if not user.is_authenticated:
-            raise GraphQLError("Authentication credentials were not provided")
-        return user
+            raise GraphQLError("User not authenticated")
+        try:
+            return User.objects.get(pk=info.context.user.id)
+        except User.DoesNotExist:
+            raise GraphQLError("User Not Found")
 
     def resolve_all_address(root, info, **kwargs):
         return Address.objects.order_by('-id')

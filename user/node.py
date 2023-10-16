@@ -65,7 +65,7 @@ class RenterType(DjangoObjectType):
         return Room.objects.filter(renter=parent).order_by('-id')
 
     def resolve_building_node(parent, info, **kwargs):
-        return Building.objects.filter(rooms__renter=parent).order_by('-id')
+        return Building.objects.filter(rooms__renter=parent).distinct().order_by('-id')
 
     def resolve_full_address(parent, info, **kwargs):
         return parent.address
