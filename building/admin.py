@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Documents, Building, Room, Request
+from .models import Building, Room, Request
 # Register your models here.
 
 
@@ -27,7 +27,6 @@ class RoomAdmin(admin.ModelAdmin):
         return obj.user.room_no
 
 
-admin.site.register(Documents)
 admin.site.register(Building, BuildingAdmin)
 admin.site.register(Room, RoomAdmin)
 admin.site.register(Request, RequestAdmin)

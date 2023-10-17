@@ -1,18 +1,6 @@
 from django.db import models
-from django.core.validators import FileExtensionValidator
 from django.core.exceptions import ValidationError
 from user.models import User, Address
-
-# Create your models here.
-
-
-class Documents(models.Model):
-    name = models.CharField(max_length=100)
-    file = models.FileField(
-        upload_to='files/', validators=[FileExtensionValidator(['pdf', 'jpg', 'jpeg', 'png'])])
-
-    def __str__(self):
-        return self.name
 
 
 class Request(models.Model):
@@ -37,7 +25,7 @@ class Request(models.Model):
 class Building(models.Model):
     building_choice = (
         ('House', 'House'),
-        ('Apartment', 'Apartment'),
+        ('Apartments', 'Apartments'),
         ('Others', 'Others'),
     )
     name = models.CharField(max_length=100)
@@ -46,7 +34,6 @@ class Building(models.Model):
     building_type = models.CharField(
         max_length=10, choices=building_choice, default='House', db_column='building_type')
     house_number = models.CharField(max_length=20, unique=True)
-    documents = models.ManyToManyField(Documents, blank=True)
     created_date = models.DateTimeField('Building created date', auto_now_add=True)
     updated_date = models.DateTimeField('Building Updated date', auto_now=True)
     owner = models.ForeignKey(
@@ -68,13 +55,18 @@ class Room(models.Model):
         ('3BHK', '3BHK'),
         ('2BHK', '2BHK'),
         ('1BHK', '1BHK'),
+        ('business', 'business'),
         ('Studio', 'Studio'),
         ('Others', 'Others'),
     )
+
+    def default_amenities():
+        return {"parking": True, "pet_friendly": True, "swimming_pool": False}
+
     room_no = models.CharField(max_length=100)
     criteria = models.CharField(
         max_length=15, choices=criteria_choice, default='Fully Furnished')
-    appliances = models.CharField(max_length=100, blank=True)
+    amenities = models.JSONField(default=default_amenities)
     building = models.ForeignKey(
         Building, on_delete=models.CASCADE, default=None, related_name='rooms')
     renter = models.ForeignKey(
@@ -83,7 +75,6 @@ class Room(models.Model):
     advance = models.CharField(max_length=10, null=True, blank=True)
     room_type = models.CharField(
         max_length=10, choices=room_choice, default='Studio', db_column='room_type')
-    additional_photo = models.ManyToManyField(Documents, blank=True)
     rent_period_start = models.DateField('rent period start', help_text=("Rent period contract start date"))
     rent_period_end = models.DateField('rent period end', help_text=("Rent period contract end date"))
     rent_payment_date = models.DateField('rent payment date', blank=True, null=True, help_text=("Date from which the payment of a month start"))
@@ -91,13 +82,11 @@ class Room(models.Model):
     created_date = models.DateTimeField('Room created date', auto_now_add=True)
     updated_date = models.DateTimeField('Room Updated date', auto_now=True)
     description = models.CharField(max_length=100, null=True, blank=True)
-    area = models.CharField(max_length=100, null=True, blank=True)
-    floor = models.CharField(max_length=100, null=True, blank=True)
-    max_capacity = models.CharField(max_length=2, null=True, blank=True)
-    bathroom_count = models.CharField(max_length=3, null=True, blank=True)
-    kitchen_count = models.CharField(max_length=3, null=True, blank=True)
-    is_parking_available = models.BooleanField(default=True)
-    garage_count = models.CharField(max_length=3, null=True, blank=True)
+    area_in_square_feet = models.CharField(max_length=100, null=True, blank=True)
+    floor = models.CharField(max_length=100, null=True, blank=True, help_text="Value will be no.of floors if building type is house else room is in which floor.")
+    bedroom_count = models.IntegerField(null=True, blank=True)
+    bathroom_count = models.IntegerField(null=True, blank=True)
+    garage_count = models.IntegerField(null=True, blank=True)
     room_photo_Url = models.CharField(max_length=900, blank=True, null=True)
     room_document_Url = models.JSONField(blank=True, null=True)
 
