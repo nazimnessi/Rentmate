@@ -71,8 +71,8 @@ class UpdateUser(graphene.Mutation):
         if user_instance.phone_number != user.get('phone_number'):
             user_instance.is_verified_phone_number = False
             user_instance.save()
-        User.objects.filter(pk=user.id).update(**user)
-        user_instance = User.objects.get(id=user.id)
+        User.objects.filter(pk=info.context.user.id).update(**user)
+        user_instance = User.objects.get(id=info.context.user.id)
         return UpdateUser(users=user_instance)
 
 
