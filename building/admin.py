@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Building, Room, Request
+from .models import Building, Room, Request, Utility
 # Register your models here.
 
 
@@ -21,12 +21,18 @@ class BuildingAdmin(admin.ModelAdmin):
 class RoomAdmin(admin.ModelAdmin):
     list_display = ('id', 'room_no', 'building', 'renter')
     list_filter = ('criteria', 'room_type')
-    search_fields = ['id', 'room_no', 'building', 'renter']
+    search_fields = ['id', 'room_no', 'building__name', 'renter__username']
 
     def api_name(self, obj):
         return obj.user.room_no
 
 
+class UtilityAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', "room")
+    search_fields = ['name', "room__room_no"]
+
+
 admin.site.register(Building, BuildingAdmin)
 admin.site.register(Room, RoomAdmin)
+admin.site.register(Utility, UtilityAdmin)
 admin.site.register(Request, RequestAdmin)
