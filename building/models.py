@@ -38,7 +38,7 @@ class Building(models.Model):
     updated_date = models.DateTimeField('Building Updated date', auto_now=True)
     owner = models.ForeignKey(
         User, on_delete=models.CASCADE, null=True, blank=True, default=None, related_name='building')
-    building_photo_url = models.CharField(max_length=500, blank=True, null=True)
+    building_photo_url = models.URLField(max_length=300, blank=True, null=True)
     building_document_Url = models.JSONField(blank=True, null=True)
 
     def __str__(self):
@@ -87,7 +87,7 @@ class Room(models.Model):
     bedroom_count = models.IntegerField(null=True, blank=True)
     bathroom_count = models.IntegerField(null=True, blank=True)
     garage_count = models.IntegerField(null=True, blank=True)
-    room_photo_Url = models.CharField(max_length=900, blank=True, null=True)
+    room_photo_Url = models.URLField(max_length=300, blank=True, null=True)
     room_document_Url = models.JSONField(blank=True, null=True)
 
     def clean(self):
@@ -101,3 +101,17 @@ class Room(models.Model):
 
     def __str__(self):
         return self.room_no
+
+
+class Utility(models.Model):
+    name = models.CharField(max_length=255)
+    description = models.TextField(max_length=350, null=True, blank=True)
+    latest_amount = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    unit = models.CharField(max_length=50, blank=True, null=True)
+    enabled = models.BooleanField(default=True)
+    meter_reading = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    bill_image_url = models.URLField(max_length=300, blank=True, null=True)
+    room = models.ForeignKey(Room, on_delete=models.SET_NULL, blank=True, null=True)
+
+    def __str__(self):
+        return self.name
