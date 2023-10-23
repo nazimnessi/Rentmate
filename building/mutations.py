@@ -40,9 +40,6 @@ class CreateBuilding(graphene.Mutation):
             with transaction.atomic():
                 address_instance, created = Address.objects.get_or_create(**address)
                 building["address"] = address_instance
-                # building["building_document_url"] = building.pop("building_documents")
-                # building["building_photo_url"] = building.pop("photo")
-                print("building --->", building)
                 if building.get("building_document_url"):
                     building["building_photo_url"] = building["building_document_url"][0]
                 building["owner_id"] = info.context.user.id
@@ -51,22 +48,18 @@ class CreateBuilding(graphene.Mutation):
                     room_objects = []
                     for room in rooms:
                         try:
-                            print("room --->", room)
                             room["rent_period_start"] = datetime.strptime(room["rent_period_start"], "%Y, %m, %d")
                             room["rent_period_end"] = datetime.strptime(room["rent_period_end"], "%Y, %m, %d")
                             room['building_id'] = building_instance.id
-                            # room["room_document_url"] = room["room_document_url"]
                             if room.get("room_document_url"):
                                 room["room_photo_url"] = room["room_document_url"][0]
                             room_objects.append(Room(**room))
 
                         except Exception as exe:
-                            print("exception --->", exe)
                             transaction.rollback()
                             raise GraphQLError(f"Unknown error occurred in room creation: {exe}")
                     Room.objects.bulk_create(room_objects)
         except Exception as exe:
-            print("exception 2 --->", exe)
             transaction.rollback()
             raise GraphQLError(f"unknown error occurred in building creation error: {exe}")
         return CreateBuilding(buildings=building_instance)
