@@ -128,8 +128,8 @@ class BuildingInput(graphene.InputObjectType):
     house_number = graphene.String()
     owner_id = graphene.Int()
     building_type = graphene.String()
-    photo = graphene.String()
-    building_documents = graphene.List(graphene.JSONString)
+    # photo = graphene.String()
+    building_document_url = graphene.List(graphene.JSONString)
 
 
 class RoomInput(graphene.InputObjectType):
@@ -152,8 +152,8 @@ class RoomInput(graphene.InputObjectType):
     kitchen_count = graphene.Int()
     garage_count = graphene.Int()
     is_parking_available = graphene.Boolean()
-    room_document_Url = graphene.List(graphene.JSONString)
-    room_photo_url = graphene.String()
+    room_document_url = graphene.List(graphene.JSONString)
+    # room_photo_url = graphene.String()
 
 
 class RequestInput(graphene.InputObjectType):
