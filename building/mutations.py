@@ -76,6 +76,8 @@ class UpdateBuilding(graphene.Mutation):
     def mutate(root, info, building=None, address=None):
         address_instance, created = Address.objects.get_or_create(**address)
         building["address"] = address_instance
+        if building.get("building_document_url"):
+            building["building_photo_url"] = building["building_document_url"][0]
         building_instance, created = Building.objects.update_or_create(
             id=building["id"], defaults=building
         )
@@ -135,6 +137,8 @@ class UpdateRoom(graphene.Mutation):
             room["rent_period_end"] = datetime.strptime(
                 room.rent_period_end, "%Y, %m, %d"
             )
+        if room.get("room_document_url"):
+            room["room_photo_url"] = room["room_document_url"][0]
         Room.objects.filter(pk=room.id).update(**room)
         room_instance = Room.objects.get(pk=room.id)
         return UpdateRoom(rooms=room_instance)
