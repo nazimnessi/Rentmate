@@ -39,7 +39,7 @@ class Building(models.Model):
     owner = models.ForeignKey(
         User, on_delete=models.CASCADE, null=True, blank=True, default=None, related_name='building')
     building_photo_url = models.URLField(max_length=300, blank=True, null=True)
-    building_document_Url = models.JSONField(blank=True, null=True)
+    building_document_url = models.JSONField(blank=True, null=True)
 
     def __str__(self):
         return self.name
@@ -75,8 +75,8 @@ class Room(models.Model):
     advance = models.CharField(max_length=10, null=True, blank=True)
     room_type = models.CharField(
         max_length=10, choices=room_choice, default='Studio', db_column='room_type')
-    rent_period_start = models.DateField('rent period start', help_text=("Rent period contract start date"))
-    rent_period_end = models.DateField('rent period end', help_text=("Rent period contract end date"))
+    rent_period_start = models.DateField('rent period start', help_text=("Rent period contract start date"), null=True, blank=True)
+    rent_period_end = models.DateField('rent period end', help_text=("Rent period contract end date"), null=True, blank=True)
     rent_payment_date = models.DateField('rent payment date', blank=True, null=True, help_text=("Date from which the payment of a month start"))
     rent_payment_interval = models.IntegerField(blank=True, null=True, help_text=("No of days a renter can have before the payment is due"))
     created_date = models.DateTimeField('Room created date', auto_now_add=True)
@@ -87,8 +87,8 @@ class Room(models.Model):
     bedroom_count = models.IntegerField(null=True, blank=True)
     bathroom_count = models.IntegerField(null=True, blank=True)
     garage_count = models.IntegerField(null=True, blank=True)
-    room_photo_Url = models.URLField(max_length=300, blank=True, null=True)
-    room_document_Url = models.JSONField(blank=True, null=True)
+    room_photo_url = models.URLField(max_length=300, blank=True, null=True)
+    room_document_url = models.JSONField(blank=True, null=True)
 
     def clean(self):
         if self.renter == self.building.owner:
