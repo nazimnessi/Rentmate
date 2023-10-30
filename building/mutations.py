@@ -96,7 +96,7 @@ class DeleteBuilding(graphene.Mutation):
         try:
             building_instance = Building.objects.get(pk=id)
         except Building.DoesNotExist:
-            return None
+            raise GraphQLError("Building not found with the provided ID")
         building_instance.delete()
         return DeleteBuilding(buildings=building_instance)
 
@@ -157,7 +157,7 @@ class DeleteRoom(graphene.Mutation):
             room_instance = Room.objects.get(pk=id)
             room_instance.delete()
         except Room.DoesNotExist:
-            return None
+            raise GraphQLError("Room not found with the provided ID")
         return DeleteRoom(rooms=room_instance)
 
 
