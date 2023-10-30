@@ -1,7 +1,7 @@
 import graphene
 from graphene import relay
 from graphene_django.filter import DjangoFilterConnectionField
-from building.nodes import BuildingType, RequestType, RoomType
+from building.nodes import BuildingType, RequestType, RoomType, UtilityType
 from building.models import Building, Room, Request
 from django.db.models import Count
 
@@ -16,6 +16,8 @@ class Query(graphene.ObjectType):
 
     all_Request = DjangoFilterConnectionField(RequestType)
     request = relay.Node.Field(RequestType)
+
+    all_utilities = DjangoFilterConnectionField(UtilityType)
 
     def resolve_all_Buildings(root, info, **kwargs):
         queryset = Building.objects.all() if kwargs.get('globalSearch') else Building.objects.filter(owner=info.context.user)

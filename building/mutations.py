@@ -10,6 +10,7 @@ from building.nodes import (
     RequestType,
     RoomInput,
     RoomType,
+    UtilityType
 )
 from building.utils import get_or_404
 from notification.models import Notifications
@@ -17,7 +18,7 @@ from user.models import Address
 from user.node import AddressInput
 from django.db import transaction
 
-from .models import Building, Request, Room
+from .models import Building, Request, Room, Utility
 from user.models import User
 
 # Building section
@@ -95,7 +96,7 @@ class DeleteBuilding(graphene.Mutation):
         try:
             building_instance = Building.objects.get(pk=id)
         except Building.DoesNotExist:
-            return None
+            raise GraphQLError("Building not found with the provided ID")
         building_instance.delete()
         return DeleteBuilding(buildings=building_instance)
 
@@ -156,7 +157,7 @@ class DeleteRoom(graphene.Mutation):
             room_instance = Room.objects.get(pk=id)
             room_instance.delete()
         except Room.DoesNotExist:
-            return None
+            raise GraphQLError("Room not found with the provided ID")
         return DeleteRoom(rooms=room_instance)
 
 
@@ -274,6 +275,64 @@ class UpdateRequest(graphene.Mutation):
         return UpdateRequest(request=request_instance)
 
 
+class UtilityInput(graphene.InputObjectType):
+    id = graphene.ID()
+    name = graphene.String()
+    description = graphene.String()
+    latest_amount = graphene.Decimal()
+    unit = graphene.String()
+    enabled = graphene.Boolean()
+    meter_reading = graphene.Decimal()
+    bill_image_url = graphene.String()
+    room_id = graphene.ID()
+
+
+class CreateUtility(graphene.Mutation):
+    class Arguments:
+        input_data = UtilityInput(required=True)
+
+    utility = graphene.Field(UtilityType)
+
+    @staticmethod
+    def mutate(root, info, input_data=None):
+        try:
+            utility_instance = Utility(**input_data)
+            utility_instance.save()
+        except Exception as exe:
+            raise GraphQLError(f"An error occurred while creating utility. {exe}")
+        return CreateUtility(utility=utility_instance)
+
+
+class UpdateUtility(graphene.Mutation):
+    class Arguments:
+        input_data = UtilityInput(required=True)
+
+    utility = graphene.Field(UtilityType)
+
+    @staticmethod
+    def mutate(root, info, input_data=None):
+        Utility.objects.filter(pk=input_data.id).update(**input_data)
+        utility_instance = Utility.objects.get(pk=input_data.id)
+        return UpdateUtility(utility=utility_instance)
+
+
+class DeleteUtility(graphene.Mutation):
+    class Arguments:
+        id = graphene.ID()
+
+    utility = graphene.Field(UtilityType)
+
+    @staticmethod
+    def mutate(root, info, id):
+        try:
+            utility_instance = Utility.objects.get(pk=id)
+            utility_instance.delete()
+            print("instance is", utility_instance)
+        except Utility.DoesNotExist:
+            raise GraphQLError("Utility not found with the provided ID")
+        return DeleteUtility(utility=utility_instance)
+
+
 class Mutation(graphene.ObjectType):
     create_building = CreateBuilding.Field()
     update_building = UpdateBuilding.Field()
@@ -282,6 +341,10 @@ class Mutation(graphene.ObjectType):
     create_room = CreateRoom.Field()
     update_room = UpdateRoom.Field()
     delete_room = DeleteRoom.Field()
+
+    create_utility = CreateUtility.Field()
+    update_utility = UpdateUtility.Field()
+    delete_utility = DeleteUtility.Field()
 
     create_request = CreateRequest.Field()
     update_request = UpdateRequest.Field()

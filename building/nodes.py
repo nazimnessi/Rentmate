@@ -3,7 +3,7 @@ from graphene import relay
 from graphene_django import DjangoObjectType
 
 from building.utils import convert_string_to_display
-from .models import Building, Room, Request
+from .models import Building, Room, Request, Utility
 from user.models import User
 from django.db.models import Count, Sum
 from django.db.models.functions import Cast
@@ -112,6 +112,14 @@ class RoomType(DjangoObjectType):
         def get_queryset(cls, queryset, info):
             user = info.context.user
             return queryset.filter(Building__owner_id=user.id).order_by("-id")
+
+
+class UtilityType(DjangoObjectType):
+    class Meta:
+        model = Utility
+        filter_fields = {'room__room_no': ['exact']}
+        interfaces = (relay.Node,)
+        fields = '__all__'
 
 
 class RequestType(DjangoObjectType):
