@@ -273,7 +273,7 @@ class UpdateRequest(graphene.Mutation):
             GraphQLError("Unexpected error occurred")
 
         return UpdateRequest(request=request_instance)
-    
+
 
 class UtilityInput(graphene.InputObjectType):
     id = graphene.ID()
