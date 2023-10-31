@@ -11,6 +11,7 @@ class Query(graphene.ObjectType):
     # payment = relay.Node.Field(UserType)
 
     def resolve_all_payments(root, info, **kwargs):
+        query = Payment.objects.filter(payee=info.context.user)
         start_date = kwargs.get("start_date")
         end_date = kwargs.get("end_date")
         if end_date and not start_date:
@@ -21,8 +22,8 @@ class Query(graphene.ObjectType):
             end_date = start_date + timedelta(days=30)
 
         if start_date and end_date:
-            return Payment.objects.filter(
+            return query.filter(
                 Q(created_date__gte=start_date) & Q(created_date__lte=end_date) & Q(payee=info.context.user)
             ).order_by('-id')
         else:
-            return Payment.objects.order_by('-id')
+            return query.order_by('-id')

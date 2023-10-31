@@ -17,6 +17,7 @@ class Payment(models.Model):
     amount = models.DecimalField(max_digits=20, decimal_places=2)
     status = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, null=True, blank=True)
     transaction_id = models.CharField(max_length=80, null=True, blank=True)
+    transaction_date = models.DateField(null=True, blank=True, help_text=("the date in which the transaction occurred"))
     note = models.TextField(max_length=350, null=True, blank=True)
     start_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)
