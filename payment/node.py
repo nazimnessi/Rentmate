@@ -6,6 +6,8 @@ from payment.filterset import PaymentFilterClass
 from .models import Payment
 from django.db.models import Sum, Avg, Q
 from graphql_relay import from_global_id
+from datetime import datetime
+from collections import defaultdict
 
 
 class PaymentFilterInput(graphene.InputObjectType):
@@ -26,10 +28,13 @@ class ExtendedConnectionPayment(graphene.Connection):
 
     # Add start_date and end_date arguments to all resolve methods
     pending_status = graphene.String(filter=PaymentFilterInput())
+    total_count = graphene.Int(filter=PaymentFilterInput())
     total_paid_amount = graphene.Decimal(filter=PaymentFilterInput())
     average_amount = graphene.Decimal(filter=PaymentFilterInput())
     total_unpaid_amount = graphene.Decimal(filter=PaymentFilterInput())
     total_pending_amount = graphene.Decimal(filter=PaymentFilterInput())
+    total_utility_amount = graphene.Decimal(filter=PaymentFilterInput())
+    graph_data = graphene.List(graphene.JSONString, filter=PaymentFilterInput())
 
     # filters = graphene.Argument(PaymentFilterInput)
 
@@ -78,6 +83,10 @@ class ExtendedConnectionPayment(graphene.Connection):
         query = root.get_queryset(info, filter)
         return query.filter(status="paid").aggregate(total_amount=Sum('amount'))['total_amount']
 
+    def resolve_total_count(root, info, filter=None, **kwargs):
+        query = root.get_queryset(info, filter)
+        return len(query)
+
     def resolve_average_amount(root, info, filter=None, **kwargs):
         query = root.get_queryset(info, filter)
         return query.filter(status="paid").aggregate(avg_amount=Avg('amount'))['avg_amount']
@@ -89,6 +98,23 @@ class ExtendedConnectionPayment(graphene.Connection):
     def resolve_total_pending_amount(root, info, filter=None, **kwargs):
         query = root.get_queryset(info, filter)
         return query.filter(Q(status="unpaid") | Q(status="pending")).aggregate(total_amount=Sum('amount'))['total_amount']
+
+    def resolve_total_utility_amount(root, info, filter=None, **kwargs):
+        query = root.get_queryset(info, filter)
+        return query.filter(utility__isnull=False).aggregate(total_amount=Sum('amount'))['total_amount']
+
+    def resolve_graph_data(self, info, filter=None, **kwargs):
+        query = self.get_queryset(info, filter)
+        aggregated_data = defaultdict(int)
+
+        for value in query:
+            start_date = value.start_date
+            month = datetime.strptime(str(start_date), "%Y-%m-%d").strftime("%B")
+            amount = int(value.amount)
+            aggregated_data[month] += amount
+
+        graph_data = [{"month": month, "value": value} for month, value in aggregated_data.items()]
+        return graph_data
 
 
 class PaymentType(DjangoObjectType):
