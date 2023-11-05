@@ -23,5 +23,27 @@ class AddPayment(graphene.Mutation):
         return AddPayment(payment=payment_instance)
 
 
+class MarkAsPaid(graphene.Mutation):
+    class Arguments:
+        payment = graphene.ID(required=True)
+
+    payment = graphene.Field(PaymentType)
+
+    @staticmethod
+    def mutate(self, info, payment=None):
+        user = info.context.user
+        if not user.is_authenticated:
+            raise GraphQLError("User not authenticated")
+        update_content = {
+            "transaction_date": datetime.now(),
+            "status": "Paid",
+        }
+        payment_instance, created = Payment.objects.update_or_create(
+            id=payment, defaults=update_content
+        )
+        return MarkAsPaid(payment=payment_instance)
+
+
 class Mutation(graphene.ObjectType):
     add_payment = AddPayment.Field()
+    mark_as_paid = MarkAsPaid.Field()
