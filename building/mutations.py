@@ -21,6 +21,7 @@ from django.db import transaction
 from .models import Building, Request, Room, Utility
 from user.models import User
 
+
 class CreateBuilding(graphene.Mutation):
     class Arguments:
         building = BuildingInput(required=True)

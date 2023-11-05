@@ -36,7 +36,8 @@ class ExtendedConnectionBuilding(graphene.Connection):
 
     def resolve_edge_count(root, info, **kwargs):
         return len(root.edges)
-    
+
+
 class ExtendedConnectionUtility(graphene.Connection):
     class Meta:
         abstract = True
@@ -134,7 +135,7 @@ class UtilityType(DjangoObjectType):
         interfaces = (relay.Node,)
         fields = '__all__'
         connection_class = ExtendedConnectionUtility
-    
+
     @classmethod
     def get_queryset(cls, queryset, info):
         user = info.context.user
