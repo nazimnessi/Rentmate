@@ -21,9 +21,6 @@ from django.db import transaction
 from .models import Building, Request, Room, Utility
 from user.models import User
 
-# Building section
-
-
 class CreateBuilding(graphene.Mutation):
     class Arguments:
         building = BuildingInput(required=True)
@@ -329,7 +326,6 @@ class DeleteUtility(graphene.Mutation):
         try:
             utility_instance = Utility.objects.get(pk=id)
             utility_instance.delete()
-            print("instance is", utility_instance)
         except Utility.DoesNotExist:
             raise GraphQLError("Utility not found with the provided ID")
         return DeleteUtility(utility=utility_instance)

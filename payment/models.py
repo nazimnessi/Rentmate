@@ -23,6 +23,10 @@ class Payment(models.Model):
     end_date = models.DateField(null=True, blank=True)
     no_of_days_before_due = models.IntegerField(blank=True, null=True, help_text=("No of days a renter can have before the payment is due"))
     created_date = models.DateTimeField('Payment date', auto_now_add=True)
+    # choices of this fields currently are  utility, maintenance
+    payment_category = models.CharField(max_length=200, null=True, blank=True, help_text="This field helps to identify which category this payment falls under")
+    bill_image_url = models.URLField(max_length=300, blank=True, null=True)
+    is_expense = models.BooleanField(default=False)
 
     def __str__(self):
         return str(f"{self.id}:{self.amount}:{self.room.room_no}:{self.utility.name}" if self.utility else f"{self.id}:{self.amount}:{self.room.room_no}")
