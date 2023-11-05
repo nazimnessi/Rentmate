@@ -38,6 +38,20 @@ class ExtendedConnectionBuilding(graphene.Connection):
         return len(root.edges)
 
 
+class ExtendedConnectionUtility(graphene.Connection):
+    class Meta:
+        abstract = True
+
+    total_count = graphene.Int()
+    edge_count = graphene.Int()
+
+    def resolve_total_count(root, info, **kwargs):
+        return root.length
+
+    def resolve_edge_count(root, info, **kwargs):
+        return len(root.edges)
+
+
 class BuildingType(DjangoObjectType):
 
     total_renters = graphene.Int()
@@ -120,6 +134,12 @@ class UtilityType(DjangoObjectType):
         filter_fields = {'room__room_no': ['exact']}
         interfaces = (relay.Node,)
         fields = '__all__'
+        connection_class = ExtendedConnectionUtility
+
+    @classmethod
+    def get_queryset(cls, queryset, info):
+        user = info.context.user
+        return queryset.filter(room__building__owner_id=user.id).order_by("-id")
 
 
 class RequestType(DjangoObjectType):

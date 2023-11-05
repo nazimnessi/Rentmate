@@ -26,6 +26,7 @@ class Mutation(
     schema_building.Mutation,
     schema_notification.Mutation,
     schema_job.Mutation,
+    schema_payment.Mutation,
     graphene.ObjectType,
 ):
     debug = graphene.Field(DjangoDebug, name="_debug")
