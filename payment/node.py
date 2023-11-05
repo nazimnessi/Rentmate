@@ -6,8 +6,6 @@ from payment.filterset import PaymentFilterClass
 from .models import Payment
 from django.db.models import Sum, Avg, Q
 from graphql_relay import from_global_id
-from datetime import datetime
-from collections import defaultdict
 
 
 class PaymentFilterInput(graphene.InputObjectType):
@@ -124,12 +122,11 @@ class ExtendedConnectionPayment(graphene.Connection):
             aggregated_data_total[month] = + amount + (aggregated_data_total.get(month) if aggregated_data_total.get(month) else 0)
             if value.status and value.status == "Paid":
                 month = value.transaction_date.strftime("%B")
-                aggregated_data_paid[month] = amount + (aggregated_data_paid.get(month) if aggregated_data_paid.get(month) else 0 )
+                aggregated_data_paid[month] = amount + (aggregated_data_paid.get(month) if aggregated_data_paid.get(month) else 0)
             elif value.status and value.status == "Pending" or value.status == "Unpaid":
-                aggregated_data_pending[month] = amount +(aggregated_data_pending.get(month) if aggregated_data_pending.get(month) else 0)
+                aggregated_data_pending[month] = amount + (aggregated_data_pending.get(month) if aggregated_data_pending.get(month) else 0)
             else:
-                aggregated_data_expense[month] = amount +(aggregated_data_expense.get(month) if aggregated_data_expense.get(month) else 0)
-
+                aggregated_data_expense[month] = amount + (aggregated_data_expense.get(month) if aggregated_data_expense.get(month) else 0)
 
         # Now you can create the graph_data list based on the aggregated data
         graph_data = []
@@ -161,6 +158,7 @@ class PaymentType(DjangoObjectType):
         user = info.context.user
         return queryset.filter(payee=user.id).order_by("-id")
 
+
 class PaymentInput(graphene.InputObjectType):
     payer_id = graphene.ID()
     room_id = graphene.ID()
@@ -171,4 +169,4 @@ class PaymentInput(graphene.InputObjectType):
     is_expense = graphene.Boolean()
     status = graphene.String()
     note = graphene.String()
-    transaction_date= graphene.String()
+    transaction_date = graphene.String()
