@@ -27,6 +27,7 @@ class Payment(models.Model):
     payment_category = models.CharField(max_length=200, null=True, blank=True, help_text="This field helps to identify which category this payment falls under")
     bill_image_url = models.URLField(max_length=300, blank=True, null=True)
     is_expense = models.BooleanField(default=False)
+    mark_as_paid = models.BooleanField(default=False)
 
     def __str__(self):
         return str(f"{self.id}:{self.amount}:{self.room.room_no}:{self.utility.name}" if self.utility else f"{self.id}:{self.amount}:{self.room.room_no}")
