@@ -33,7 +33,7 @@ class ExtendedConnectionPayment(graphene.Connection):
     total_pending_amount = graphene.Decimal(filter=PaymentFilterInput())
     total_utility_amount = graphene.Decimal(filter=PaymentFilterInput())
     total_expense_amount = graphene.Decimal(filter=PaymentFilterInput())
-    graph_data = graphene.List(graphene.JSONString, filter=PaymentFilterInput())
+    graph_data = graphene.List(graphene.JSONString, filter=PaymentFilterInput(), time_interval=graphene.String())
 
     # filters = graphene.Argument(PaymentFilterInput)
 
@@ -110,6 +110,7 @@ class ExtendedConnectionPayment(graphene.Connection):
 
     def resolve_graph_data(self, info, filter=None, **kwargs):
         query = self.get_queryset(info, filter)
+        query = query.filter(utility__isnull=True)
         aggregated_data_total = {}
         aggregated_data_paid = {}
         aggregated_data_pending = {}
@@ -117,11 +118,13 @@ class ExtendedConnectionPayment(graphene.Connection):
         graph_data = []
 
         for value in query:
-            month = value.created_date.strftime("%B")
+            if kwargs.get('time_interval') == "Yearly":
+                month = value.created_date.strftime("%B")
+            else:
+                month = value.created_date.strftime("%d-%B")
             amount = int(value.amount)
             aggregated_data_total[month] = + amount + (aggregated_data_total.get(month) if aggregated_data_total.get(month) else 0)
             if value.status and value.status == "Paid":
-                month = value.transaction_date.strftime("%B")
                 aggregated_data_paid[month] = amount + (aggregated_data_paid.get(month) if aggregated_data_paid.get(month) else 0)
             elif value.status and value.status == "Pending" or value.status == "Unpaid":
                 aggregated_data_pending[month] = amount + (aggregated_data_pending.get(month) if aggregated_data_pending.get(month) else 0)
