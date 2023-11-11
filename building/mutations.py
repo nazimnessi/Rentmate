@@ -14,6 +14,7 @@ from building.nodes import (
 )
 from building.utils import get_or_404
 from notification.models import Notifications
+from payment.models import Payment
 from user.models import Address
 from user.node import AddressInput
 from django.db import transaction
@@ -278,6 +279,7 @@ class UpdateRequest(graphene.Mutation):
 class UtilityInput(graphene.InputObjectType):
     id = graphene.ID()
     name = graphene.String()
+    payment_date = graphene.String()
     description = graphene.String()
     latest_amount = graphene.Decimal()
     unit = graphene.String()
@@ -285,6 +287,7 @@ class UtilityInput(graphene.InputObjectType):
     meter_reading = graphene.Decimal()
     bill_image_url = graphene.String()
     room_id = graphene.ID()
+    renter_id = graphene.ID()
 
 
 class CreateUtility(graphene.Mutation):
@@ -296,9 +299,26 @@ class CreateUtility(graphene.Mutation):
     @staticmethod
     def mutate(root, info, input_data=None):
         try:
-            utility_instance = Utility(**input_data)
-            utility_instance.save()
+            with transaction.atomic():
+                input_data['unit'] = str(input_data.get('unit'))
+                payment_data = {
+                    "payer_id": input_data.get('renter_id'),
+                    "payee": info.context.user,
+                    "room_id": input_data.get('room_id'),
+                    "amount": input_data.get('latest_amount'),
+                    "status": 'Unpaid',
+                    "note": input_data.get('description'),
+                    "start_date": input_data.pop('payment_date'),
+                    "payment_category": "Utility",
+                    "bill_image_url": input_data.get('bill_image_url'),
+                    "is_expense": False if input_data.get('renter_id') else True,
+                }
+                utility_instance = Utility(**input_data)
+                utility_instance.save()
+                payment_data['utility'] = utility_instance
+                Payment.objects.create(**payment_data)
         except Exception as exe:
+            transaction.rollback()
             raise GraphQLError(f"An error occurred while creating utility. {exe}")
         return CreateUtility(utility=utility_instance)
 
