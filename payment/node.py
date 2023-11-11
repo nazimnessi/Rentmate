@@ -106,7 +106,7 @@ class ExtendedConnectionPayment(graphene.Connection):
         query = root.get_queryset(info, filter)
         total_paid_amount = query.filter(utility__isnull=False, status='Paid').aggregate(total_amount=Sum('amount'))['total_amount']
         total_pending_amount = query.filter(utility__isnull=False).filter(Q(status="Unpaid") | Q(status="Pending")).aggregate(total_amount=Sum('amount'))['total_amount']
-        return (total_paid_amount if total_paid_amount else 0) - (total_pending_amount if total_pending_amount else 0)
+        return str((total_paid_amount if total_paid_amount else 0) - (total_pending_amount if total_pending_amount else 0))
 
     def resolve_graph_data(self, info, filter=None, **kwargs):
         query = self.get_queryset(info, filter)
