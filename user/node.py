@@ -95,6 +95,7 @@ class UserType(DjangoObjectType):
     full_address = graphene.String()
     room_count = graphene.Int()
     total_rent_amount = graphene.Int()
+    rented_rooms = DjangoFilterConnectionField(RoomType)
 
     def resolve_total_rent_amount(parent, info, **kwargs):
         user = info.context.user
@@ -117,6 +118,9 @@ class UserType(DjangoObjectType):
 
     def resolve_total_buildings(parent, info, **kwargs):
         return Building.objects.filter(owner=parent).aggregate(Count('id'))['id__count']
+
+    def resolve_rented_rooms(parent, info, **kwargs):
+        return Room.objects.filter(renter=parent, building__owner=info.context.user).order_by('-id')
 
     class Meta:
         model = User
