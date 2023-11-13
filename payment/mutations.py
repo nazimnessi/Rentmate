@@ -4,6 +4,7 @@ from payment.models import Payment
 from datetime import datetime
 
 from payment.node import PaymentType, PaymentInput
+from django.db import transaction
 
 
 class AddPayment(graphene.Mutation):
@@ -46,6 +47,32 @@ class MarkAsPaid(graphene.Mutation):
         return MarkAsPaid(payment=payment_instance)
 
 
+class DeletePayment(graphene.Mutation):
+    class Arguments:
+        payment_id = graphene.ID(required=True)
+    status = graphene.Boolean()
+
+    @staticmethod
+    def mutate(root, info, payment_id=None):
+        user = info.context.user
+        if not user.is_authenticated:
+            raise GraphQLError("User not authenticated")
+        try:
+            with transaction.atomic():
+                payment_instance = Payment.objects.get(id=payment_id)
+                utility = payment_instance.utility
+                if utility:
+                    utility.delete()
+                payment_instance.delete()
+        except Payment.DoesNotExist:
+            raise GraphQLError('Selected payment does not exist')
+        except Exception as exe:
+            transaction.rollback()
+            raise GraphQLError(str(exe))
+        return DeletePayment(status=True)
+
+
 class Mutation(graphene.ObjectType):
     add_payment = AddPayment.Field()
     mark_as_paid = MarkAsPaid.Field()
+    delete_payment = DeletePayment.Field()

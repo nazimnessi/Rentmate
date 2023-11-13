@@ -313,6 +313,7 @@ class CreateUtility(graphene.Mutation):
                     "bill_image_url": input_data.get('bill_image_url'),
                     "is_expense": False if input_data.get('renter_id') else True,
                 }
+                input_data.pop('renter_id')
                 utility_instance = Utility(**input_data)
                 utility_instance.save()
                 payment_data['utility'] = utility_instance
