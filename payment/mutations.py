@@ -36,9 +36,10 @@ class MarkAsPaid(graphene.Mutation):
         user = info.context.user
         if not user.is_authenticated:
             raise GraphQLError("User not authenticated")
+        payment_instance = Payment.objects.filter(id=payment).first()
         update_content = {
             "transaction_date": datetime.now(),
-            "status": "Paid" if status else "Pending",
+            "status": "Paid" if status else None if payment_instance.is_expense else "Pending",
             "mark_as_paid": status,
         }
         payment_instance, created = Payment.objects.update_or_create(
