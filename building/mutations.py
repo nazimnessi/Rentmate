@@ -41,26 +41,27 @@ class CreateBuilding(graphene.Mutation):
                 address_instance, created = Address.objects.get_or_create(**address)
                 building["address"] = address_instance
                 if building.get("building_document_url") and len(building.get("building_document_url")[0]) > 0:
-                    building["building_photo_url"] = building["building_document_url"][0]
                     building["building_document_url"] = building["building_document_url"][0]
+                    building["building_photo_url"] = building["building_document_url"][0]
                 building["owner_id"] = info.context.user.id
                 building_instance = Building.objects.create(**building)
+                room_objects = []
                 if rooms:
-                    room_objects = []
                     for room in rooms:
                         try:
-                            # room["rent_period_start"] = datetime.strptime(room["rent_period_start"], "%Y, %m, %d")
-                            # room["rent_period_end"] = datetime.strptime(room["rent_period_end"], "%Y, %m, %d")
                             room['building_id'] = building_instance.id
                             if room.get("room_document_url") and len(room.get("room_document_url")[0]) > 0:
                                 room["room_document_url"] = room["room_document_url"][0]
+                                room["room_photo_url"] = room["room_document_url"][0]
+                            elif building.get("building_type") == 'House' and building.get("building_document_url") and len(building.get("building_document_url")[0]) > 0:
+                                room["room_document_url"] = building["building_document_url"]
                                 room["room_photo_url"] = room["room_document_url"][0]
                             room_objects.append(Room(**room))
 
                         except Exception as exe:
                             transaction.rollback()
                             raise GraphQLError(f"Unknown error occurred in room creation: {exe}")
-                    Room.objects.bulk_create(room_objects)
+                Room.objects.bulk_create(room_objects)
         except Exception as exe:
             transaction.rollback()
             raise GraphQLError(f"unknown error occurred in building creation error: {exe}")
