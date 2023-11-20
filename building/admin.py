@@ -31,6 +31,7 @@ class UtilityAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', "room")
     search_fields = ['name', "room__room_no"]
 
+
 class LeaseAdmin(admin.ModelAdmin):
     list_display = ('room', 'status', "rent_amount", "advance")
 

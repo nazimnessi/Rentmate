@@ -116,8 +116,9 @@ class Utility(models.Model):
     def __str__(self):
         return self.name
 
+
 class Lease(models.Model):
-    room = models.ForeignKey(Room, on_delete=models.SET_NULL, blank=True, null=True) 
+    room = models.ForeignKey(Room, on_delete=models.SET_NULL, blank=True, null=True)
     status = models.BooleanField(default=True)
     documents = models.JSONField(blank=True, null=True)
     rent_amount = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
