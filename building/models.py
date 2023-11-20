@@ -115,3 +115,14 @@ class Utility(models.Model):
 
     def __str__(self):
         return self.name
+
+class Lease(models.Model):
+    room = models.ForeignKey(Room, on_delete=models.SET_NULL, blank=True, null=True) 
+    status = models.BooleanField(default=True)
+    documents = models.JSONField(blank=True, null=True)
+    rent_amount = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    advance = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    rent_period_start = models.DateField('rent period start', help_text=("Rent period contract start date"), null=True, blank=True)
+    rent_period_end = models.DateField('rent period end', help_text=("Rent period contract end date"), null=True, blank=True)
+    rent_payment_date = models.DateField('rent payment date', blank=True, null=True, help_text=("Date from which the payment of a month start"))
+    rent_payment_interval = models.IntegerField(blank=True, null=True, help_text=("No of days a renter can have before the payment is due"))

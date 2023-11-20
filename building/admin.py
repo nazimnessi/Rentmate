@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Building, Room, Request, Utility
+from .models import Building, Room, Request, Utility, Lease
 # Register your models here.
 
 
@@ -31,8 +31,12 @@ class UtilityAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', "room")
     search_fields = ['name', "room__room_no"]
 
+class LeaseAdmin(admin.ModelAdmin):
+    list_display = ('room', 'status', "rent_amount", "advance")
+
 
 admin.site.register(Building, BuildingAdmin)
 admin.site.register(Room, RoomAdmin)
 admin.site.register(Utility, UtilityAdmin)
 admin.site.register(Request, RequestAdmin)
+admin.site.register(Lease, LeaseAdmin)
