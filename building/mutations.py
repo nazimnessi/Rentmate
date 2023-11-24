@@ -430,6 +430,7 @@ class DeleteLeaseAgreement(graphene.Mutation):
                 lease_instance = Lease.objects.get(id=id)
                 room_instance = Room.objects.get(id=lease_instance.room.id)
                 room_instance.renter = None
+                room_instance.save()
                 lease_instance.delete()
         except lease_instance.DoesNotExist:
             raise GraphQLError("No lease agreement found")
