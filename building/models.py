@@ -1,6 +1,7 @@
 from django.db import models
 from django.core.exceptions import ValidationError
 from user.models import User, Address
+from datetime import datetime, timedelta
 
 
 class Request(models.Model):
@@ -118,12 +119,36 @@ class Utility(models.Model):
 
 
 class Lease(models.Model):
+    criteria_choice = (
+        ('Upcoming', 'Upcoming'),
+        ('Current', 'Current'),
+        ('Expiring Soon', 'Expiring Soon'),
+        ('Expired', 'Expired'),
+    )
     room = models.ForeignKey(Room, on_delete=models.SET_NULL, blank=True, null=True)
-    status = models.BooleanField(default=True)
+    status = models.CharField(max_length=15, choices=criteria_choice, default='Current', blank=True, null=True)
     documents = models.JSONField(blank=True, null=True)
     rent_amount = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     advance = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     rent_period_start = models.DateField('rent period start', help_text=("Rent period contract start date"), null=True, blank=True)
     rent_period_end = models.DateField('rent period end', help_text=("Rent period contract end date"), null=True, blank=True)
-    rent_payment_date = models.DateField('rent payment date', blank=True, null=True, help_text=("Date from which the payment of a month start"))
+    rent_payment_day = models.CharField(max_length=2, blank=True, null=True, help_text=("Date from which the payment of a month start"))
     rent_payment_interval = models.IntegerField(blank=True, null=True, help_text=("No of days a renter can have before the payment is due"))
+    renter = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, default=None, related_name='lease_renter')
+
+    class Meta:
+        unique_together = ('room', 'renter',)
+
+    def save(self, *args, **kwargs):
+        current_datetime = datetime.now()
+        if self.rent_period_start and self.rent_period_end:
+            if current_datetime < datetime.combine(self.rent_period_start, datetime.min.time()):
+                self.status = "Upcoming"
+            elif datetime.combine(self.rent_period_end, datetime.min.time()) < current_datetime:
+                self.status = "Expired"
+            elif current_datetime > datetime.combine(self.rent_period_end, datetime.min.time()) - timedelta(days=90):
+                self.status = "Expiring Soon"
+            elif datetime.combine(self.rent_period_start, datetime.min.time()) < current_datetime < datetime.combine(self.rent_period_end, datetime.min.time()):
+                self.status = "Current"
+
+        super().save(*args, **kwargs)

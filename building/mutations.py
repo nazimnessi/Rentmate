@@ -6,6 +6,8 @@ from graphql import GraphQLError
 from building.nodes import (
     BuildingInput,
     BuildingType,
+    LeaseAgreementInput,
+    LeaseType,
     RequestInput,
     RequestType,
     RoomInput,
@@ -19,7 +21,7 @@ from user.models import Address
 from user.node import AddressInput
 from django.db import transaction
 
-from .models import Building, Request, Room, Utility
+from .models import Building, Lease, Request, Room, Utility
 from user.models import User
 
 
@@ -61,7 +63,7 @@ class CreateBuilding(graphene.Mutation):
                         except Exception as exe:
                             transaction.rollback()
                             raise GraphQLError(f"Unknown error occurred in room creation: {exe}")
-                Room.objects.bulk_create(room_objects)
+                    Room.objects.bulk_create(room_objects)
         except Exception as exe:
             transaction.rollback()
             raise GraphQLError(f"unknown error occurred in building creation error: {exe}")
@@ -314,7 +316,7 @@ class CreateUtility(graphene.Mutation):
                     "bill_image_url": input_data.get('bill_image_url'),
                     "is_expense": False if input_data.get('renter_id') else True,
                 }
-                input_data.pop('renter_id')
+                input_data.pop('renter_id', None)
                 utility_instance = Utility(**input_data)
                 utility_instance.save()
                 payment_data['utility'] = utility_instance
@@ -354,6 +356,91 @@ class DeleteUtility(graphene.Mutation):
         return DeleteUtility(utility=utility_instance)
 
 
+class CreateLeaseAgreement(graphene.Mutation):
+    class Arguments:
+        lease_data = LeaseAgreementInput(required=True)
+
+    lease_agreement = graphene.Field(LeaseType)
+
+    @staticmethod
+    def mutate(root, info, lease_data={}):
+        try:
+            room_instance = Room.objects.get(id=lease_data.get('room_id'))
+            if room_instance.renter_id:
+                raise GraphQLError("Already have a renter assigned to this room")
+            with transaction.atomic():
+                lease_data['rent_period_start'] = datetime.strptime(lease_data['rent_period_start'], "%d-%m-%Y")
+                lease_data['rent_period_end'] = datetime.strptime(lease_data['rent_period_end'], "%d-%m-%Y")
+                if lease_data['documents']:
+                    lease_data['documents'] = lease_data['documents'][0]
+                if not lease_data.get("rent_amount"):
+                    lease_data['rent_amount'] = room_instance.rent_amount
+                if not lease_data.get("advance"):
+                    lease_data['advance'] = room_instance.advance
+                room_instance.renter_id = lease_data.get('renter_id')
+                room_instance.save()
+                lease_instance, created = Lease.objects.get_or_create(**lease_data)
+        except Exception as exe:
+            transaction.rollback()
+            raise GraphQLError(f"An error occurred while creating Lease Agreement. {exe}")
+        return CreateLeaseAgreement(lease_agreement=lease_instance)
+
+
+class UpdateLeaseAgreement(graphene.Mutation):
+    class Arguments:
+        lease_data = LeaseAgreementInput(required=True)
+
+    lease_agreement = graphene.Field(LeaseType)
+
+    @staticmethod
+    def mutate(root, info, lease_data={}):
+        try:
+            room_instance = Room.objects.get(id=lease_data.get('room_id'))
+            with transaction.atomic():
+                lease_instance = Lease.objects.filter(id=lease_data.get('id'))
+                if not lease_instance:
+                    raise GraphQLError("No lease agreement found")
+                lease_data['rent_period_start'] = datetime.strptime(lease_data['rent_period_start'], "%d-%m-%Y")
+                lease_data['rent_period_end'] = datetime.strptime(lease_data['rent_period_end'], "%d-%m-%Y")
+                lease_data['documents'] = lease_data['documents'][0] if lease_data.get('documents') else []
+                if not lease_data.get("rent_amount"):
+                    lease_data['rent_amount'] = room_instance.rent_amount
+                if not lease_data.get("advance"):
+                    lease_data['advance'] = room_instance.advance
+                lease_instance = lease_instance.update(**lease_data)
+                lease_instance = Lease.objects.get(id=lease_data.get('id'))
+        except room_instance.DoesNotExist:
+            raise GraphQLError("No room found for this lease agreement")
+        except Exception as exe:
+            transaction.rollback()
+            raise GraphQLError(f"An error occurred while creating Lease Agreement. {exe}")
+        return UpdateLeaseAgreement(lease_agreement=lease_instance)
+
+
+class DeleteLeaseAgreement(graphene.Mutation):
+    class Arguments:
+        id = graphene.ID()
+
+    lease_agreement = graphene.String()
+
+    @staticmethod
+    def mutate(root, info, id={}):
+        try:
+            with transaction.atomic():
+                lease_instance = Lease.objects.get(id=id)
+                room_instance = Room.objects.get(id=lease_instance.room.id)
+                room_instance.renter = None
+                lease_instance.delete()
+        except lease_instance.DoesNotExist:
+            raise GraphQLError("No lease agreement found")
+        except room_instance.DoesNotExist:
+            raise GraphQLError("No room found for this lease agreement")
+        except Exception as exe:
+            transaction.rollback()
+            raise GraphQLError(f"An error occurred while creating Lease Agreement. {exe}")
+        return DeleteLeaseAgreement(lease_agreement="True")
+
+
 class Mutation(graphene.ObjectType):
     create_building = CreateBuilding.Field()
     update_building = UpdateBuilding.Field()
@@ -369,5 +456,9 @@ class Mutation(graphene.ObjectType):
 
     create_request = CreateRequest.Field()
     update_request = UpdateRequest.Field()
+
+    create_lease_agreement = CreateLeaseAgreement.Field()
+    update_lease_agreement = UpdateLeaseAgreement.Field()
+    delete_lease_agreement = DeleteLeaseAgreement.Field()
 
     setup_renter_to_room = SetupRenterToRoom.Field()
