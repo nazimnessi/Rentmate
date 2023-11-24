@@ -157,6 +157,7 @@ class LeaseType(DjangoObjectType):
         filter_fields = {
             "status": ['exact'],
             'room__room_no': ['icontains'],
+            'room__id': ['exact'],
             'renter__username': ['icontains']
         }
         interfaces = (relay.Node,)
