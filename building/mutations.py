@@ -359,9 +359,9 @@ class DeleteUtility(graphene.Mutation):
 class CreateLeaseAgreement(graphene.Mutation):
     class Arguments:
         lease_data = LeaseAgreementInput(required=True)
-    
+
     lease_agreement = graphene.Field(LeaseType)
-    
+
     @staticmethod
     def mutate(root, info, lease_data={}):
         try:
@@ -385,12 +385,13 @@ class CreateLeaseAgreement(graphene.Mutation):
             raise GraphQLError(f"An error occurred while creating Lease Agreement. {exe}")
         return CreateLeaseAgreement(lease_agreement=lease_instance)
 
+
 class UpdateLeaseAgreement(graphene.Mutation):
     class Arguments:
         lease_data = LeaseAgreementInput(required=True)
-    
+
     lease_agreement = graphene.Field(LeaseType)
-    
+
     @staticmethod
     def mutate(root, info, lease_data={}):
         try:
@@ -414,13 +415,14 @@ class UpdateLeaseAgreement(graphene.Mutation):
             transaction.rollback()
             raise GraphQLError(f"An error occurred while creating Lease Agreement. {exe}")
         return UpdateLeaseAgreement(lease_agreement=lease_instance)
-    
+
+
 class DeleteLeaseAgreement(graphene.Mutation):
     class Arguments:
         id = graphene.ID()
-    
+
     lease_agreement = graphene.String()
-    
+
     @staticmethod
     def mutate(root, info, id={}):
         try:
@@ -438,6 +440,7 @@ class DeleteLeaseAgreement(graphene.Mutation):
             raise GraphQLError(f"An error occurred while creating Lease Agreement. {exe}")
         return DeleteLeaseAgreement(lease_agreement="True")
 
+
 class Mutation(graphene.ObjectType):
     create_building = CreateBuilding.Field()
     update_building = UpdateBuilding.Field()
@@ -453,7 +456,7 @@ class Mutation(graphene.ObjectType):
 
     create_request = CreateRequest.Field()
     update_request = UpdateRequest.Field()
-    
+
     create_lease_agreement = CreateLeaseAgreement.Field()
     update_lease_agreement = UpdateLeaseAgreement.Field()
     delete_lease_agreement = DeleteLeaseAgreement.Field()

@@ -149,24 +149,25 @@ class RequestType(DjangoObjectType):
         interfaces = (relay.Node,)
         fields = '__all__'
 
+
 class LeaseType(DjangoObjectType):
-    
+
     class Meta:
         model = Lease
         filter_fields = {
             "status": ['exact'],
             'room__room_no': ['icontains'],
             'renter__username': ['icontains']
-            }
+        }
         interfaces = (relay.Node,)
         fields = '__all__'
-    
+
     @classmethod
     def get_queryset(cls, queryset, info):
         user = info.context.user
         return queryset.filter(room__building__owner_id=user.id).order_by("-id")
 
-  
+
 class BuildingInput(graphene.InputObjectType):
     id = graphene.ID()
     name = graphene.String()
@@ -223,4 +224,3 @@ class LeaseAgreementInput(graphene.InputObjectType):
     rent_payment_day = graphene.String()
     rent_payment_interval = graphene.Int()
     renter_id = graphene.ID()
-    

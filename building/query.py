@@ -13,7 +13,7 @@ class Query(graphene.ObjectType):
     all_Rooms = DjangoFilterConnectionField(RoomType)
     all_available_rooms = DjangoFilterConnectionField(RoomType)
     Rooms = relay.Node.Field(RoomType)
-    
+
     all_leases = DjangoFilterConnectionField(LeaseType)
     lease = relay.Node.Field(LeaseType)
 

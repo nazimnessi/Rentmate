@@ -33,7 +33,7 @@ class UtilityAdmin(admin.ModelAdmin):
 
 
 class LeaseAdmin(admin.ModelAdmin):
-    list_display = ('id','room', 'status', "rent_amount", "advance")
+    list_display = ('id', 'room', 'status', "rent_amount", "advance")
     list_filter = ('status',)
 
 
