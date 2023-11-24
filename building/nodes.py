@@ -3,7 +3,7 @@ from graphene import relay
 from graphene_django import DjangoObjectType
 
 from building.utils import convert_string_to_display
-from .models import Building, Room, Request, Utility
+from .models import Building, Lease, Room, Request, Utility
 from user.models import User
 from django.db.models import Count, Sum
 from django.db.models.functions import Cast
@@ -149,7 +149,24 @@ class RequestType(DjangoObjectType):
         interfaces = (relay.Node,)
         fields = '__all__'
 
+class LeaseType(DjangoObjectType):
+    
+    class Meta:
+        model = Lease
+        filter_fields = {
+            "status": ['exact'],
+            'room__room_no': ['icontains'],
+            'renter__username': ['icontains']
+            }
+        interfaces = (relay.Node,)
+        fields = '__all__'
+    
+    @classmethod
+    def get_queryset(cls, queryset, info):
+        user = info.context.user
+        return queryset.filter(room__building__owner_id=user.id).order_by("-id")
 
+  
 class BuildingInput(graphene.InputObjectType):
     id = graphene.ID()
     name = graphene.String()
@@ -192,3 +209,18 @@ class RequestInput(graphene.InputObjectType):
     text = graphene.String()
     action = graphene.String()
     room_id = graphene.ID()
+
+
+class LeaseAgreementInput(graphene.InputObjectType):
+    id = graphene.ID()
+    room_id = graphene.ID()
+    status = graphene.String()
+    documents = graphene.List(graphene.JSONString)
+    rent_amount = graphene.Int()
+    advance = graphene.Int()
+    rent_period_start = graphene.String()
+    rent_period_end = graphene.String()
+    rent_payment_day = graphene.String()
+    rent_payment_interval = graphene.Int()
+    renter_id = graphene.ID()
+    
