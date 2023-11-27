@@ -4,6 +4,7 @@ from graphene_django import DjangoObjectType
 from building.extendedConnectionsLease import ExtendedConnectionLease, ExtendedConnectionLeaseDistinct
 
 from building.utils import convert_string_to_display
+from payment.models import Payment
 from .models import Building, Lease, Room, Request, Utility
 from user.models import User
 from django.db.models import Count, Sum
@@ -93,6 +94,49 @@ class BuildingType(DjangoObjectType):
         interfaces = (relay.Node,)
         fields = '__all__'
         connection_class = ExtendedConnectionBuilding
+
+
+class BuildingTypeRenter(DjangoObjectType):
+
+    total_rooms = graphene.Int()
+    total_rent_amount = graphene.Int()
+    full_address = graphene.String()
+    status = graphene.String()
+
+    def resolve_full_address(parent, info, **kwargs):
+        return parent.address
+
+    def resolve_total_rooms(parent, info, **kwargs):
+        total_rooms = Room.objects.filter(building=parent, renter=info.context.user).aggregate(Count('id'))['id__count']
+        return total_rooms
+
+    def resolve_total_rent_amount(parent, info, **kwargs):
+        total_rent_amount = parent.rooms.filter(renter=info.context.user).annotate(rent_amount_numeric=Cast('rent_amount', models.DecimalField(max_digits=10, decimal_places=2))).aggregate(total=Sum('rent_amount_numeric'))['total']
+        return total_rent_amount if total_rent_amount else 0
+
+    def resolve_status(parent, info, **kwargs):
+        rooms = Room.objects.filter(building=parent)
+        for room in rooms:
+            payments = Payment.objects.filter(room=room)
+            if not payments.exists():
+                return "No payments yet"
+            payment_statuses = set(payment.status for payment in payments)
+            if "Unpaid" in payment_statuses:
+                return "Due"
+            elif "Pending" in payment_statuses:
+                return "Pending"
+        return "Paid"
+
+    class Meta:
+        model = Building
+        filter_fields = {
+            'name': ['exact', 'icontains', 'istartswith'],
+            'house_number': ['exact', 'icontains', 'istartswith'],
+            'building_type': ['exact'],
+            'owner': ['exact'],
+        }
+        interfaces = (relay.Node,)
+        fields = '__all__'
 
 
 class RoomType(DjangoObjectType):
