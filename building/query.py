@@ -23,7 +23,12 @@ class Query(graphene.ObjectType):
 
     all_utilities = DjangoFilterConnectionField(UtilityType)
 
-    all_properties_for_renter = DjangoFilterConnectionField(BuildingTypeRenter, orderBy=graphene.String() or None, searchTerm=graphene.String())
+    all_properties_for_renter = DjangoFilterConnectionField(
+        BuildingTypeRenter,
+        orderBy=graphene.String() or None,
+        searchTerm=graphene.String(),
+        status=graphene.String()
+    )
 
     def resolve_all_Buildings(root, info, **kwargs):
         queryset = Building.objects.all() if kwargs.get('globalSearch') else Building.objects.filter(owner=info.context.user)
@@ -47,6 +52,21 @@ class Query(graphene.ObjectType):
         queryset = Building.objects.filter(rooms__renter=info.context.user)
         if kwargs.get('searchTerm'):
             queryset = queryset.filter(name__icontains=kwargs.get('searchTerm'))
+        status_mapping = {
+            'Due': 'Unpaid',
+            'Pending': 'Pending',
+            'Paid': 'Paid',
+            'NoPaymentsYet': None,
+        }
+
+        status_value = kwargs.get('status')
+        payment_status = status_mapping.get(status_value)
+
+        if payment_status:
+            queryset = queryset.filter(rooms__payments__status=payment_status)
+        elif not payment_status:
+            queryset = queryset.filter(rooms__payments__status__isnull=True)
+
         if 'address' in kwargs.get('orderBy'):
             return Building.objects.order_by(
                 f'{kwargs.get("orderBy")}__address1',
@@ -55,6 +75,11 @@ class Query(graphene.ObjectType):
                 f'{kwargs.get("orderBy")}__state',
                 f'{kwargs.get("orderBy")}__postal_code',
             )
+        elif 'totalRooms' in kwargs.get('orderBy'):
+            return Building.objects.filter(
+                rooms__renter=info.context.user
+            ).annotate(total_rented_rooms=Count('rooms', distinct=True)
+                       ).order_by('total_rented_rooms')
         return queryset.order_by(kwargs.get('orderBy', '-id'))
 
     def resolve_all_Rooms(root, info, **kwargs):
