@@ -5,8 +5,6 @@ from building.nodes import BuildingType, BuildingTypeRenter, LeaseType, RequestT
 from building.models import Building, Room, Request
 from django.db.models import Count
 
-from payment.models import Payment
-
 
 class Query(graphene.ObjectType):
     all_Buildings = DjangoFilterConnectionField(BuildingType, orderBy=graphene.String() or None, globalSearch=graphene.Boolean(), searchTerm=graphene.String())
