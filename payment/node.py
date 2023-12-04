@@ -11,6 +11,7 @@ from graphql_relay import from_global_id
 class PaymentFilterInput(graphene.InputObjectType):
     payer = graphene.ID()
     payer__username = graphene.String()
+    payee__username = graphene.String()
     payer__first_name = graphene.String()
     room = graphene.ID()
     room__building = graphene.ID()
@@ -31,14 +32,19 @@ class ExtendedConnectionPayment(graphene.Connection):
     average_amount = graphene.Decimal(filter=PaymentFilterInput())
     total_unpaid_amount = graphene.Decimal(filter=PaymentFilterInput())
     total_pending_amount = graphene.Decimal(filter=PaymentFilterInput())
+    total_renter_pending_amount = graphene.Decimal(filter=PaymentFilterInput())
+    total_renter_due_amount = graphene.Decimal(filter=PaymentFilterInput())
     total_utility_amount = graphene.Decimal(filter=PaymentFilterInput())
     total_expense_amount = graphene.Decimal(filter=PaymentFilterInput())
     graph_data = graphene.List(graphene.JSONString, filter=PaymentFilterInput(), time_interval=graphene.String())
 
     # filters = graphene.Argument(PaymentFilterInput)
 
-    def get_queryset(self, info, filter=None):
-        query = Payment.objects.filter(payee=info.context.user)
+    def get_queryset(self, info, filter=None, is_renter=False):
+        if not is_renter:
+            query = Payment.objects.filter(payee=info.context.user)
+        else:
+            query = Payment.objects.filter(payer=info.context.user)
         if filter and filter.start_date and filter.end_date:
             query = query.filter(
                 created_date__gte=filter.start_date,
@@ -98,6 +104,14 @@ class ExtendedConnectionPayment(graphene.Connection):
         query = root.get_queryset(info, filter)
         return query.filter(utility__isnull=True).filter(Q(status="Unpaid") | Q(status="Pending")).aggregate(total_amount=Sum('amount'))['total_amount']
 
+    def resolve_total_renter_pending_amount(root, info, filter=None, **kwargs):
+        query = root.get_queryset(info, filter, is_renter=True)
+        return query.filter(utility__isnull=True).filter(Q(status="Pending")).aggregate(total_amount=Sum('amount'))['total_amount']
+
+    def resolve_total_renter_due_amount(root, info, filter=None, **kwargs):
+        query = root.get_queryset(info, filter, is_renter=True)
+        return query.filter(utility__isnull=True).filter(Q(status="Unpaid")).aggregate(total_amount=Sum('amount'))['total_amount']
+
     def resolve_total_expense_amount(root, info, filter=None, **kwargs):
         query = root.get_queryset(info, filter)
         return query.filter(utility__isnull=True, payment_category__icontains='maintenance').aggregate(total_amount=Sum('amount'))['total_amount']
@@ -155,11 +169,6 @@ class PaymentType(DjangoObjectType):
         fields = '__all__'
         connection_class = ExtendedConnectionPayment
         filterset_class = PaymentFilterClass
-
-    @classmethod
-    def get_queryset(cls, queryset, info, **kwargs):
-        user = info.context.user
-        return queryset.filter(payee=user.id).order_by("-id")
 
 
 class PaymentInput(graphene.InputObjectType):

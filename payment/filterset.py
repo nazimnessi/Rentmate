@@ -11,6 +11,7 @@ class PaymentFilterClass(OrderedFilterSet):
             "created_date": ['exact'],
             "payer": ['exact'],
             "payer__username": ['exact', 'icontains', 'istartswith'],
+            "payee__username": ['exact', 'icontains', 'istartswith'],
             "payer__first_name": ['exact', 'icontains', 'istartswith'],
             "room": ['exact'],
             "room__building": ['exact'],
