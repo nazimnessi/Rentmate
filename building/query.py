@@ -25,8 +25,8 @@ class Query(graphene.ObjectType):
 
     all_properties_for_renter = DjangoFilterConnectionField(
         BuildingTypeRenter,
-        orderBy=graphene.String() or None,
         searchTerm=graphene.String(),
+        orderBy=graphene.String(),
         status=graphene.String()
     )
 
@@ -34,6 +34,8 @@ class Query(graphene.ObjectType):
         queryset = Building.objects.all() if kwargs.get('globalSearch') else Building.objects.filter(owner=info.context.user)
         if kwargs.get('searchTerm'):
             queryset = queryset.filter(name__icontains=kwargs.get('searchTerm'))
+        if not kwargs.get('orderBy'):
+            return queryset.order_by('-id')
         if 'address' in kwargs.get('orderBy'):
             return Building.objects.order_by(
                 f'{kwargs.get("orderBy")}__address1',
@@ -58,15 +60,17 @@ class Query(graphene.ObjectType):
             'Paid': 'Paid',
             'NoPaymentsYet': None,
         }
+        if kwargs.get('status'):
+            status_value = kwargs.get('status')
+            payment_status = status_mapping.get(status_value)
 
-        status_value = kwargs.get('status')
-        payment_status = status_mapping.get(status_value)
+            if payment_status:
+                queryset = queryset.filter(rooms__payments__status=payment_status)
+            elif not payment_status:
+                queryset = queryset.filter(rooms__payments__status__isnull=True)
 
-        if payment_status:
-            queryset = queryset.filter(rooms__payments__status=payment_status)
-        elif not payment_status:
-            queryset = queryset.filter(rooms__payments__status__isnull=True)
-
+        if not kwargs.get('orderBy'):
+            return queryset.order_by('-id')
         if 'address' in kwargs.get('orderBy'):
             return Building.objects.order_by(
                 f'{kwargs.get("orderBy")}__address1',
