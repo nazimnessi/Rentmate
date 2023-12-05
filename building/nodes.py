@@ -1,7 +1,7 @@
 import graphene
 from graphene import relay
 from graphene_django import DjangoObjectType
-from building.extendedConnectionsLease import ExtendedConnectionLease, ExtendedConnectionLeaseDistinct
+from building.extendedConnectionsLease import ExtendedConnectionLease, ExtendedConnectionLeaseDistinct, ExtendedConnectionRenterLease
 
 from building.utils import convert_string_to_display
 from payment.models import Payment
@@ -214,6 +214,26 @@ class LeaseType(DjangoObjectType):
     def get_queryset(cls, queryset, info):
         user = info.context.user
         return queryset.filter(room__building__owner_id=user.id).order_by("-id")
+
+class RenterLeaseType(DjangoObjectType):
+
+    class Meta:
+        model = Lease
+        filter_fields = {
+            "status": ['exact'],
+            'room__room_no': ['icontains'],
+            'room__id': ['exact'],
+            'renter__username': ['icontains'],
+            'room__building__id': ['exact'],
+        }
+        interfaces = (relay.Node,)
+        fields = '__all__'
+        connection_class = ExtendedConnectionRenterLease
+
+    @classmethod
+    def get_queryset(cls, queryset, info):
+        user = info.context.user
+        return queryset.filter(room__renter_id=user.id).order_by("-id")
 
 
 class LeaseTypeDistinct(DjangoObjectType):
