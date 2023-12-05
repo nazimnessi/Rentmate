@@ -1,7 +1,7 @@
 import graphene
 from graphene import relay
 from graphene_django.filter import DjangoFilterConnectionField
-from building.nodes import BuildingType, BuildingTypeRenter, LeaseType, RequestType, RoomType, UtilityType, LeaseTypeDistinct
+from building.nodes import BuildingType, BuildingTypeRenter, LeaseType, RenterLeaseType, RequestType, RoomType, UtilityType, LeaseTypeDistinct
 from building.models import Building, Room, Request
 from django.db.models import Count
 
@@ -15,6 +15,7 @@ class Query(graphene.ObjectType):
     Rooms = relay.Node.Field(RoomType)
 
     all_leases = DjangoFilterConnectionField(LeaseType)
+    all_renter_leases = DjangoFilterConnectionField(RenterLeaseType)
     lease = relay.Node.Field(LeaseType)
     lease_distinct_entities = DjangoFilterConnectionField(LeaseTypeDistinct)
 

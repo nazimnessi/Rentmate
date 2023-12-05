@@ -59,3 +59,14 @@ class ExtendedConnectionLease(graphene.Connection):
     def resolve_total_count(self, info):
         total_count = Lease.objects.filter(room__building__owner=info.context.user).count()
         return total_count
+
+
+class ExtendedConnectionRenterLease(graphene.Connection):
+    class Meta:
+        abstract = True
+
+    total_count = graphene.Int()
+
+    def resolve_total_count(self, info):
+        total_count = Lease.objects.filter(room__renter=info.context.user).count()
+        return total_count
