@@ -60,6 +60,7 @@ class ExtendedConnectionLease(graphene.Connection):
         total_count = Lease.objects.filter(room__building__owner=info.context.user).count()
         return total_count
 
+
 class ExtendedConnectionRenterLease(graphene.Connection):
     class Meta:
         abstract = True

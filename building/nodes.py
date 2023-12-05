@@ -215,6 +215,7 @@ class LeaseType(DjangoObjectType):
         user = info.context.user
         return queryset.filter(room__building__owner_id=user.id).order_by("-id")
 
+
 class RenterLeaseType(DjangoObjectType):
 
     class Meta:
