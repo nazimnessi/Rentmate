@@ -11,6 +11,7 @@ class Query(graphene.ObjectType):
     Buildings = relay.Node.Field(BuildingType)
 
     all_Rooms = DjangoFilterConnectionField(RoomType)
+    all_renter_rooms = DjangoFilterConnectionField(RoomType, orderBy=graphene.String(), status=graphene.String())
     all_available_rooms = DjangoFilterConnectionField(RoomType)
     Rooms = relay.Node.Field(RoomType)
 
@@ -89,6 +90,29 @@ class Query(graphene.ObjectType):
 
     def resolve_all_Rooms(root, info, **kwargs):
         return Room.objects.filter(building__owner=info.context.user).order_by('-id')
+
+    def resolve_all_renter_rooms(root, info, **kwargs):
+        queryset = Room.objects.filter(renter=info.context.user)
+
+        status = kwargs.get('status')
+        orderBy = kwargs.get('orderBy')
+
+        if status:
+            queryset = queryset.filter(payments__isnull=True) if 'No_payment_Yet' in status else queryset.filter(payments__status=status)
+
+        if orderBy:
+            if 'roomNo' in orderBy:
+                order_field = '-room_no' if '-' in orderBy else 'room_no'
+            elif 'owner' in orderBy:
+                order_field = 'building__owner__username' if '-' not in orderBy else '-building__owner__username'
+            elif 'building' in orderBy:
+                order_field = f'{orderBy}__name'
+            else:
+                order_field = orderBy
+
+            queryset = queryset.order_by(order_field)
+
+        return queryset
 
     def resolve_all_available_rooms(root, info, **kwargs):
         return Room.objects.filter(building__owner=info.context.user).exclude(renter__isnull=False).order_by('-id')
