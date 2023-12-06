@@ -90,7 +90,7 @@ class Query(graphene.ObjectType):
 
     def resolve_all_Rooms(root, info, **kwargs):
         return Room.objects.filter(building__owner=info.context.user).order_by('-id')
-    
+
     def resolve_all_renter_rooms(root, info, **kwargs):
         queryset = Room.objects.filter(renter=info.context.user)
 
@@ -98,7 +98,7 @@ class Query(graphene.ObjectType):
         orderBy = kwargs.get('orderBy')
 
         if status:
-            queryset =  queryset.filter(payments__isnull=True) if 'No_payment_Yet' in status else queryset.filter(payments__status=status)
+            queryset = queryset.filter(payments__isnull=True) if 'No_payment_Yet' in status else queryset.filter(payments__status=status)
 
         if orderBy:
             if 'roomNo' in orderBy:

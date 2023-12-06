@@ -143,7 +143,7 @@ class RoomType(DjangoObjectType):
     room_type = graphene.String()
     criteria = graphene.String()
     payment_status = graphene.String()
-    
+
     def resolve_payment_status(root, info, **kwargs):
         payments = Payment.objects.filter(room=root)
         if payments.filter(status="Unpaid").exists():
@@ -153,7 +153,6 @@ class RoomType(DjangoObjectType):
         elif payments.filter(status="Paid").exists():
             return "Paid"
         return "No payment yet"
-
 
     def resolve_criteria(root, info, **kwargs):
         return convert_string_to_display(root.criteria)
