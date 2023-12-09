@@ -126,7 +126,7 @@ class UserAuthenticateView(APIView):
 
         if user:
             login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-            return Response({"status": True, "username": user.username, "user_id": user.id}, status=status.HTTP_200_OK,)
+            return Response({"status": True, "username": user.username, "user_id": user.id, "email": user.email}, status=status.HTTP_200_OK,)
         return Response({"error": {"message": "account not found. try login manually or create a new account"}}, status=status.HTTP_401_UNAUTHORIZED)
 
 

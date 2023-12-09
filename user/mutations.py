@@ -1,3 +1,4 @@
+from graphql_jwt.shortcuts import get_token
 import graphene
 from graphql import GraphQLError
 
@@ -52,6 +53,22 @@ class JWUserToken(graphql_jwt.JSONWebTokenMutation):
     @classmethod
     def resolve(cls, root, info, **kwargs):
         return cls(user=info.context.user)
+
+
+class GenerateTokenWithEmail(graphene.Mutation):
+    token = graphene.String()
+
+    class Arguments:
+        email = graphene.String(required=True)
+
+    @classmethod
+    def mutate(cls, root, info, email):
+        user = User.objects.get(email=email)
+        if user:
+            token = get_token(user)
+            return cls(token=token)
+        else:
+            raise GraphQLError("No user with current email")
 
 
 class UpdateUser(graphene.Mutation):
@@ -180,3 +197,5 @@ class Mutation(graphene.ObjectType):
     create_user_address = CreateAddress.Field()
     update_user_address = UpdateAddress.Field()
     delete_user_address = DeleteAddress.Field()
+
+    generate_token_with_email = GenerateTokenWithEmail.Field()
