@@ -1,11 +1,13 @@
 
+from django.http import HttpResponse
+
+from payment.models import Payment
 from .utils import email_verification_token_generator
-
-
 from rest_framework import generics
 from rest_framework.parsers import FileUploadParser, MultiPartParser, FormParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from django.core.files.storage import FileSystemStorage
 from rest_framework import status
 from rest_framework import permissions
 from django.core.mail import send_mail
@@ -17,6 +19,7 @@ from django.contrib.auth import authenticate, login, logout
 from google.oauth2 import id_token
 from google.auth.transport import requests
 from django.core.mail import EmailMessage
+from weasyprint import HTML
 
 
 class UserProfilePictureView(generics.UpdateAPIView):
@@ -49,6 +52,44 @@ class UserDocumentView(APIView):
             return Response(user_serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class Invoice(APIView):
+    permission_classes = [permissions.AllowAny]
+    swagger_schema = None
+
+    def get(self, request, *args, **kwargs):
+        payment_id = kwargs.get('payment_id')
+        payment_instance = Payment.objects.get(id=payment_id)
+
+        invoice_data = {
+            "id": payment_instance.id,
+            "invoice_date": payment_instance.created_date.strftime("%Y-%m-%d"),
+            "renter_username": payment_instance.payer.username,
+            "renter_fullname": f"{payment_instance.payer.first_name} {payment_instance.payer.last_name}",
+            "renter_full_address": f"{payment_instance.payer.address.address1}, {payment_instance.payer.address.address2}, {payment_instance.payer.address.city}, {payment_instance.payer.address.state}, {payment_instance.payer.address.postal_code}",
+            "renter_phone_number": payment_instance.payer.phone_number,
+            "owner_username": payment_instance.payee.username,
+            "owner_fullname": f"{payment_instance.payee.first_name} {payment_instance.payee.last_name}",
+            "owner_full_address": f"{payment_instance.payee.address.address1}, {payment_instance.payee.address.address2}, {payment_instance.payee.address.city}, {payment_instance.payee.address.state}, {payment_instance.payee.address.postal_code}",
+            "owner_phone_number": payment_instance.payee.phone_number,
+            "description": payment_instance.note,
+            "category": payment_instance.payment_category,
+            "status": payment_instance.status,
+            "amount": payment_instance.amount,
+        }
+        html_string = render_to_string(
+            "invoice.html",
+            {"invoice_instance": invoice_data, "host": request.build_absolute_uri("/")},
+        )
+        html = HTML(string=html_string)
+        name = f"Invoice_{invoice_data.get('invoice_date')}.pdf"
+        html.write_pdf(target=f"/tmp/{name}")
+        fs = FileSystemStorage("/tmp")
+        with fs.open(name) as pdf:
+            response = HttpResponse(pdf, content_type="application/pdf")
+            response["Content-Disposition"] = f'attachment; filename="{name}.pdf"'
+            return response
 
 
 class UserContactUsMail(APIView):

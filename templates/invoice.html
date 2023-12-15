@@ -1,0 +1,180 @@
+{% load static %}
+<html>
+  <head>
+    <title>Rentmate</title>
+    <link
+      href="https://fonts.googleapis.com/css?family=Work+Sans"
+      rel="stylesheet"
+    />
+  </head>
+  <style>
+    @page {
+      size: A4; /* Change from the default size of A4 */
+      margin: 0.5cm; /* Set margin on each page */
+    }
+  </style>
+  <body style="margin: 0px">
+    <div
+      style="
+        font-family: 'Work Sans', sans-serif;
+        display: flex;
+        flex-direction: column;
+      "
+    >
+      <div style="padding-bottom: 5cm">
+        <div style="margin-right: 7cm">
+          <img
+            style="width: 150px; height: 50px"
+            src="https://firebasestorage.googleapis.com/v0/b/rentmate-c6d88.appspot.com/o/logo%2FRentmate-logo-2.png?alt=media&token=7b0bb59b-8628-4056-ae0c-d895733193b3"
+            alt="Rentmate"
+          />
+        </div>
+        <div
+          style="
+            margin-top: 10px;
+            background-color: #28b67e;
+            width: 100%;
+            margin-right: 3cm;
+          "
+        >
+          <div
+            style="
+              display: flex;
+              height: 30px;
+              text-align: right;
+              width: 100%;
+              align-item: end;
+              justify-content: center;
+              margin-left: 170px;
+            "
+          >
+            <div
+              style="
+                background-color: white;
+                positon: relative;
+                margin-top: -11px;
+                height: 70px;
+              "
+            >
+              <span style="font-size: 2.7em; font-weight: 400">INVOICE</span>
+            </div>
+          </div>
+        </div>
+
+        <div
+          style="display: flex; margin-top: 1cm; justify-content: space-between"
+        >
+          <div style="margin-right: 3cm; width: 200px">
+            <p style="font-weight: 700; margin-top: 5px">Bill To</p>
+            <p style="margin-top: 3px">
+              {{invoice_instance.renter_fullname}}
+              <br
+                style="margin-top: 3px"
+              />{{invoice_instance.renter_full_address}}
+              <br
+                style="margin-top: 3px"
+              />{{invoice_instance.renter_phone_number}}
+            </p>
+          </div>
+
+          <div>
+            <div style="width: 200px; text-align: right">
+              <p style="font-weight: 600; margin-top: 5px">Owner Information</p>
+              <p style="margin-top: 3px">
+                {{invoice_instance.owner_fullname}}
+                <br />{{invoice_instance.owner_full_address}}
+                <br />{{invoice_instance.owner_phone_number}}
+              </p>
+            </div>
+            <table>
+              <td><b>Invoice Number:</b> <br />#{{ invoice_instance.id }}</td>
+              <td>
+                <b>Date issued:</b> <br />{{ invoice_instance.invoice_date}}
+              </td>
+            </table>
+          </div>
+        </div>
+        <div style="border-bottom: 4px solid black; margin-top: 40px"></div>
+        <div>
+          <table
+            style="width: 100%; border-collapse: collapse; margin-bottom: 1cm"
+          >
+            <tr>
+              <th style="border: none; height: 40px; width: 350px">
+                Description
+              </th>
+              <th style="border: none; width: 150px">Payment category</th>
+              <th style="border: none; width: 100px">Status</th>
+              <th style="border: none; width: 100px">Amount</th>
+            </tr>
+            <tr>
+              <td>{{invoice_instance.description }}</td>
+              <td>{{invoice_instance.category}}</td>
+              <td>{{invoice_instance.status}}</td>
+              <td>{{invoice_instance.amount}}</td>
+            </tr>
+          </table>
+          <div style="border-bottom: 2px solid #f2f2f2"></div>
+        </div>
+        <div style="display: flex; justify-content: flex-end">
+          <div
+            style="
+              display: flex;
+              justify-content: center;
+              width: 300px;
+              border-bottom: 2px solid black;
+            "
+          >
+            <p
+              style="
+                align-content: flex-start;
+                margin-right: 0.5cm;
+                font-weight: bold;
+              "
+            >
+              Subtotal:
+            </p>
+            <p
+              style="
+                align-content: flex-start;
+                margin-right: 0.5cm;
+                font-weight: bold;
+              "
+            >
+              {{invoice_instance.amount}}
+            </p>
+          </div>
+        </div>
+        <div style="display: flex; justify-content: flex-end">
+          <div
+            style="
+              display: flex;
+              justify-content: center;
+              width: 300px;
+              border-bottom: 4px solid black;
+            "
+          >
+            <p
+              style="
+                align-content: flex-start;
+                margin-right: 0.5cm;
+                font-weight: bold;
+              "
+            >
+              &nbsp;Total:
+            </p>
+            <p
+              style="
+                align-content: flex-start;
+                margin-right: 0.5cm;
+                font-weight: bold;
+              "
+            >
+              {{invoice_instance.amount}}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,5 +1,6 @@
 from django.urls import path
 from .views import (
+    Invoice,
     IsUserLoginView,
     SendVerificationEmail,
     UserAuthenticateView,
@@ -21,6 +22,7 @@ urlpatterns = [
         "user/<int:pk>/documents/", UserDocumentView.as_view(), name="documents-upload"
     ),
     path("sentMail/", UserContactUsMail.as_view(), name="sent-contact-us-mail"),
+    path("invoice/<str:payment_id>", Invoice.as_view(), name="invoice"),
     path("login/", UserLoginView.as_view(), name="login"),
     path("isLogin/", IsUserLoginView.as_view(), name="isLogin"),
     path("logout/", UserLogoutView.as_view(), name="logout"),
