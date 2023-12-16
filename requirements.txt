@@ -13,3 +13,4 @@ django-graphql-jwt
 google-auth==2.16.0 
 requests
 weasyprint==60.1
+razorpay==1.4.1

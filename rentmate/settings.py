@@ -215,3 +215,8 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'rentmate.properties@gmail.com'  # Replace with your Gmail address
 EMAIL_HOST_PASSWORD = 'rnypxtsfyaczuuxi'  # Replace with your Gmail app password
+
+# Razorpay Integration
+
+RAZOR_KEY_ID = "rzp_test_M0KQgmwIr6rGsT"
+RAZOR_KEY_SECRET = "lsSjRIdXQtptHAH2hjrm0vva"

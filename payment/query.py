@@ -8,10 +8,18 @@ from django.db.models import Q
 
 class Query(graphene.ObjectType):
     all_payments = DjangoFilterConnectionField(PaymentType, start_date=graphene.String(), end_date=graphene.String())
-    all_renter_payments = DjangoFilterConnectionField(PaymentType, orderBy=graphene.String(), start_date=graphene.String(), end_date=graphene.String())
+    all_renter_payments = DjangoFilterConnectionField(
+        PaymentType,
+        orderBy=graphene.String(),
+        start_date=graphene.String(),
+        end_date=graphene.String(),
+        payment_gateway=graphene.Boolean()
+    )
 
     def resolve_all_renter_payments(root, info, **kwargs):
         query = Payment.objects.filter(payer=info.context.user)
+        if kwargs.get('payment_gateway'):
+            query = query.exclude(status='Paid')
         start_date = kwargs.get("start_date")
         end_date = kwargs.get("end_date")
         if kwargs.get("orderBy") and 'renter' in kwargs.get("orderBy"):
