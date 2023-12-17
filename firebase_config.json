@@ -1,0 +1,13 @@
+{
+    "type": "service_account",
+    "project_id": "rentmate-c6d88",
+    "private_key_id": "1a035758c2b55d0f627d52504685931d5dc799be",
+    "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDVo3aVFRwW6ubE\nA8EvG0R2jfMBkPtBw1mWWYD81Ckq49eAHyaykWTuE4oeiu+SHOeq75oggKz4HZtK\nnAFlCgafKmhj0mIYz7Ppm7aJiXHBMVt5PxaWjopBrxlTcFGV4w4i+k8Quh0ozbgy\nh6hfH1C7jP3HPcoN5rpLpx4KzAeJxmV3Pv0SAJAXXdxDhYcSrx5CjUw65qnRcVCs\n31TvvvfCrTwLm3r5aUqH5X/iRJxtC5MvhqKVmTPvIUW3aKllPGLNLxgj8mlLRJPm\n0viLE5pEXuL1+/AVA6VdZGSVmHTKbgFqeOQZVxyfK8Bazfc9gc2kdfPg1ihEiDzt\nCB0fNVpnAgMBAAECggEAL5Ggp0xWf1HZhT6yxqrjISS1PZ2LHJcDPSN7wY/6BKdL\nxibphmwyVYJ7SBa2hkmyWdDU+DS+jtaEy+WVt+o2FD2slcFz/0NMM5Fs4Q3+Cr7T\nN9mQzYA6j6qN0JLbT60Jakdi0H4oXPwFbhbfqiJ+ZuxbW4BKG7NKuuqgmVXZvdbL\ndUniuwvmMWAKDGGLRjoIDdkDZ9a2delCDvosa+58Fxm7T8HobYCqQpNRxZTXRQQe\nVaveIZlfeHPR6KKKN+W+MNLM9uy2Xv8EApuU3A7P3o1EaJTDCqDWTvftU6cG8yEs\nDcuqwyIBkAwOU9Ny6Q6TATysz7u7PasHOXQkPbu+eQKBgQDwLmuWRNIDReWrkEPE\nW1bIHwaXaNicrZ1NLOkxvSMTiqb1zv9Mp83uhiaqQ987Y2brSgGKZPGRoIBrQsZy\nmByYFAShHPD3Zs+S4K2yEWLavKGZipOhRJPaYtwG+hjJiLfoPC4iHozKay9f+4yI\nC5n7sbJKWlSMQVN0PU2qCeN8SQKBgQDjtYSNlQGMI1S+1A1opzMsyFyJYtHdKm3r\n1HIb0+LB0KUsiTw1ENOmryr9xukCPIVGCQGg93a2olJ2ttWDXHQKtg+VaIjG9L06\nv3iSPgOWtZ8T98keQaL+dnaAXjSDCThK3SjLABnpVBsAGwQpDpCeyWTmxUH9P2+t\ntImbDstBLwKBgQCavz3gTq0FINbOSB/xdmweeib0DMBrikysOcBxpIvh/lZ+T4Ub\n7Y34HYTx9NLyX6Qi+satVUZzbnbvJNHZaXoa3eLxr0TuEdaxqoMfFKadiiWQWMGv\niRC+By3+bMrlpmnffk62+vn5PUAD1n3/9YGbsizOTQ7mYvyTCyBr6v0fyQKBgHvG\np47ueDDc46v3SHKisEafgu2LMdiuv6F5ka1et9vytlZHItsVkncAsLXR8catbyRq\nsN/2pCkSgxDUwaruDoXkAQSOFgtP7ayJd9jGrNy3TQlln4U62IbJjhCpJJI16MuI\n/CucmnkipqqgBNrsd+BYSOjIQN6QJPyfLk2C9SkxAoGAXDhpE2KwQuL+U8kir1LJ\nVsBr7VVIv6lB9zdMYcLr/BDqqOMVgvTaPdiIB2piYky1gMdif1I0T+GW9KQjGNH9\ndEmgCUPDLqH+UqzdaJu2tdlyQZ8rw/+ofoVwrD6rBs6WzXAR4UJuGRvWAws7pn0g\niLyqmKHA1OUHxzMgDN51LrM=\n-----END PRIVATE KEY-----\n",
+    "client_email": "firebase-adminsdk-mvy8n@rentmate-c6d88.iam.gserviceaccount.com",
+    "client_id": "111213247509483498996",
+    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+    "token_uri": "https://oauth2.googleapis.com/token",
+    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+    "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-mvy8n%40rentmate-c6d88.iam.gserviceaccount.com",
+    "universe_domain": "googleapis.com"
+  }

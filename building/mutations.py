@@ -14,7 +14,7 @@ from building.nodes import (
     RoomType,
     UtilityType
 )
-from building.utils import get_or_404
+from building.utils import delete_images_form_firebase, get_or_404
 from notification.models import Notifications
 from payment.models import Payment
 from user.models import Address
@@ -99,8 +99,11 @@ class DeleteBuilding(graphene.Mutation):
     def mutate(root, info, id):
         try:
             building_instance = Building.objects.get(pk=id)
+            delete_images_form_firebase(building_instance.building_document_url)
         except Building.DoesNotExist:
             raise GraphQLError("Building not found with the provided ID")
+        except Exception as exe:
+            raise GraphQLError(f"Unknown error occurred! Error:{exe} ")
         building_instance.delete()
         return DeleteBuilding(buildings=building_instance)
 
@@ -159,9 +162,12 @@ class DeleteRoom(graphene.Mutation):
     def mutate(root, info, id):
         try:
             room_instance = Room.objects.get(pk=id)
-            room_instance.delete()
+            delete_images_form_firebase(room_instance.room_document_url)
         except Room.DoesNotExist:
             raise GraphQLError("Room not found with the provided ID")
+        except Exception as exe:
+            raise GraphQLError(f"Unknown error occurred! Error:{exe} ")
+        room_instance.delete()
         return DeleteRoom(rooms=room_instance)
 
 
@@ -350,9 +356,12 @@ class DeleteUtility(graphene.Mutation):
     def mutate(root, info, id):
         try:
             utility_instance = Utility.objects.get(pk=id)
-            utility_instance.delete()
+            delete_images_form_firebase(utility_instance.bill_image_url)
         except Utility.DoesNotExist:
             raise GraphQLError("Utility not found with the provided ID")
+        except Exception as exe:
+            raise GraphQLError(f"Unknown error occurred! Error:{exe} ")
+        utility_instance.delete()
         return DeleteUtility(utility=utility_instance)
 
 
@@ -432,6 +441,7 @@ class DeleteLeaseAgreement(graphene.Mutation):
                 room_instance.renter = None
                 room_instance.save()
                 lease_instance.delete()
+                delete_images_form_firebase(lease_instance.documents)
         except lease_instance.DoesNotExist:
             raise GraphQLError("No lease agreement found")
         except room_instance.DoesNotExist:

@@ -6,6 +6,7 @@ import razorpay
 from rest_framework import status
 from rest_framework.response import Response
 from django.conf import settings
+from datetime import datetime
 
 # Create your views here.
 razorpay_client = razorpay.Client(
@@ -70,7 +71,11 @@ class CallbackView(APIView):
 
             # if we get here True signature
             if data:
-                Payment.objects.filter(id__in=request.data.get("payment_ids")).update(status='Paid')
+                Payment.objects.filter(id__in=request.data.get("payment_ids")).update(
+                    status='Paid',
+                    transaction_id=request.data.get("razorpay_payment_id"),
+                    transaction_date=datetime.now()
+                )
 
                 return Response({'status': 'Payment Done'}, status=status.HTTP_200_OK)
             else:
