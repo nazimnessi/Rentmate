@@ -1,7 +1,7 @@
 import graphene
 from graphene import relay
 from graphene_django import DjangoObjectType
-from building.extendedConnectionsLease import ExtendedConnectionLease, ExtendedConnectionLeaseDistinct, ExtendedConnectionRenterLease
+from building.extendedConnectionsLease import ExtendedConnectionAnalytics, ExtendedConnectionLease, ExtendedConnectionLeaseDistinct, ExtendedConnectionRenterLease
 
 from building.utils import convert_string_to_display
 from payment.models import Payment
@@ -192,6 +192,20 @@ class UtilityType(DjangoObjectType):
     def get_queryset(cls, queryset, info):
         user = info.context.user
         return queryset.filter(room__building__owner_id=user.id).order_by("-id")
+
+
+class AnalyticsType(DjangoObjectType):
+    total_count = graphene.Int()
+
+    def resolve_total_count(root, info, **kwargs):
+        return Building.objects.filter(owner=info.context.user).count()
+
+    class Meta:
+        model = Building
+        filter_fields = {}
+        interfaces = (relay.Node,)
+        fields = '__all__'
+        connection_class = ExtendedConnectionAnalytics
 
 
 class RequestType(DjangoObjectType):

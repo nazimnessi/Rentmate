@@ -3,6 +3,9 @@ from graphene_django import DjangoObjectType
 from building.models import Building, Lease, Room
 from graphene_django.filter import DjangoFilterConnectionField
 from user.models import User
+from django.db.models import Sum, DecimalField, IntegerField
+from django.db.models.functions import Coalesce
+from django.db.models import F
 
 
 class BuildingType(DjangoObjectType):
@@ -70,3 +73,43 @@ class ExtendedConnectionRenterLease(graphene.Connection):
     def resolve_total_count(self, info):
         total_count = Lease.objects.filter(room__renter=info.context.user).count()
         return total_count
+
+
+class ExtendedConnectionAnalytics(graphene.Connection):
+    class Meta:
+        abstract = True
+
+    properties_count = graphene.Int()
+    renter_count = graphene.Int()
+    room_count = graphene.Int()
+    lease_expired_count = graphene.Int()
+    top_renters = DjangoFilterConnectionField(RenterType)
+    top_revenue_generated_properties = DjangoFilterConnectionField(BuildingType)
+
+    def resolve_properties_count(root, info, **kwargs):
+        return Building.objects.filter(owner=info.context.user).count()
+
+    def resolve_renter_count(root, info, **kwargs):
+        return User.objects.filter(renter__building__owner=info.context.user).count()
+
+    def resolve_room_count(root, info, **kwargs):
+        return Room.objects.filter(building__owner=info.context.user).count()
+
+    def resolve_lease_expired_count(root, info, **kwargs):
+        return Lease.objects.filter(room__building__owner=info.context.user).count()
+
+    def resolve_top_renters(root, info, **kwargs):
+        return (
+            User.objects
+            .filter(renter__building__owner=info.context.user)
+            .annotate(total_payments=Coalesce(Sum('payments_done__amount', output_field=IntegerField()), 0))
+            .order_by('-total_payments')[:3]
+        )
+
+    def resolve_top_revenue_generated_properties(root, info, **kwargs):
+        return (
+            Building.objects
+            .filter(owner=info.context.user)
+            .annotate(total_payments=Coalesce(Sum('rooms__payments__amount', output_field=IntegerField()), 0))
+            .order_by('-total_payments')[:3]
+        )
