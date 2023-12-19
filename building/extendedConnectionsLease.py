@@ -3,9 +3,8 @@ from graphene_django import DjangoObjectType
 from building.models import Building, Lease, Room
 from graphene_django.filter import DjangoFilterConnectionField
 from user.models import User
-from django.db.models import Sum, DecimalField, IntegerField
+from django.db.models import Sum, IntegerField
 from django.db.models.functions import Coalesce
-from django.db.models import F
 
 
 class BuildingType(DjangoObjectType):
