@@ -32,7 +32,7 @@ class Query(graphene.ObjectType):
         status=graphene.String()
     )
 
-    analytics_total_count = DjangoFilterConnectionField(AnalyticsType)
+    analytics = DjangoFilterConnectionField(AnalyticsType)
 
     def resolve_all_Buildings(root, info, **kwargs):
         queryset = Building.objects.all() if kwargs.get('globalSearch') else Building.objects.filter(owner=info.context.user)

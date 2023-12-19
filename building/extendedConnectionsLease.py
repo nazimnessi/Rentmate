@@ -96,7 +96,7 @@ class ExtendedConnectionAnalytics(graphene.Connection):
         return Room.objects.filter(building__owner=info.context.user).count()
 
     def resolve_lease_expired_count(root, info, **kwargs):
-        return Lease.objects.filter(room__building__owner=info.context.user).count()
+        return Lease.objects.filter(room__building__owner=info.context.user, status='Expired').count()
 
     def resolve_top_renters(root, info, **kwargs):
         return (
