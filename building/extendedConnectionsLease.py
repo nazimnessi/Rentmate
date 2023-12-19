@@ -3,9 +3,8 @@ from graphene_django import DjangoObjectType
 from building.models import Building, Lease, Room
 from graphene_django.filter import DjangoFilterConnectionField
 from user.models import User
-from django.db.models import Sum, DecimalField, IntegerField
+from django.db.models import Sum, IntegerField
 from django.db.models.functions import Coalesce
-from django.db.models import F
 
 
 class BuildingType(DjangoObjectType):
@@ -96,7 +95,7 @@ class ExtendedConnectionAnalytics(graphene.Connection):
         return Room.objects.filter(building__owner=info.context.user).count()
 
     def resolve_lease_expired_count(root, info, **kwargs):
-        return Lease.objects.filter(room__building__owner=info.context.user).count()
+        return Lease.objects.filter(room__building__owner=info.context.user, status='Expired').count()
 
     def resolve_top_renters(root, info, **kwargs):
         return (
