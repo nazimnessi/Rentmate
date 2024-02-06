@@ -82,7 +82,7 @@ class UpdateBuilding(graphene.Mutation):
         address_instance, created = Address.objects.get_or_create(**address)
         building["address"] = address_instance
         if building.get("building_document_url"):
-            building["building_photo_url"] = building["building_document_url"][0]
+            building["building_photo_url"] = building["building_document_url"][0][0]
         building_instance, created = Building.objects.update_or_create(
             id=building["id"], defaults=building
         )
