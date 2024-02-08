@@ -18,7 +18,7 @@ def get_or_404(model, **kwargs):
 
 
 def convert_string_to_display(string):
-    words = string.split('_')
+    words = string.split(' ')
     capitalized_words = [word.capitalize() for word in words]
     display_string = ' '.join(capitalized_words)
     return display_string
