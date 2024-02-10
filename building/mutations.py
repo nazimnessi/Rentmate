@@ -137,15 +137,8 @@ class UpdateRoom(graphene.Mutation):
 
     @staticmethod
     def mutate(root, info, room=None):
-        if room.get("rent_period_start"):
-            room["rent_period_start"] = datetime.strptime(
-                room.rent_period_start, "%Y, %m, %d"
-            )
-        if room.get("rent_period_end"):
-            room["rent_period_end"] = datetime.strptime(
-                room.rent_period_end, "%Y, %m, %d"
-            )
         if room.get("room_document_url"):
+            room["room_document_url"] = room["room_document_url"][0]
             room["room_photo_url"] = room["room_document_url"][0]
         Room.objects.filter(pk=room.id).update(**room)
         room_instance = Room.objects.get(pk=room.id)
