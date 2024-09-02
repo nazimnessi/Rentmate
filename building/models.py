@@ -1,6 +1,5 @@
 from django.db import models
 from django.core.exceptions import ValidationError
-from user.models import User, Address
 from datetime import datetime, timedelta
 
 
@@ -11,10 +10,10 @@ class Request(models.Model):
         ("Rejected", "Rejected"),
     )
     sender = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="sent_requests"
+        "user.User", on_delete=models.CASCADE, related_name="sent_requests"
     )
     receiver = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="received_requests"
+        "user.User", on_delete=models.CASCADE, related_name="received_requests"
     )
     action = models.CharField(max_length=10, choices=action_choice, default="Pending")
     text = models.CharField(max_length=100, blank=True)
@@ -37,7 +36,7 @@ class Building(models.Model):
     )
     name = models.CharField(max_length=100)
     address = models.ForeignKey(
-        Address, on_delete=models.CASCADE, null=True, blank=True
+        "user.Address", on_delete=models.CASCADE, null=True, blank=True
     )
     building_type = models.CharField(
         max_length=10,
@@ -49,7 +48,7 @@ class Building(models.Model):
     created_date = models.DateTimeField("Building created date", auto_now_add=True)
     updated_date = models.DateTimeField("Building Updated date", auto_now=True)
     owner = models.ForeignKey(
-        User,
+        "user.User",
         on_delete=models.CASCADE,
         null=True,
         blank=True,
@@ -90,7 +89,7 @@ class Room(models.Model):
         Building, on_delete=models.CASCADE, default=None, related_name="rooms"
     )
     renter = models.ForeignKey(
-        User,
+        "user.User",
         on_delete=models.CASCADE,
         null=True,
         blank=True,
@@ -176,6 +175,8 @@ class Utility(models.Model):
 
 class Lease(models.Model):
     criteria_choice = (
+        ("Processing", "Processing"),
+        ("Rejected", "Rejected"),
         ("Upcoming", "Upcoming"),
         ("Current", "Current"),
         ("Expiring Soon", "Expiring Soon"),
@@ -183,7 +184,7 @@ class Lease(models.Model):
     )
     room = models.ForeignKey(Room, on_delete=models.SET_NULL, blank=True, null=True)
     status = models.CharField(
-        max_length=15, choices=criteria_choice, default="Current", blank=True, null=True
+        max_length=15, choices=criteria_choice, default="Processing", blank=True, null=True
     )
     documents = models.JSONField(blank=True, null=True)
     rent_amount = models.DecimalField(
@@ -216,13 +217,15 @@ class Lease(models.Model):
         help_text=("No of days a renter can have before the payment is due"),
     )
     renter = models.ForeignKey(
-        User,
+        "user.User",
         on_delete=models.CASCADE,
         null=True,
         blank=True,
         default=None,
         related_name="lease_renter",
     )
+    tenant_acknowledge = models.BooleanField(default=False)
+    is_confirmed = models.BooleanField(default=False)
 
     class Meta:
         unique_together = (
