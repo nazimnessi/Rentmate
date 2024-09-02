@@ -18,8 +18,10 @@ class AddPayment(graphene.Mutation):
         user = info.context.user
         if not user.is_authenticated:
             raise GraphQLError("User not authenticated")
-        payment['payee'] = user
-        payment['transaction_date'] = datetime.strptime(payment["transaction_date"], "%Y-%m-%d")
+        payment["payee"] = user
+        payment["transaction_date"] = datetime.strptime(
+            payment["transaction_date"], "%Y-%m-%d"
+        )
         payment_instance = Payment.objects.create(**payment)
         return AddPayment(payment=payment_instance)
 
@@ -39,7 +41,9 @@ class MarkAsPaid(graphene.Mutation):
         payment_instance = Payment.objects.filter(id=payment).first()
         update_content = {
             "transaction_date": datetime.now(),
-            "status": "Paid" if status else None if payment_instance.is_expense else "Pending",
+            "status": (
+                "Paid" if status else None if payment_instance.is_expense else "Pending"
+            ),
             "mark_as_paid": status,
         }
         payment_instance, created = Payment.objects.update_or_create(
@@ -51,6 +55,7 @@ class MarkAsPaid(graphene.Mutation):
 class DeletePayment(graphene.Mutation):
     class Arguments:
         payment_id = graphene.ID(required=True)
+
     status = graphene.Boolean()
 
     @staticmethod
@@ -66,7 +71,7 @@ class DeletePayment(graphene.Mutation):
                     utility.delete()
                 payment_instance.delete()
         except Payment.DoesNotExist:
-            raise GraphQLError('Selected payment does not exist')
+            raise GraphQLError("Selected payment does not exist")
         except Exception as exe:
             transaction.rollback()
             raise GraphQLError(str(exe))

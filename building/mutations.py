@@ -12,7 +12,7 @@ from building.nodes import (
     RequestType,
     RoomInput,
     RoomType,
-    UtilityType
+    UtilityType,
 )
 from building.utils import delete_images_form_firebase, get_or_404
 from notification.models import Notifications
@@ -42,31 +42,51 @@ class CreateBuilding(graphene.Mutation):
             with transaction.atomic():
                 address_instance, created = Address.objects.get_or_create(**address)
                 building["address"] = address_instance
-                if building.get("building_document_url") and len(building.get("building_document_url")[0]) > 0:
-                    building["building_document_url"] = building["building_document_url"][0]
-                    building["building_photo_url"] = building["building_document_url"][0]
+                if (
+                    building.get("building_document_url")
+                    and len(building.get("building_document_url")[0]) > 0
+                ):
+                    building["building_document_url"] = building[
+                        "building_document_url"
+                    ][0]
+                    building["building_photo_url"] = building["building_document_url"][
+                        0
+                    ]
                 building["owner_id"] = info.context.user.id
                 building_instance = Building.objects.create(**building)
                 room_objects = []
                 if rooms:
                     for room in rooms:
                         try:
-                            room['building_id'] = building_instance.id
-                            if room.get("room_document_url") and len(room.get("room_document_url")[0]) > 0:
+                            room["building_id"] = building_instance.id
+                            if (
+                                room.get("room_document_url")
+                                and len(room.get("room_document_url")[0]) > 0
+                            ):
                                 room["room_document_url"] = room["room_document_url"][0]
                                 room["room_photo_url"] = room["room_document_url"][0]
-                            elif building.get("building_type") == 'House' and building.get("building_document_url") and len(building.get("building_document_url")[0]) > 0:
-                                room["room_document_url"] = building["building_document_url"]
+                            elif (
+                                building.get("building_type") == "House"
+                                and building.get("building_document_url")
+                                and len(building.get("building_document_url")[0]) > 0
+                            ):
+                                room["room_document_url"] = building[
+                                    "building_document_url"
+                                ]
                                 room["room_photo_url"] = room["room_document_url"][0]
                             room_objects.append(Room(**room))
 
                         except Exception as exe:
                             transaction.rollback()
-                            raise GraphQLError(f"Unknown error occurred in room creation: {exe}")
+                            raise GraphQLError(
+                                f"Unknown error occurred in room creation: {exe}"
+                            )
                     Room.objects.bulk_create(room_objects)
         except Exception as exe:
             transaction.rollback()
-            raise GraphQLError(f"unknown error occurred in building creation error: {exe}")
+            raise GraphQLError(
+                f"unknown error occurred in building creation error: {exe}"
+            )
         return CreateBuilding(buildings=building_instance)
 
 
@@ -176,7 +196,9 @@ class SetupRenterToRoom(graphene.Mutation):
         try:
             room_instance = Room.objects.get(pk=room_id)
             if room_instance.renter:
-                raise GraphQLError("Room already have a renter. please either remove the renter or assign the renter to a new room")
+                raise GraphQLError(
+                    "Room already have a renter. please either remove the renter or assign the renter to a new room"
+                )
             renter_instance = User.objects.get(pk=renter_id)
             if int(renter_id) == room_instance.building.owner_id:
                 raise GraphQLError("owner cannot be a renter")
@@ -202,7 +224,9 @@ class CreateRequest(graphene.Mutation):
             raise GraphQLError("Can't send a request to yourself")
         existing_request = get_or_404(Request, **data)
         if existing_request:
-            raise GraphQLError("Can't send request. Already sent a request for this Room")
+            raise GraphQLError(
+                "Can't send request. Already sent a request for this Room"
+            )
         try:
             with transaction.atomic():
                 request_instance = Request.objects.create(**data)
@@ -302,23 +326,23 @@ class CreateUtility(graphene.Mutation):
     def mutate(root, info, input_data=None):
         try:
             with transaction.atomic():
-                input_data['unit'] = str(input_data.get('unit'))
+                input_data["unit"] = str(input_data.get("unit"))
                 payment_data = {
-                    "payer_id": input_data.get('renter_id'),
+                    "payer_id": input_data.get("renter_id"),
                     "payee": info.context.user,
-                    "room_id": input_data.get('room_id'),
-                    "amount": input_data.get('latest_amount'),
-                    "status": 'Unpaid',
-                    "note": input_data.get('description'),
-                    "start_date": input_data.pop('payment_date'),
+                    "room_id": input_data.get("room_id"),
+                    "amount": input_data.get("latest_amount"),
+                    "status": "Unpaid",
+                    "note": input_data.get("description"),
+                    "start_date": input_data.pop("payment_date"),
                     "payment_category": "Utility",
-                    "bill_image_url": input_data.get('bill_image_url'),
-                    "is_expense": False if input_data.get('renter_id') else True,
+                    "bill_image_url": input_data.get("bill_image_url"),
+                    "is_expense": False if input_data.get("renter_id") else True,
                 }
-                input_data.pop('renter_id', None)
+                input_data.pop("renter_id", None)
                 utility_instance = Utility(**input_data)
                 utility_instance.save()
-                payment_data['utility'] = utility_instance
+                payment_data["utility"] = utility_instance
                 Payment.objects.create(**payment_data)
         except Exception as exe:
             transaction.rollback()
@@ -367,24 +391,60 @@ class CreateLeaseAgreement(graphene.Mutation):
     @staticmethod
     def mutate(root, info, lease_data={}):
         try:
-            room_instance = Room.objects.get(id=lease_data.get('room_id'))
+            room_instance = Room.objects.get(id=lease_data.get("room_id"))
             if room_instance.renter_id:
                 raise GraphQLError("Already have a renter assigned to this room")
             with transaction.atomic():
-                lease_data['rent_period_start'] = datetime.strptime(lease_data['rent_period_start'], "%d-%m-%Y")
-                lease_data['rent_period_end'] = datetime.strptime(lease_data['rent_period_end'], "%d-%m-%Y")
-                if lease_data['documents']:
-                    lease_data['documents'] = lease_data['documents'][0]
+                lease_data["rent_period_start"] = datetime.strptime(
+                    lease_data["rent_period_start"], "%d-%m-%Y"
+                )
+                lease_data["rent_period_end"] = datetime.strptime(
+                    lease_data["rent_period_end"], "%d-%m-%Y"
+                )
+                if lease_data["documents"]:
+                    lease_data["documents"] = lease_data["documents"][0]
                 if not lease_data.get("rent_amount"):
-                    lease_data['rent_amount'] = room_instance.rent_amount
+                    lease_data["rent_amount"] = room_instance.rent_amount
                 if not lease_data.get("advance"):
-                    lease_data['advance'] = room_instance.advance
-                room_instance.renter_id = lease_data.get('renter_id')
-                room_instance.save()
+                    lease_data["advance"] = room_instance.advance
+                if lease_data.get("renter_id"):
+                    room_instance.renter_id = lease_data.get("renter_id")
+                    room_instance.save()
+                else:
+                    address_instance, _ = (
+                        Address.objects.get_or_create(**lease_data.get("address"))
+                        if lease_data.get("address")
+                        else None, None
+                    )
+                    user_data = {
+                        "username": lease_data.pop("username"),
+                        "email": lease_data.get("email"),
+                        "password": lease_data.pop("password"),
+                        "first_name": lease_data.pop("first_name", None)
+                        or lease_data.get("email").split("@")[0].split(".")[0],
+                        "phone_number": lease_data.pop("phone_number"),
+                    }
+                    if (
+                        lease_data.get("last_name")
+                        or "." in lease_data.get("email").split("@")[0]
+                    ):
+                        user_data["last_name"] = (
+                            lease_data.pop("last_name")
+                            or lease_data.get("email").split("@")[0].split(".")[1]
+                        )
+                    if address_instance:
+                        user_data["address"] = address_instance
+                    user_instance, _ = User.objects.get_or_create(**user_data)
+                lease_data.pop("email")
+                lease_data.pop("last_name", None)
+                lease_data.pop("address", None)
+                lease_data['renter'] = user_instance
                 lease_instance, created = Lease.objects.get_or_create(**lease_data)
         except Exception as exe:
             transaction.rollback()
-            raise GraphQLError(f"An error occurred while creating Lease Agreement. {exe}")
+            raise GraphQLError(
+                f"An error occurred while creating Lease Agreement. {exe}"
+            )
         return CreateLeaseAgreement(lease_agreement=lease_instance)
 
 
@@ -397,25 +457,33 @@ class UpdateLeaseAgreement(graphene.Mutation):
     @staticmethod
     def mutate(root, info, lease_data={}):
         try:
-            room_instance = Room.objects.get(id=lease_data.get('room_id'))
+            room_instance = Room.objects.get(id=lease_data.get("room_id"))
             with transaction.atomic():
-                lease_instance = Lease.objects.filter(id=lease_data.get('id'))
+                lease_instance = Lease.objects.filter(id=lease_data.get("id"))
                 if not lease_instance:
                     raise GraphQLError("No lease agreement found")
-                lease_data['rent_period_start'] = datetime.strptime(lease_data['rent_period_start'], "%d-%m-%Y")
-                lease_data['rent_period_end'] = datetime.strptime(lease_data['rent_period_end'], "%d-%m-%Y")
-                lease_data['documents'] = lease_data['documents'][0] if lease_data.get('documents') else []
+                lease_data["rent_period_start"] = datetime.strptime(
+                    lease_data["rent_period_start"], "%d-%m-%Y"
+                )
+                lease_data["rent_period_end"] = datetime.strptime(
+                    lease_data["rent_period_end"], "%d-%m-%Y"
+                )
+                lease_data["documents"] = (
+                    lease_data["documents"][0] if lease_data.get("documents") else []
+                )
                 if not lease_data.get("rent_amount"):
-                    lease_data['rent_amount'] = room_instance.rent_amount
+                    lease_data["rent_amount"] = room_instance.rent_amount
                 if not lease_data.get("advance"):
-                    lease_data['advance'] = room_instance.advance
+                    lease_data["advance"] = room_instance.advance
                 lease_instance = lease_instance.update(**lease_data)
-                lease_instance = Lease.objects.get(id=lease_data.get('id'))
+                lease_instance = Lease.objects.get(id=lease_data.get("id"))
         except room_instance.DoesNotExist:
             raise GraphQLError("No room found for this lease agreement")
         except Exception as exe:
             transaction.rollback()
-            raise GraphQLError(f"An error occurred while creating Lease Agreement. {exe}")
+            raise GraphQLError(
+                f"An error occurred while creating Lease Agreement. {exe}"
+            )
         return UpdateLeaseAgreement(lease_agreement=lease_instance)
 
 
@@ -441,7 +509,9 @@ class DeleteLeaseAgreement(graphene.Mutation):
             raise GraphQLError("No room found for this lease agreement")
         except Exception as exe:
             transaction.rollback()
-            raise GraphQLError(f"An error occurred while creating Lease Agreement. {exe}")
+            raise GraphQLError(
+                f"An error occurred while creating Lease Agreement. {exe}"
+            )
         return DeleteLeaseAgreement(lease_agreement="True")
 
 

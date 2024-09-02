@@ -12,7 +12,7 @@ class BuildingType(DjangoObjectType):
         model = Building
         filter_fields = {}
         interfaces = (graphene.relay.Node,)
-        fields = '__all__'
+        fields = "__all__"
 
 
 class RoomType(DjangoObjectType):
@@ -20,7 +20,7 @@ class RoomType(DjangoObjectType):
         model = Room
         filter_fields = {}
         interfaces = (graphene.relay.Node,)
-        fields = '__all__'
+        fields = "__all__"
 
 
 class RenterType(DjangoObjectType):
@@ -28,7 +28,7 @@ class RenterType(DjangoObjectType):
         model = User
         filter_fields = {}
         interfaces = (graphene.relay.Node,)
-        fields = '__all__'
+        fields = "__all__"
 
 
 class ExtendedConnectionLeaseDistinct(graphene.Connection):
@@ -40,15 +40,21 @@ class ExtendedConnectionLeaseDistinct(graphene.Connection):
     distinct_rooms = DjangoFilterConnectionField(RoomType)
 
     def resolve_distinct_properties(root, info, **kwargs):
-        properties = Building.objects.filter(owner=info.context.user, rooms__lease__isnull=False).distinct()
+        properties = Building.objects.filter(
+            owner=info.context.user, rooms__lease__isnull=False
+        ).distinct()
         return properties
 
     def resolve_distinct_renters(root, info, **kwargs):
-        renters = User.objects.filter(renter__building__owner=info.context.user, renter__lease__isnull=False).distinct()
+        renters = User.objects.filter(
+            renter__building__owner=info.context.user, renter__lease__isnull=False
+        ).distinct()
         return renters
 
     def resolve_distinct_rooms(root, info, **kwargs):
-        rooms = Room.objects.filter(building__owner=info.context.user, lease__isnull=False).distinct()
+        rooms = Room.objects.filter(
+            building__owner=info.context.user, lease__isnull=False
+        ).distinct()
         return rooms
 
 
@@ -59,7 +65,9 @@ class ExtendedConnectionLease(graphene.Connection):
     total_count = graphene.Int()
 
     def resolve_total_count(self, info):
-        total_count = Lease.objects.filter(room__building__owner=info.context.user).count()
+        total_count = Lease.objects.filter(
+            room__building__owner=info.context.user
+        ).count()
         return total_count
 
 
@@ -95,20 +103,28 @@ class ExtendedConnectionAnalytics(graphene.Connection):
         return Room.objects.filter(building__owner=info.context.user).count()
 
     def resolve_lease_expired_count(root, info, **kwargs):
-        return Lease.objects.filter(room__building__owner=info.context.user, status='Expired').count()
+        return Lease.objects.filter(
+            room__building__owner=info.context.user, status="Expired"
+        ).count()
 
     def resolve_top_renters(root, info, **kwargs):
         return (
-            User.objects
-            .filter(renter__building__owner=info.context.user)
-            .annotate(total_payments=Coalesce(Sum('payments_done__amount', output_field=IntegerField()), 0))
-            .order_by('-total_payments')[:3]
+            User.objects.filter(renter__building__owner=info.context.user)
+            .annotate(
+                total_payments=Coalesce(
+                    Sum("payments_done__amount", output_field=IntegerField()), 0
+                )
+            )
+            .order_by("-total_payments")[:3]
         )
 
     def resolve_top_revenue_generated_properties(root, info, **kwargs):
         return (
-            Building.objects
-            .filter(owner=info.context.user)
-            .annotate(total_payments=Coalesce(Sum('rooms__payments__amount', output_field=IntegerField()), 0))
-            .order_by('-total_payments')[:3]
+            Building.objects.filter(owner=info.context.user)
+            .annotate(
+                total_payments=Coalesce(
+                    Sum("rooms__payments__amount", output_field=IntegerField()), 0
+                )
+            )
+            .order_by("-total_payments")[:3]
         )

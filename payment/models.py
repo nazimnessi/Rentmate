@@ -6,31 +6,62 @@ from django.core.exceptions import ValidationError
 
 class Payment(models.Model):
     PAYMENT_STATUS_CHOICES = (
-        ('Pending', 'Pending'),
-        ('Paid', 'Paid'),
-        ('Unpaid', 'Unpaid'),
+        ("Pending", "Pending"),
+        ("Paid", "Paid"),
+        ("Unpaid", "Unpaid"),
     )
-    payer = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True, related_name="payments_done")
-    payee = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True, related_name="payments_received")
+    payer = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name="payments_done",
+    )
+    payee = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name="payments_received",
+    )
     room = models.ForeignKey(Room, on_delete=models.CASCADE, related_name="payments")
-    utility = models.ForeignKey(Utility, on_delete=models.SET_NULL, blank=True, null=True)
+    utility = models.ForeignKey(
+        Utility, on_delete=models.SET_NULL, blank=True, null=True
+    )
     amount = models.DecimalField(max_digits=20, decimal_places=2)
-    status = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, null=True, blank=True)
+    status = models.CharField(
+        max_length=20, choices=PAYMENT_STATUS_CHOICES, null=True, blank=True
+    )
     transaction_id = models.CharField(max_length=80, null=True, blank=True)
-    transaction_date = models.DateField(null=True, blank=True, help_text=("the date in which the transaction occurred"))
+    transaction_date = models.DateField(
+        null=True, blank=True, help_text=("the date in which the transaction occurred")
+    )
     note = models.TextField(max_length=350, null=True, blank=True)
     start_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)
-    no_of_days_before_due = models.IntegerField(blank=True, null=True, help_text=("No of days a renter can have before the payment is due"))
-    created_date = models.DateTimeField('Payment date', auto_now_add=True)
+    no_of_days_before_due = models.IntegerField(
+        blank=True,
+        null=True,
+        help_text=("No of days a renter can have before the payment is due"),
+    )
+    created_date = models.DateTimeField("Payment date", auto_now_add=True)
     # choices of this fields currently are  utility, maintenance
-    payment_category = models.CharField(max_length=200, null=True, blank=True, help_text="This field helps to identify which category this payment falls under")
+    payment_category = models.CharField(
+        max_length=200,
+        null=True,
+        blank=True,
+        help_text="This field helps to identify which category this payment falls under",
+    )
     bill_image_url = models.URLField(max_length=300, blank=True, null=True)
     is_expense = models.BooleanField(default=False)
     mark_as_paid = models.BooleanField(default=False)
 
     def __str__(self):
-        return str(f"{self.id}:{self.amount}:{self.room.room_no}:{self.utility.name}" if self.utility else f"{self.id}:{self.amount}:{self.room.room_no}")
+        return str(
+            f"{self.id}:{self.amount}:{self.room.room_no}:{self.utility.name}"
+            if self.utility
+            else f"{self.id}:{self.amount}:{self.room.room_no}"
+        )
 
     def clean(self):
         if self.payer == self.payee:

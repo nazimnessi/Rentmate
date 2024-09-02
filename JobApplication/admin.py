@@ -5,14 +5,28 @@ from JobApplication.models import Job_List, Job_Application, Job_Types
 
 
 class Job_ListAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', "jobTypes")
-    search_fields = ['id', 'name']
-    list_filter = ('jobTypes',)
+    list_display = ("id", "name", "jobTypes")
+    search_fields = ["id", "name"]
+    list_filter = ("jobTypes",)
 
 
 class Job_ApplicationAdmin(admin.ModelAdmin):
-    list_display = ('id', 'full_name', 'Job_List', 'email', 'total_experience', 'phone_number')
-    search_fields = ('id', 'full_name', 'Job_List', 'email', 'total_experience', 'phone_number')
+    list_display = (
+        "id",
+        "full_name",
+        "Job_List",
+        "email",
+        "total_experience",
+        "phone_number",
+    )
+    search_fields = (
+        "id",
+        "full_name",
+        "Job_List",
+        "email",
+        "total_experience",
+        "phone_number",
+    )
 
 
 admin.site.register(Job_List, Job_ListAdmin)

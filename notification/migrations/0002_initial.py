@@ -11,18 +11,30 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('notification', '0001_initial'),
+        ("notification", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='notifications',
-            name='recipient',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='recipient', to=settings.AUTH_USER_MODEL),
+            model_name="notifications",
+            name="recipient",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="recipient",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AddField(
-            model_name='notifications',
-            name='sender',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='sender', to=settings.AUTH_USER_MODEL),
+            model_name="notifications",
+            name="sender",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="sender",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
     ]

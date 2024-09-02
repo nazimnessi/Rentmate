@@ -6,13 +6,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('payment', '0003_payment_end_date_payment_no_of_days_before_due_and_more'),
+        ("payment", "0003_payment_end_date_payment_no_of_days_before_due_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='payment',
-            name='transaction_date',
-            field=models.DateField(blank=True, help_text='the date in which the transaction occurred', null=True),
+            model_name="payment",
+            name="transaction_date",
+            field=models.DateField(
+                blank=True,
+                help_text="the date in which the transaction occurred",
+                null=True,
+            ),
         ),
     ]

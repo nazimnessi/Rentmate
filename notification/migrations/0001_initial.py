@@ -7,22 +7,56 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Notifications',
+            name="Notifications",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_date', models.DateTimeField(auto_now_add=True, verbose_name='Notifications created date')),
-                ('updated_date', models.DateTimeField(auto_now_add=True, verbose_name='Notifications updated date')),
-                ('message', models.CharField(blank=True, max_length=255, null=True)),
-                ('is_read', models.BooleanField(default=False)),
-                ('last_read', models.DateField(blank=True, null=True, verbose_name='Notifications read date')),
-                ('notification_type', models.CharField(choices=[('Payment', 'Payment'), ('Maintenance', 'Maintenance'), ('Application', 'Application'), ('Others', 'Others')], default='Others', max_length=20)),
-                ('description', models.TextField(blank=True, null=True)),
-                ('request', models.CharField(blank=True, max_length=255, null=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "created_date",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Notifications created date"
+                    ),
+                ),
+                (
+                    "updated_date",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Notifications updated date"
+                    ),
+                ),
+                ("message", models.CharField(blank=True, max_length=255, null=True)),
+                ("is_read", models.BooleanField(default=False)),
+                (
+                    "last_read",
+                    models.DateField(
+                        blank=True, null=True, verbose_name="Notifications read date"
+                    ),
+                ),
+                (
+                    "notification_type",
+                    models.CharField(
+                        choices=[
+                            ("Payment", "Payment"),
+                            ("Maintenance", "Maintenance"),
+                            ("Application", "Application"),
+                            ("Others", "Others"),
+                        ],
+                        default="Others",
+                        max_length=20,
+                    ),
+                ),
+                ("description", models.TextField(blank=True, null=True)),
+                ("request", models.CharField(blank=True, max_length=255, null=True)),
             ],
         ),
     ]

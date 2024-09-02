@@ -7,18 +7,45 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Payment',
+            name="Payment",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('amount', models.DecimalField(decimal_places=2, max_digits=20)),
-                ('status', models.CharField(blank=True, choices=[('Pending', 'Pending'), ('Paid', 'Paid'), ('Unpaid', 'Unpaid')], max_length=20, null=True)),
-                ('transaction_id', models.CharField(blank=True, max_length=80, null=True)),
-                ('created_date', models.DateTimeField(auto_now_add=True, verbose_name='Payment date')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("amount", models.DecimalField(decimal_places=2, max_digits=20)),
+                (
+                    "status",
+                    models.CharField(
+                        blank=True,
+                        choices=[
+                            ("Pending", "Pending"),
+                            ("Paid", "Paid"),
+                            ("Unpaid", "Unpaid"),
+                        ],
+                        max_length=20,
+                        null=True,
+                    ),
+                ),
+                (
+                    "transaction_id",
+                    models.CharField(blank=True, max_length=80, null=True),
+                ),
+                (
+                    "created_date",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Payment date"
+                    ),
+                ),
             ],
         ),
     ]

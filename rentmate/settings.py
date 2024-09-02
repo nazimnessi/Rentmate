@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/4.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
+
 import os
 from datetime import timedelta
 from pathlib import Path
@@ -50,14 +51,12 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-
     # created Apps
     "user",
     "building",
     "notification",
     "JobApplication",
     "payment",
-
     # external packages
     "graphene_django",
     "django_filters",
@@ -140,13 +139,13 @@ SOCIALACCOUNT_PROVIDERS = {
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'rentmate_db',
-        'USER': 'root',
-        'PASSWORD': 'testuser123',
-        'HOST': 'db',
-        'PORT': "3306",
+    "default": {
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": "rentmate_db",
+        "USER": "root",
+        "PASSWORD": "testuser123",
+        "HOST": "db",
+        "PORT": "3306",
     }
 }
 
@@ -184,7 +183,7 @@ USE_TZ = True
 
 # Google Client ID for user authentication
 # website: https://console.cloud.google.com/apis/credentials?project=pivotal-store-383806
-CLIENT_ID = '303739980881-oktvl011f3p6h3spc4nldatfn2lv9p9r.apps.googleusercontent.com'
+CLIENT_ID = "303739980881-oktvl011f3p6h3spc4nldatfn2lv9p9r.apps.googleusercontent.com"
 
 CELERY_BROKER_URL = "redis://redis:6379/0"
 CELERY_RESULT_BACKEND = "redis://redis:6379/0"
@@ -209,12 +208,12 @@ MEDIA_URL = "/media/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'rentmate.properties@gmail.com'  # Replace with your Gmail address
-EMAIL_HOST_PASSWORD = 'rnypxtsfyaczuuxi'  # Replace with your Gmail app password
+EMAIL_HOST_USER = "rentmate.properties@gmail.com"  # Replace with your Gmail address
+EMAIL_HOST_PASSWORD = "rnypxtsfyaczuuxi"  # Replace with your Gmail app password
 
 # Razorpay Integration
 

@@ -11,24 +11,40 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('payment', '0001_initial'),
-        ('building', '0002_initial'),
+        ("payment", "0001_initial"),
+        ("building", "0002_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='payment',
-            name='payee',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='payments_received', to=settings.AUTH_USER_MODEL),
+            model_name="payment",
+            name="payee",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="payments_received",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AddField(
-            model_name='payment',
-            name='payer',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='payments_done', to=settings.AUTH_USER_MODEL),
+            model_name="payment",
+            name="payer",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="payments_done",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AddField(
-            model_name='payment',
-            name='room',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='payments', to='building.room'),
+            model_name="payment",
+            name="room",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="payments",
+                to="building.room",
+            ),
         ),
     ]

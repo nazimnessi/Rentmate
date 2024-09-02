@@ -1,4 +1,3 @@
-
 import graphene
 from graphql import GraphQLError
 from JobApplication.models import Job_Application
@@ -19,7 +18,9 @@ class CreateJobApplication(graphene.Mutation):
                 application_instance = Job_Application.objects.create(**jobApplications)
         except Exception as exe:
             transaction.rollback()
-            raise GraphQLError(f"unknown error occurred in job application creation error: {exe}")
+            raise GraphQLError(
+                f"unknown error occurred in job application creation error: {exe}"
+            )
         return CreateJobApplication(jobApplications=application_instance)
 
 

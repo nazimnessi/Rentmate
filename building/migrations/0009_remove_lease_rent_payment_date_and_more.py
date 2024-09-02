@@ -6,17 +6,22 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('building', '0008_lease_renter_alter_lease_unique_together'),
+        ("building", "0008_lease_renter_alter_lease_unique_together"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='lease',
-            name='rent_payment_date',
+            model_name="lease",
+            name="rent_payment_date",
         ),
         migrations.AddField(
-            model_name='lease',
-            name='rent_payment_day',
-            field=models.CharField(blank=True, help_text='Date from which the payment of a month start', max_length=2, null=True),
+            model_name="lease",
+            name="rent_payment_day",
+            field=models.CharField(
+                blank=True,
+                help_text="Date from which the payment of a month start",
+                max_length=2,
+                null=True,
+            ),
         ),
     ]
