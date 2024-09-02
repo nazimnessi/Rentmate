@@ -7,34 +7,43 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('building', '0005_alter_building_building_photo_url_and_more'),
-        ('payment', '0002_initial'),
+        ("building", "0005_alter_building_building_photo_url_and_more"),
+        ("payment", "0002_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='payment',
-            name='end_date',
+            model_name="payment",
+            name="end_date",
             field=models.DateField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='payment',
-            name='no_of_days_before_due',
-            field=models.IntegerField(blank=True, help_text='No of days a renter can have before the payment is due', null=True),
+            model_name="payment",
+            name="no_of_days_before_due",
+            field=models.IntegerField(
+                blank=True,
+                help_text="No of days a renter can have before the payment is due",
+                null=True,
+            ),
         ),
         migrations.AddField(
-            model_name='payment',
-            name='note',
+            model_name="payment",
+            name="note",
             field=models.TextField(blank=True, max_length=350, null=True),
         ),
         migrations.AddField(
-            model_name='payment',
-            name='start_date',
+            model_name="payment",
+            name="start_date",
             field=models.DateField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='payment',
-            name='utility',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='building.utility'),
+            model_name="payment",
+            name="utility",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="building.utility",
+            ),
         ),
     ]

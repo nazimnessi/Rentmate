@@ -4,10 +4,8 @@ import csv
 import firebase_admin
 from firebase_admin import credentials, storage
 
-cred = credentials.Certificate('/rentmate/firebase_config.json')
-firebase_admin.initialize_app(cred, {
-    'storageBucket': 'rentmate-c6d88.appspot.com'
-})
+cred = credentials.Certificate("/rentmate/firebase_config.json")
+firebase_admin.initialize_app(cred, {"storageBucket": "rentmate-c6d88.appspot.com"})
 
 
 def get_or_404(model, **kwargs):
@@ -18,9 +16,9 @@ def get_or_404(model, **kwargs):
 
 
 def convert_string_to_display(string):
-    words = string.split(' ')
+    words = string.split(" ")
     capitalized_words = [word.capitalize() for word in words]
-    display_string = ' '.join(capitalized_words)
+    display_string = " ".join(capitalized_words)
     return display_string
 
 
@@ -47,7 +45,7 @@ def delete_images_form_firebase(urls):
         # Extract the path component and decode it
         decoded_path = unquote(parsed_url.path)
         # Extract the filename from the path
-        filename = decoded_path.split('appspot.com/o/')[-1].strip()
+        filename = decoded_path.split("appspot.com/o/")[-1].strip()
         image_file_names.append(filename)
     bucket = storage.bucket()
     for image in image_file_names:

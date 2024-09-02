@@ -7,23 +7,97 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('building', '0006_rename_building_document_url_building_building_document_url_and_more'),
+        (
+            "building",
+            "0006_rename_building_document_url_building_building_document_url_and_more",
+        ),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Lease',
+            name="Lease",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('status', models.CharField(blank=True, choices=[('Upcoming', 'Upcoming'), ('Current', 'Current'), ('Expiring Soon', 'Expiring Soon'), ('Expired', 'Expired')], default='Current', max_length=15, null=True)),
-                ('documents', models.JSONField(blank=True, null=True)),
-                ('rent_amount', models.DecimalField(blank=True, decimal_places=2, max_digits=10, null=True)),
-                ('advance', models.DecimalField(blank=True, decimal_places=2, max_digits=10, null=True)),
-                ('rent_period_start', models.DateField(blank=True, help_text='Rent period contract start date', null=True, verbose_name='rent period start')),
-                ('rent_period_end', models.DateField(blank=True, help_text='Rent period contract end date', null=True, verbose_name='rent period end')),
-                ('rent_payment_date', models.DateField(blank=True, help_text='Date from which the payment of a month start', null=True, verbose_name='rent payment date')),
-                ('rent_payment_interval', models.IntegerField(blank=True, help_text='No of days a renter can have before the payment is due', null=True)),
-                ('room', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='building.room')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "status",
+                    models.CharField(
+                        blank=True,
+                        choices=[
+                            ("Upcoming", "Upcoming"),
+                            ("Current", "Current"),
+                            ("Expiring Soon", "Expiring Soon"),
+                            ("Expired", "Expired"),
+                        ],
+                        default="Current",
+                        max_length=15,
+                        null=True,
+                    ),
+                ),
+                ("documents", models.JSONField(blank=True, null=True)),
+                (
+                    "rent_amount",
+                    models.DecimalField(
+                        blank=True, decimal_places=2, max_digits=10, null=True
+                    ),
+                ),
+                (
+                    "advance",
+                    models.DecimalField(
+                        blank=True, decimal_places=2, max_digits=10, null=True
+                    ),
+                ),
+                (
+                    "rent_period_start",
+                    models.DateField(
+                        blank=True,
+                        help_text="Rent period contract start date",
+                        null=True,
+                        verbose_name="rent period start",
+                    ),
+                ),
+                (
+                    "rent_period_end",
+                    models.DateField(
+                        blank=True,
+                        help_text="Rent period contract end date",
+                        null=True,
+                        verbose_name="rent period end",
+                    ),
+                ),
+                (
+                    "rent_payment_date",
+                    models.DateField(
+                        blank=True,
+                        help_text="Date from which the payment of a month start",
+                        null=True,
+                        verbose_name="rent payment date",
+                    ),
+                ),
+                (
+                    "rent_payment_interval",
+                    models.IntegerField(
+                        blank=True,
+                        help_text="No of days a renter can have before the payment is due",
+                        null=True,
+                    ),
+                ),
+                (
+                    "room",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="building.room",
+                    ),
+                ),
             ],
         ),
     ]

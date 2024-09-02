@@ -9,7 +9,7 @@ class JobListTypeAll(DjangoObjectType):
     class Meta:
         model = Job_List
         interfaces = (relay.Node,)
-        fields = '__all__'
+        fields = "__all__"
 
 
 class JobApplicationType(DjangoObjectType):
@@ -17,7 +17,7 @@ class JobApplicationType(DjangoObjectType):
     class Meta:
         model = Job_Application
         interfaces = (relay.Node,)
-        fields = '__all__'
+        fields = "__all__"
 
 
 class JobListType(DjangoObjectType):
@@ -31,7 +31,7 @@ class JobListType(DjangoObjectType):
         model = Job_Types
         filter_fields = {}
         interfaces = (relay.Node,)
-        fields = '__all__'
+        fields = "__all__"
 
 
 class JobApplicationInput(graphene.InputObjectType):

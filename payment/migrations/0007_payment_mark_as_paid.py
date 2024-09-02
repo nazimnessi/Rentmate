@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('payment', '0006_payment_bill_image_url_payment_is_expense'),
+        ("payment", "0006_payment_bill_image_url_payment_is_expense"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='payment',
-            name='mark_as_paid',
+            model_name="payment",
+            name="mark_as_paid",
             field=models.BooleanField(default=False),
         ),
     ]

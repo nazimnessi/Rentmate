@@ -1,6 +1,7 @@
 import graphene
 from graphene import relay
 from graphql import GraphQLError
+
 # from graphene_file_upload.scalars import Upload
 from graphene_django.filter import DjangoFilterConnectionField
 
@@ -20,7 +21,7 @@ class Query(graphene.ObjectType):
     address = relay.Node.Field(AddressType)
 
     def resolve_all_users(root, info, **kwargs):
-        return User.objects.order_by('-id')
+        return User.objects.order_by("-id")
 
     def resolve_search_user_list(self, info, **kwargs):
         user = info.context.user
@@ -38,7 +39,7 @@ class Query(graphene.ObjectType):
             raise GraphQLError("User Not Found")
 
     def resolve_all_address(root, info, **kwargs):
-        return Address.objects.order_by('-id')
+        return Address.objects.order_by("-id")
 
     def resolve_all_Renters(root, info, **kwargs):
         return User.objects.filter(renter__building__owner=info.context.user).distinct()

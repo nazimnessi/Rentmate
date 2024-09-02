@@ -1,6 +1,7 @@
 # from django.forms import ValidationError
 from rest_framework import serializers
 from .models import User, Documents
+
 # from django.contrib.auth import authenticate, login
 
 
@@ -9,13 +10,13 @@ class UserProfilePictureSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['photo', 'name']
+        fields = ["photo", "name"]
 
 
 class DocumentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Documents
-        fields = '__all__'
+        fields = "__all__"
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -23,7 +24,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = '__all__'
+        fields = "__all__"
 
 
 class UserDocumentSerializer(serializers.Serializer):

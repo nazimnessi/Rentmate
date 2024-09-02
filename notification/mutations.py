@@ -1,5 +1,9 @@
 import graphene
-from notification.node import NotificationsInput, NotificationsReadInput, NotificationsType
+from notification.node import (
+    NotificationsInput,
+    NotificationsReadInput,
+    NotificationsType,
+)
 from .models import Notifications
 from datetime import datetime
 
@@ -7,6 +11,7 @@ from datetime import datetime
 class CreateNotifications(graphene.Mutation):
     class Arguments:
         notification_data = NotificationsInput(required=True)
+
     notifications = graphene.Field(NotificationsType)
 
     @staticmethod
@@ -22,6 +27,7 @@ class CreateNotifications(graphene.Mutation):
 class UpdateNotifications(graphene.Mutation):
     class Arguments:
         data = NotificationsInput(required=True)
+
     notifications = graphene.Field(NotificationsType)
 
     @staticmethod
@@ -34,24 +40,33 @@ class UpdateNotifications(graphene.Mutation):
 class NotificationRead(graphene.Mutation):
     class Arguments:
         data = NotificationsReadInput(required=True)
+
     message = graphene.String()
 
     @staticmethod
     def mutate(root, info, data=None):
-        Notifications.objects.filter(id__in=data.get('ids'), last_read=None).update(is_read=True, last_read=datetime.now())
+        Notifications.objects.filter(id__in=data.get("ids"), last_read=None).update(
+            is_read=True, last_read=datetime.now()
+        )
         return NotificationRead(message="All Notifications read")
 
 
 class SendNotification(graphene.Mutation):
     class Arguments:
         notification_data = NotificationsInput(required=True)
+
     message = graphene.String()
 
     @staticmethod
     def mutate(root, info, notification_data=None):
         recipient_ids = notification_data.pop("recipient_ids")
         for recipient in recipient_ids:
-            notification_instance = Notifications(**notification_data, recipient_id=recipient, created_date=datetime.now(), updated_date=datetime.now())
+            notification_instance = Notifications(
+                **notification_data,
+                recipient_id=recipient,
+                created_date=datetime.now(),
+                updated_date=datetime.now()
+            )
             notification_instance.save()
         return NotificationRead(message="Notification Send")
 

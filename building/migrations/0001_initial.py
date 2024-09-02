@@ -9,71 +9,247 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Building',
+            name="Building",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100)),
-                ('photo', models.ImageField(default='Default_user.png', upload_to='images/')),
-                ('building_type', models.CharField(choices=[('House', 'House'), ('Apartment', 'Apartment'), ('Others', 'Others')], db_column='building_type', default='House', max_length=10)),
-                ('house_number', models.CharField(max_length=20, unique=True)),
-                ('created_date', models.DateTimeField(auto_now_add=True, verbose_name='Building created date')),
-                ('updated_date', models.DateTimeField(auto_now=True, verbose_name='Building Updated date')),
-                ('building_photo_url', models.CharField(blank=True, max_length=500, null=True)),
-                ('building_document_Url', models.JSONField(blank=True, null=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=100)),
+                (
+                    "photo",
+                    models.ImageField(default="Default_user.png", upload_to="images/"),
+                ),
+                (
+                    "building_type",
+                    models.CharField(
+                        choices=[
+                            ("House", "House"),
+                            ("Apartment", "Apartment"),
+                            ("Others", "Others"),
+                        ],
+                        db_column="building_type",
+                        default="House",
+                        max_length=10,
+                    ),
+                ),
+                ("house_number", models.CharField(max_length=20, unique=True)),
+                (
+                    "created_date",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Building created date"
+                    ),
+                ),
+                (
+                    "updated_date",
+                    models.DateTimeField(
+                        auto_now=True, verbose_name="Building Updated date"
+                    ),
+                ),
+                (
+                    "building_photo_url",
+                    models.CharField(blank=True, max_length=500, null=True),
+                ),
+                ("building_document_Url", models.JSONField(blank=True, null=True)),
             ],
         ),
         migrations.CreateModel(
-            name='Documents',
+            name="Documents",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100)),
-                ('file', models.FileField(upload_to='files/', validators=[django.core.validators.FileExtensionValidator(['pdf', 'jpg', 'jpeg', 'png'])])),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=100)),
+                (
+                    "file",
+                    models.FileField(
+                        upload_to="files/",
+                        validators=[
+                            django.core.validators.FileExtensionValidator(
+                                ["pdf", "jpg", "jpeg", "png"]
+                            )
+                        ],
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Request',
+            name="Request",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('action', models.CharField(choices=[('Accepted', 'Accepted'), ('Pending', 'Pending'), ('Rejected', 'Rejected')], default='Pending', max_length=10)),
-                ('text', models.CharField(blank=True, max_length=100)),
-                ('created_date', models.DateTimeField(auto_now_add=True, verbose_name='Request created date')),
-                ('updated_date', models.DateTimeField(auto_now=True, verbose_name='Request Updated date')),
-                ('accepted', models.BooleanField(default=False)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "action",
+                    models.CharField(
+                        choices=[
+                            ("Accepted", "Accepted"),
+                            ("Pending", "Pending"),
+                            ("Rejected", "Rejected"),
+                        ],
+                        default="Pending",
+                        max_length=10,
+                    ),
+                ),
+                ("text", models.CharField(blank=True, max_length=100)),
+                (
+                    "created_date",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Request created date"
+                    ),
+                ),
+                (
+                    "updated_date",
+                    models.DateTimeField(
+                        auto_now=True, verbose_name="Request Updated date"
+                    ),
+                ),
+                ("accepted", models.BooleanField(default=False)),
             ],
         ),
         migrations.CreateModel(
-            name='Room',
+            name="Room",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('room_no', models.CharField(max_length=100)),
-                ('criteria', models.CharField(choices=[('Fully Furnished', 'Fully Furnished'), ('Semi Furnished', 'Semi Furnished'), ('Not Furnished', 'Not Furnished')], default='Fully Furnished', max_length=15)),
-                ('appliances', models.CharField(blank=True, max_length=100)),
-                ('rent_amount', models.CharField(max_length=10)),
-                ('advance', models.CharField(blank=True, max_length=10, null=True)),
-                ('room_type', models.CharField(choices=[('3BHK', '3BHK'), ('2BHK', '2BHK'), ('1BHK', '1BHK'), ('Studio', 'Studio'), ('Others', 'Others')], db_column='room_type', default='Studio', max_length=10)),
-                ('rent_period_start', models.DateField(help_text='Rent period contract start date', verbose_name='rent period start')),
-                ('rent_period_end', models.DateField(help_text='Rent period contract end date', verbose_name='rent period end')),
-                ('rent_payment_date', models.DateField(blank=True, help_text='Date from which the payment of a month start', null=True, verbose_name='rent payment date')),
-                ('rent_payment_interval', models.IntegerField(blank=True, help_text='No of days a renter can have before the payment is due', max_length=31, null=True)),
-                ('created_date', models.DateTimeField(auto_now_add=True, verbose_name='Room created date')),
-                ('updated_date', models.DateTimeField(auto_now=True, verbose_name='Room Updated date')),
-                ('description', models.CharField(blank=True, max_length=100, null=True)),
-                ('area', models.CharField(blank=True, max_length=100, null=True)),
-                ('floor', models.CharField(blank=True, max_length=100, null=True)),
-                ('max_capacity', models.CharField(blank=True, max_length=2, null=True)),
-                ('bathroom_count', models.CharField(blank=True, max_length=3, null=True)),
-                ('kitchen_count', models.CharField(blank=True, max_length=3, null=True)),
-                ('is_parking_available', models.BooleanField(default=True)),
-                ('garage_count', models.CharField(blank=True, max_length=3, null=True)),
-                ('room_photo_Url', models.CharField(blank=True, max_length=900, null=True)),
-                ('room_document_Url', models.JSONField(blank=True, null=True)),
-                ('additional_photo', models.ManyToManyField(blank=True, to='building.documents')),
-                ('building', models.ForeignKey(default=None, on_delete=django.db.models.deletion.CASCADE, related_name='rooms', to='building.building')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("room_no", models.CharField(max_length=100)),
+                (
+                    "criteria",
+                    models.CharField(
+                        choices=[
+                            ("Fully Furnished", "Fully Furnished"),
+                            ("Semi Furnished", "Semi Furnished"),
+                            ("Not Furnished", "Not Furnished"),
+                        ],
+                        default="Fully Furnished",
+                        max_length=15,
+                    ),
+                ),
+                ("appliances", models.CharField(blank=True, max_length=100)),
+                ("rent_amount", models.CharField(max_length=10)),
+                ("advance", models.CharField(blank=True, max_length=10, null=True)),
+                (
+                    "room_type",
+                    models.CharField(
+                        choices=[
+                            ("3BHK", "3BHK"),
+                            ("2BHK", "2BHK"),
+                            ("1BHK", "1BHK"),
+                            ("Studio", "Studio"),
+                            ("Others", "Others"),
+                        ],
+                        db_column="room_type",
+                        default="Studio",
+                        max_length=10,
+                    ),
+                ),
+                (
+                    "rent_period_start",
+                    models.DateField(
+                        help_text="Rent period contract start date",
+                        verbose_name="rent period start",
+                    ),
+                ),
+                (
+                    "rent_period_end",
+                    models.DateField(
+                        help_text="Rent period contract end date",
+                        verbose_name="rent period end",
+                    ),
+                ),
+                (
+                    "rent_payment_date",
+                    models.DateField(
+                        blank=True,
+                        help_text="Date from which the payment of a month start",
+                        null=True,
+                        verbose_name="rent payment date",
+                    ),
+                ),
+                (
+                    "rent_payment_interval",
+                    models.IntegerField(
+                        blank=True,
+                        help_text="No of days a renter can have before the payment is due",
+                        max_length=31,
+                        null=True,
+                    ),
+                ),
+                (
+                    "created_date",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Room created date"
+                    ),
+                ),
+                (
+                    "updated_date",
+                    models.DateTimeField(
+                        auto_now=True, verbose_name="Room Updated date"
+                    ),
+                ),
+                (
+                    "description",
+                    models.CharField(blank=True, max_length=100, null=True),
+                ),
+                ("area", models.CharField(blank=True, max_length=100, null=True)),
+                ("floor", models.CharField(blank=True, max_length=100, null=True)),
+                ("max_capacity", models.CharField(blank=True, max_length=2, null=True)),
+                (
+                    "bathroom_count",
+                    models.CharField(blank=True, max_length=3, null=True),
+                ),
+                (
+                    "kitchen_count",
+                    models.CharField(blank=True, max_length=3, null=True),
+                ),
+                ("is_parking_available", models.BooleanField(default=True)),
+                ("garage_count", models.CharField(blank=True, max_length=3, null=True)),
+                (
+                    "room_photo_Url",
+                    models.CharField(blank=True, max_length=900, null=True),
+                ),
+                ("room_document_Url", models.JSONField(blank=True, null=True)),
+                (
+                    "additional_photo",
+                    models.ManyToManyField(blank=True, to="building.documents"),
+                ),
+                (
+                    "building",
+                    models.ForeignKey(
+                        default=None,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="rooms",
+                        to="building.building",
+                    ),
+                ),
             ],
         ),
     ]

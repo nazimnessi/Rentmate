@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('payment', '0005_payment_payment_category'),
+        ("payment", "0005_payment_payment_category"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='payment',
-            name='bill_image_url',
+            model_name="payment",
+            name="bill_image_url",
             field=models.URLField(blank=True, max_length=300, null=True),
         ),
         migrations.AddField(
-            model_name='payment',
-            name='is_expense',
+            model_name="payment",
+            name="is_expense",
             field=models.BooleanField(default=False),
         ),
     ]

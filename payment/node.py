@@ -36,7 +36,11 @@ class ExtendedConnectionPayment(graphene.Connection):
     total_renter_due_amount = graphene.Decimal(filter=PaymentFilterInput())
     total_utility_amount = graphene.Decimal(filter=PaymentFilterInput())
     total_expense_amount = graphene.Decimal(filter=PaymentFilterInput())
-    graph_data = graphene.List(graphene.JSONString, filter=PaymentFilterInput(), time_interval=graphene.String())
+    graph_data = graphene.List(
+        graphene.JSONString,
+        filter=PaymentFilterInput(),
+        time_interval=graphene.String(),
+    )
 
     # filters = graphene.Argument(PaymentFilterInput)
 
@@ -47,8 +51,7 @@ class ExtendedConnectionPayment(graphene.Connection):
             query = Payment.objects.filter(payer=info.context.user)
         if filter and filter.start_date and filter.end_date:
             query = query.filter(
-                created_date__gte=filter.start_date,
-                created_date__lte=filter.end_date
+                created_date__gte=filter.start_date, created_date__lte=filter.end_date
             )
         if filter and filter.payer:
             _, django_id = from_global_id(filter.payer)
@@ -71,7 +74,7 @@ class ExtendedConnectionPayment(graphene.Connection):
 
     def resolve_pending_status(root, info, filter=None, **kwargs):
         query = root.get_queryset(info, filter)
-        unpaid_exists = query.filter(status='Unpaid').exists()
+        unpaid_exists = query.filter(status="Unpaid").exists()
         pending_exists = query.filter(status="Pending").exists()
         paid_exists = query.filter(status="Paid").exists()
 
@@ -86,7 +89,11 @@ class ExtendedConnectionPayment(graphene.Connection):
 
     def resolve_total_paid_amount(root, info, filter=None, **kwargs):
         query = root.get_queryset(info, filter)
-        return query.filter(utility__isnull=True).filter(status="paid").aggregate(total_amount=Sum('amount'))['total_amount']
+        return (
+            query.filter(utility__isnull=True)
+            .filter(status="paid")
+            .aggregate(total_amount=Sum("amount"))["total_amount"]
+        )
 
     def resolve_total_count(root, info, filter=None, **kwargs):
         query = root.get_queryset(info, filter)
@@ -94,33 +101,64 @@ class ExtendedConnectionPayment(graphene.Connection):
 
     def resolve_average_amount(root, info, filter=None, **kwargs):
         query = root.get_queryset(info, filter)
-        return query.filter(utility__isnull=True).filter(status="Paid").aggregate(avg_amount=Avg('amount'))['avg_amount']
+        return (
+            query.filter(utility__isnull=True)
+            .filter(status="Paid")
+            .aggregate(avg_amount=Avg("amount"))["avg_amount"]
+        )
 
     def resolve_total_unpaid_amount(root, info, filter=None, **kwargs):
         query = root.get_queryset(info, filter)
-        return query.filter(utility__isnull=True).filter(status="Unpaid").aggregate(total_amount=Sum('amount'))['total_amount']
+        return (
+            query.filter(utility__isnull=True)
+            .filter(status="Unpaid")
+            .aggregate(total_amount=Sum("amount"))["total_amount"]
+        )
 
     def resolve_total_pending_amount(root, info, filter=None, **kwargs):
         query = root.get_queryset(info, filter)
-        return query.filter(utility__isnull=True).filter(Q(status="Unpaid") | Q(status="Pending")).aggregate(total_amount=Sum('amount'))['total_amount']
+        return (
+            query.filter(utility__isnull=True)
+            .filter(Q(status="Unpaid") | Q(status="Pending"))
+            .aggregate(total_amount=Sum("amount"))["total_amount"]
+        )
 
     def resolve_total_renter_pending_amount(root, info, filter=None, **kwargs):
         query = root.get_queryset(info, filter, is_renter=True)
-        return query.filter(utility__isnull=True).filter(Q(status="Pending")).aggregate(total_amount=Sum('amount'))['total_amount']
+        return (
+            query.filter(utility__isnull=True)
+            .filter(Q(status="Pending"))
+            .aggregate(total_amount=Sum("amount"))["total_amount"]
+        )
 
     def resolve_total_renter_due_amount(root, info, filter=None, **kwargs):
         query = root.get_queryset(info, filter, is_renter=True)
-        return query.filter(utility__isnull=True).filter(Q(status="Unpaid")).aggregate(total_amount=Sum('amount'))['total_amount']
+        return (
+            query.filter(utility__isnull=True)
+            .filter(Q(status="Unpaid"))
+            .aggregate(total_amount=Sum("amount"))["total_amount"]
+        )
 
     def resolve_total_expense_amount(root, info, filter=None, **kwargs):
         query = root.get_queryset(info, filter)
-        return query.filter(utility__isnull=True, payment_category__icontains='maintenance').aggregate(total_amount=Sum('amount'))['total_amount']
+        return query.filter(
+            utility__isnull=True, payment_category__icontains="maintenance"
+        ).aggregate(total_amount=Sum("amount"))["total_amount"]
 
     def resolve_total_utility_amount(root, info, filter=None, **kwargs):
         query = root.get_queryset(info, filter)
-        total_paid_amount = query.filter(utility__isnull=False, status='Paid').aggregate(total_amount=Sum('amount'))['total_amount']
-        total_pending_amount = query.filter(utility__isnull=False).filter(Q(status="Unpaid") | Q(status="Pending")).aggregate(total_amount=Sum('amount'))['total_amount']
-        return str((total_paid_amount if total_paid_amount else 0) - (total_pending_amount if total_pending_amount else 0))
+        total_paid_amount = query.filter(
+            utility__isnull=False, status="Paid"
+        ).aggregate(total_amount=Sum("amount"))["total_amount"]
+        total_pending_amount = (
+            query.filter(utility__isnull=False)
+            .filter(Q(status="Unpaid") | Q(status="Pending"))
+            .aggregate(total_amount=Sum("amount"))["total_amount"]
+        )
+        return str(
+            (total_paid_amount if total_paid_amount else 0)
+            - (total_pending_amount if total_pending_amount else 0)
+        )
 
     def resolve_graph_data(self, info, filter=None, **kwargs):
         query = self.get_queryset(info, filter)
@@ -132,30 +170,54 @@ class ExtendedConnectionPayment(graphene.Connection):
         graph_data = []
 
         for value in query:
-            if kwargs.get('time_interval') == "Yearly":
+            if kwargs.get("time_interval") == "Yearly":
                 month = value.created_date.strftime("%B")
             else:
                 month = value.created_date.strftime("%d-%B")
             amount = int(value.amount)
-            aggregated_data_total[month] = + amount + (aggregated_data_total.get(month) if aggregated_data_total.get(month) else 0)
+            aggregated_data_total[month] = +amount + (
+                aggregated_data_total.get(month)
+                if aggregated_data_total.get(month)
+                else 0
+            )
             if value.status and value.status == "Paid":
-                aggregated_data_paid[month] = amount + (aggregated_data_paid.get(month) if aggregated_data_paid.get(month) else 0)
+                aggregated_data_paid[month] = amount + (
+                    aggregated_data_paid.get(month)
+                    if aggregated_data_paid.get(month)
+                    else 0
+                )
             elif value.status and value.status == "Pending" or value.status == "Unpaid":
-                aggregated_data_pending[month] = amount + (aggregated_data_pending.get(month) if aggregated_data_pending.get(month) else 0)
+                aggregated_data_pending[month] = amount + (
+                    aggregated_data_pending.get(month)
+                    if aggregated_data_pending.get(month)
+                    else 0
+                )
             else:
-                aggregated_data_expense[month] = amount + (aggregated_data_expense.get(month) if aggregated_data_expense.get(month) else 0)
+                aggregated_data_expense[month] = amount + (
+                    aggregated_data_expense.get(month)
+                    if aggregated_data_expense.get(month)
+                    else 0
+                )
 
         # Now you can create the graph_data list based on the aggregated data
         graph_data = []
 
         for month, amounts in aggregated_data_total.items():
-            graph_data.append({"month": month, "value": amounts, "category": 'Total generated amount'})
+            graph_data.append(
+                {"month": month, "value": amounts, "category": "Total generated amount"}
+            )
         for month, amounts in aggregated_data_paid.items():
-            graph_data.append({"month": month, "value": amounts, "category": 'Total paid amount'})
+            graph_data.append(
+                {"month": month, "value": amounts, "category": "Total paid amount"}
+            )
         for month, amounts in aggregated_data_pending.items():
-            graph_data.append({"month": month, "value": amounts, "category": 'Total pending amount'})
+            graph_data.append(
+                {"month": month, "value": amounts, "category": "Total pending amount"}
+            )
         for month, amounts in aggregated_data_expense.items():
-            graph_data.append({"month": month, "value": amounts, "category": 'Total expense amount'})
+            graph_data.append(
+                {"month": month, "value": amounts, "category": "Total expense amount"}
+            )
 
         return graph_data
 
@@ -166,7 +228,7 @@ class PaymentType(DjangoObjectType):
         model = Payment
 
         interfaces = (relay.Node,)
-        fields = '__all__'
+        fields = "__all__"
         connection_class = ExtendedConnectionPayment
         filterset_class = PaymentFilterClass
 

@@ -9,7 +9,7 @@ class NotificationsType(DjangoObjectType):
         model = Notifications
         filter_fields = {}
         interfaces = (relay.Node,)
-        fields = '__all__'
+        fields = "__all__"
 
     @classmethod
     def get_queryset(cls, queryset, info, **kwargs):

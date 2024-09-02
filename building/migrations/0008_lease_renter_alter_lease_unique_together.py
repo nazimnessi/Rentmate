@@ -9,17 +9,24 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('building', '0007_lease'),
+        ("building", "0007_lease"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='lease',
-            name='renter',
-            field=models.ForeignKey(blank=True, default=None, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='lease_renter', to=settings.AUTH_USER_MODEL),
+            model_name="lease",
+            name="renter",
+            field=models.ForeignKey(
+                blank=True,
+                default=None,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="lease_renter",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AlterUniqueTogether(
-            name='lease',
-            unique_together={('room', 'renter')},
+            name="lease",
+            unique_together={("room", "renter")},
         ),
     ]

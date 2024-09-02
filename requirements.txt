@@ -4,7 +4,7 @@ mysqlclient==2.2.0
 phonenumbers==8.13.8
 graphene_django==3.1.5
 django-filter==23.1
-celery==4.4.0
+celery
 redis==3.4.1
 djangorestframework==3.14.0
 flake8==3.9.2

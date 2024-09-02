@@ -1,7 +1,12 @@
 import graphene
 from graphene import relay
 from graphene_django import DjangoObjectType
-from building.extendedConnectionsLease import ExtendedConnectionAnalytics, ExtendedConnectionLease, ExtendedConnectionLeaseDistinct, ExtendedConnectionRenterLease
+from building.extendedConnectionsLease import (
+    ExtendedConnectionAnalytics,
+    ExtendedConnectionLease,
+    ExtendedConnectionLeaseDistinct,
+    ExtendedConnectionRenterLease,
+)
 
 from building.utils import convert_string_to_display
 from payment.models import Payment
@@ -66,33 +71,47 @@ class BuildingType(DjangoObjectType):
         return parent.address
 
     def resolve_total_renters(parent, info, **kwargs):
-        total_renters = User.objects.filter(renter__building=parent).aggregate(Count('id'))['id__count']
+        total_renters = User.objects.filter(renter__building=parent).aggregate(
+            Count("id")
+        )["id__count"]
         return total_renters
 
     def resolve_total_rooms(parent, info, **kwargs):
-        total_renters = Room.objects.filter(building=parent).aggregate(Count('id'))['id__count']
+        total_renters = Room.objects.filter(building=parent).aggregate(Count("id"))[
+            "id__count"
+        ]
         return total_renters
 
     def resolve_total_rent_amount(parent, info, **kwargs):
-        total_rent_amount = parent.rooms.annotate(rent_amount_numeric=Cast('rent_amount', models.DecimalField(max_digits=10, decimal_places=2))).aggregate(total=Sum('rent_amount_numeric'))['total']
+        total_rent_amount = parent.rooms.annotate(
+            rent_amount_numeric=Cast(
+                "rent_amount", models.DecimalField(max_digits=10, decimal_places=2)
+            )
+        ).aggregate(total=Sum("rent_amount_numeric"))["total"]
         return total_rent_amount if total_rent_amount else 0
 
     def resolve_total_rent_amount_from_renter(parent, info, **kwargs):
-        total_rent_amount = parent.rooms.filter(renter__isnull=False).annotate(
-            rent_amount_numeric=Cast('rent_amount', models.DecimalField(max_digits=10, decimal_places=2))
-        ).aggregate(total=Sum('rent_amount_numeric'))['total']
+        total_rent_amount = (
+            parent.rooms.filter(renter__isnull=False)
+            .annotate(
+                rent_amount_numeric=Cast(
+                    "rent_amount", models.DecimalField(max_digits=10, decimal_places=2)
+                )
+            )
+            .aggregate(total=Sum("rent_amount_numeric"))["total"]
+        )
         return total_rent_amount if total_rent_amount else 0.0
 
     class Meta:
         model = Building
         filter_fields = {
-            'name': ['exact', 'icontains', 'istartswith'],
-            'house_number': ['exact', 'icontains', 'istartswith'],
-            'building_type': ['exact'],
-            'owner': ['exact'],
+            "name": ["exact", "icontains", "istartswith"],
+            "house_number": ["exact", "icontains", "istartswith"],
+            "building_type": ["exact"],
+            "owner": ["exact"],
         }
         interfaces = (relay.Node,)
-        fields = '__all__'
+        fields = "__all__"
         connection_class = ExtendedConnectionBuilding
 
 
@@ -107,11 +126,21 @@ class BuildingTypeRenter(DjangoObjectType):
         return parent.address
 
     def resolve_total_rooms(parent, info, **kwargs):
-        total_rooms = Room.objects.filter(building=parent, renter=info.context.user).aggregate(Count('id'))['id__count']
+        total_rooms = Room.objects.filter(
+            building=parent, renter=info.context.user
+        ).aggregate(Count("id"))["id__count"]
         return total_rooms
 
     def resolve_total_rent_amount(parent, info, **kwargs):
-        total_rent_amount = parent.rooms.filter(renter=info.context.user).annotate(rent_amount_numeric=Cast('rent_amount', models.DecimalField(max_digits=10, decimal_places=2))).aggregate(total=Sum('rent_amount_numeric'))['total']
+        total_rent_amount = (
+            parent.rooms.filter(renter=info.context.user)
+            .annotate(
+                rent_amount_numeric=Cast(
+                    "rent_amount", models.DecimalField(max_digits=10, decimal_places=2)
+                )
+            )
+            .aggregate(total=Sum("rent_amount_numeric"))["total"]
+        )
         return total_rent_amount if total_rent_amount else 0
 
     def resolve_status(parent, info, **kwargs):
@@ -130,13 +159,13 @@ class BuildingTypeRenter(DjangoObjectType):
     class Meta:
         model = Building
         filter_fields = {
-            'name': ['exact', 'icontains', 'istartswith'],
-            'house_number': ['exact', 'icontains', 'istartswith'],
-            'building_type': ['exact'],
-            'owner': ['exact'],
+            "name": ["exact", "icontains", "istartswith"],
+            "house_number": ["exact", "icontains", "istartswith"],
+            "building_type": ["exact"],
+            "owner": ["exact"],
         }
         interfaces = (relay.Node,)
-        fields = '__all__'
+        fields = "__all__"
 
 
 class RoomType(DjangoObjectType):
@@ -159,33 +188,37 @@ class RoomType(DjangoObjectType):
 
     def resolve_room_type(root, info, **kwargs):
         strip_list = ["3BHK", "2BHK", "1BHK"]
-        return root.room_type.lstrip('A_') if root.room_type in strip_list else root.room_type
+        return (
+            root.room_type.lstrip("A_")
+            if root.room_type in strip_list
+            else root.room_type
+        )
 
     class Meta:
         model = Room
         filter_fields = {
-            'room_no': ['exact', 'icontains', 'istartswith'],
-            'criteria': ['exact', 'icontains', 'istartswith'],
-            'building': ['exact'],
-            'building__owner__id': ['exact'],
-            'building__name': ['exact', 'icontains'],
-            'building__building_type': ['exact'],
-            'building__owner__username': ['icontains'],
-            'renter__username': ['icontains'],
-            'renter__first_name': ['icontains'],
-            'renter__phone_number': ['icontains'],
+            "room_no": ["exact", "icontains", "istartswith"],
+            "criteria": ["exact", "icontains", "istartswith"],
+            "building": ["exact"],
+            "building__owner__id": ["exact"],
+            "building__name": ["exact", "icontains"],
+            "building__building_type": ["exact"],
+            "building__owner__username": ["icontains"],
+            "renter__username": ["icontains"],
+            "renter__first_name": ["icontains"],
+            "renter__phone_number": ["icontains"],
         }
         interfaces = (relay.Node,)
-        fields = '__all__'
+        fields = "__all__"
         connection_class = ExtendedConnectionRoom
 
 
 class UtilityType(DjangoObjectType):
     class Meta:
         model = Utility
-        filter_fields = {'room__room_no': ['exact']}
+        filter_fields = {"room__room_no": ["exact"]}
         interfaces = (relay.Node,)
-        fields = '__all__'
+        fields = "__all__"
         connection_class = ExtendedConnectionUtility
 
     @classmethod
@@ -204,7 +237,7 @@ class AnalyticsType(DjangoObjectType):
         model = Building
         filter_fields = {}
         interfaces = (relay.Node,)
-        fields = '__all__'
+        fields = "__all__"
         connection_class = ExtendedConnectionAnalytics
 
 
@@ -213,7 +246,7 @@ class RequestType(DjangoObjectType):
         model = Request
         filter_fields = {}
         interfaces = (relay.Node,)
-        fields = '__all__'
+        fields = "__all__"
 
 
 class LeaseType(DjangoObjectType):
@@ -221,14 +254,14 @@ class LeaseType(DjangoObjectType):
     class Meta:
         model = Lease
         filter_fields = {
-            "status": ['exact'],
-            'room__room_no': ['icontains'],
-            'room__id': ['exact'],
-            'renter__username': ['icontains'],
-            'room__building__id': ['exact'],
+            "status": ["exact"],
+            "room__room_no": ["icontains"],
+            "room__id": ["exact"],
+            "renter__username": ["icontains"],
+            "room__building__id": ["exact"],
         }
         interfaces = (relay.Node,)
-        fields = '__all__'
+        fields = "__all__"
         connection_class = ExtendedConnectionLease
 
     @classmethod
@@ -242,14 +275,14 @@ class RenterLeaseType(DjangoObjectType):
     class Meta:
         model = Lease
         filter_fields = {
-            "status": ['exact'],
-            'room__room_no': ['icontains'],
-            'room__id': ['exact'],
-            'renter__username': ['icontains'],
-            'room__building__id': ['exact'],
+            "status": ["exact"],
+            "room__room_no": ["icontains"],
+            "room__id": ["exact"],
+            "renter__username": ["icontains"],
+            "room__building__id": ["exact"],
         }
         interfaces = (relay.Node,)
-        fields = '__all__'
+        fields = "__all__"
         connection_class = ExtendedConnectionRenterLease
 
     @classmethod
@@ -263,10 +296,10 @@ class LeaseTypeDistinct(DjangoObjectType):
     class Meta:
         model = Lease
         filter_fields = {
-            "status": ['exact'],
-            'room__room_no': ['icontains'],
-            'room__id': ['exact'],
-            'renter__username': ['icontains']
+            "status": ["exact"],
+            "room__room_no": ["icontains"],
+            "room__id": ["exact"],
+            "renter__username": ["icontains"],
         }
         interfaces = (relay.Node,)
         fields = []
@@ -334,3 +367,10 @@ class LeaseAgreementInput(graphene.InputObjectType):
     rent_payment_day = graphene.String()
     rent_payment_interval = graphene.Int()
     renter_id = graphene.ID()
+    username = graphene.String()
+    first_name = graphene.String()
+    last_name = graphene.String()
+    email = graphene.String()
+    phone_number = graphene.String()
+    address = graphene.JSONString()
+    password = graphene.String()

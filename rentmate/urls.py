@@ -13,6 +13,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 from django.contrib import admin
 from django.conf.urls.static import static
 from django.conf import settings
@@ -21,11 +22,11 @@ from graphene_django.views import GraphQLView
 from django.urls import include, path
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path("admin/", admin.site.urls),
     path("graphql", csrf_exempt(GraphQLView.as_view(graphiql=True))),
-    path('api/v1/user/', include('user.urls')),
-    path('api/v1/property/', include('building.urls')),
-    path('api/v1/payments/', include('payment.urls')),
+    path("api/v1/user/", include("user.urls")),
+    path("api/v1/property/", include("building.urls")),
+    path("api/v1/payments/", include("payment.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
