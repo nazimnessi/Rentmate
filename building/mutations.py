@@ -412,9 +412,12 @@ class CreateLeaseAgreement(graphene.Mutation):
                     room_instance.save()
                 else:
                     address_instance, _ = (
-                        Address.objects.get_or_create(**lease_data.get("address"))
-                        if lease_data.get("address")
-                        else None, None
+                        (
+                            Address.objects.get_or_create(**lease_data.get("address"))
+                            if lease_data.get("address")
+                            else None
+                        ),
+                        None,
                     )
                     user_data = {
                         "username": lease_data.pop("username"),
@@ -438,7 +441,7 @@ class CreateLeaseAgreement(graphene.Mutation):
                 lease_data.pop("email")
                 lease_data.pop("last_name", None)
                 lease_data.pop("address", None)
-                lease_data['renter'] = user_instance
+                lease_data["renter"] = user_instance
                 lease_instance, created = Lease.objects.get_or_create(**lease_data)
         except Exception as exe:
             transaction.rollback()
